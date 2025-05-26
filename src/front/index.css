@@ -10,14 +10,14 @@
 #registerForm {
     margin-bottom: 10px;
     box-shadow: -10px 8px 5px 0px rgba(247,8,123,0.75);
--webkit-box-shadow: -10px 8px 5px 0px rgba(247,8,123,0.75);
--moz-box-shadow: -13px 8px 5px 0px rgba(247,8,123,0.75);
+-webkit-box-shadow: -10px 8px 20px 0px rgba(247,8,123,0.75);
+-moz-box-shadow: -10px 8px 5px 0px rgba(247,8,123,0.75);
 }
 
 #registerImg {
     width: 400px;
     height: 400px;
-    margin-bottom: 100px;
+    margin-bottom: 380px;
     margin-left: 10px;
     padding: 0%;
     border-radius: 40px !important;
@@ -26,8 +26,8 @@
 }
 
 .registerHeadTittle h1 {
-    color: #fd0952;
-    text-shadow: -2px 3px 3px rgba(209, 209, 209, 0.582);
+    color: #ff0095d2;;
+    text-shadow: -2px 3px 3px rgba(255, 255, 255, 0.582);
     margin: auto;
     margin-top: 30px;
     padding-top: 15px;
@@ -42,8 +42,33 @@
 }
 
 #imputRegisterForm {
-    border: 4px solid #ff00408e;
+    border: 2px solid #ff00408e;
     border-radius: 1px 20px 1px 1px !important;
-    background: linear-gradient(337deg,rgba(2, 0, 36, 1) 0%, rgba(15, 15, 20, 1) 52%, rgba(51, 50, 50, 1) 100%);
+    background: linear-gradient(337deg,rgba(0, 0, 0, 1) 0%, rgb(31, 31, 39) 89%, rgb(65, 63, 63) 100%);
 
+}
+
+.btn-enviarForm {
+    margin-left: 500px;
+    margin-top: 40px;
+    margin-bottom: 40px;
+    background-color: #ff0095d2;
+    color: white;
+    padding: 12px 28px;
+    font-size: 1rem;
+    font-weight: 500;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.btn-enviar:hover {
+    background-color: #ff008c;
+    transform: scale(1.05);
+}
+
+.btn-enviar:active {
+    background-color: #ff008c;
+    transform: scale(0.98);
 }
