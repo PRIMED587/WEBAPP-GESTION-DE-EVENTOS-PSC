@@ -14,13 +14,14 @@ const Registro = () => {
     });
 
     const onSubmit = (data) => {
-        
+
         if (data.password !== data.confirmPassword) {
             alert("Las contraseñas no coinciden");
             return;
         }
 
         fetch("https://fluffy-winner-r4wg4jg4jg97cxqpv-3001.app.github.dev/api/signup/", {
+            
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -40,7 +41,7 @@ const Registro = () => {
             })
             .then(data => {
                 alert("Usuario registrado exitosamente");
-                reset(); 
+                reset();
                 console.log(data)
             })
             .catch(error => {
