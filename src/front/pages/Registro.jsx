@@ -1,3 +1,4 @@
+
 import React from "react";
 import { FormProvider, useForm } from "react-hook-form";
 
@@ -20,8 +21,7 @@ const Registro = () => {
             return;
         }
 
-        fetch("https://fluffy-winner-r4wg4jg4jg97cxqpv-3001.app.github.dev/api/signup/", {
-            
+        fetch(import.meta.env.VITE_BACKEND_URL + "api/signup/", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -50,12 +50,12 @@ const Registro = () => {
     };
 
     return (
-        <div className="registerHeadTittle m-auto">
+        <div className="registerHeadTittle">
             <h1>Formulario de Registro</h1>
             <div id="registerForm" className="container mt-5">
                 <form onSubmit={handleSubmit(onSubmit)}>
                     <div className="row p-4 rounded align-items-center" id="imputRegisterForm">
-                        <div className="col-lg-8 col-12">
+                        <div className="col-lg-12 col-3">
 
                             <div className="mb-3">
                                 <label htmlFor="nombre" className="form-label">Nombre Completo</label>
@@ -146,19 +146,11 @@ const Registro = () => {
                                 )}
                             </div>
 
-                            <div className="text-center mt-4">
+                            <div className="text-center mt-4 m-auto">
                                 <button type="submit" className="btn-enviarForm" disabled={!isValid}>
                                     Enviar Formulario
                                 </button>
                             </div>
-                        </div>
-
-                        <div id="registerImg" className="col-lg-4 col-12">
-                            <img
-                                src="https://imgmedia.larepublica.pe/640x371/larepublica/original/2022/06/17/62acbcc9acce01340a3f8344.webp"
-                                alt="Decoración"
-                                className="img-fluid rounded"
-                            />
                         </div>
                     </div>
                 </form>
@@ -168,3 +160,4 @@ const Registro = () => {
 };
 
 export default Registro;
+
