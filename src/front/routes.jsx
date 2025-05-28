@@ -11,6 +11,7 @@ import { Single } from "./pages/Single";
 import { Demo } from "./pages/Demo";
 import Registro from "./pages/Registro";
 import FormularioEvento from "./pages/FormularioEvento";  // <-- Importá tu componente
+import Loginform from "./pages/Loginform";
 
 export const router = createBrowserRouter(
     createRoutesFromElements(
@@ -29,6 +30,7 @@ export const router = createBrowserRouter(
         <Route path="/demo" element={<Demo />} />
         <Route path="/registro" element={<Registro/>} />
         <Route path="/formulario-evento" element={<FormularioEvento />} />  {/* <-- NUEVA RUTA */}
+        <Route path="/loginform" element={<Loginform />} /> 
       </Route>
     )
 );
