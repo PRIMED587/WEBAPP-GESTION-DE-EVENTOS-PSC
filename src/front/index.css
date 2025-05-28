@@ -221,6 +221,10 @@
 
 /**********************************************Formulario LOGIN (PSC)********************************************/
 
+body {
+  background-color: black;
+}
+
 #Logincontainer {
   border-radius: 1px 1px 1px 1px  !important;
   border: 4px solid #ff004059;
@@ -293,6 +297,7 @@
     transform: scale(0.95);
 
 }
+
 
 
 
