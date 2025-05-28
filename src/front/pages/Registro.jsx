@@ -2,6 +2,7 @@
 import React from "react";
 import { FormProvider, useForm } from "react-hook-form";
 
+
 const Registro = () => {
     const {
         register,
@@ -20,7 +21,7 @@ const Registro = () => {
             return;
         }
 
-        fetch(env.VITE_BACKEND_URL + "api/signup/", {
+        fetch(import.meta.env.VITE_BACKEND_URL + "api/signup/", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
