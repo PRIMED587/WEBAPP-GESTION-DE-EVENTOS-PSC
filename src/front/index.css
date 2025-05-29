@@ -223,6 +223,94 @@
     width: 90%;
   }
 }
+/*dashboard*/
+/*evento*/
+.evento-container {
+  padding: 2rem;
+  background-color: #1A1A1D;
+  min-height: 100vh;
+}
+
+.evento-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto;
+  gap: 2rem;
+}
+
+.info-box, .extra-box, .participantes-box, .tareas-box {
+  background-color: #2E2E31;
+  color: white;
+  padding: 1.5rem;
+  border-radius: 10px;
+}
+
+.descripcion-box {
+  margin-top: 1rem;
+  background-color: #222;
+  padding: 0.8rem;
+  border-radius: 8px;
+}
+
+.participantes-box .lista-participantes {
+  max-height: 200px;
+  overflow-y: auto;
+  margin-bottom: 1rem;
+}
+
+.invitado {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem;
+  border-bottom: 1px solid #333;
+}
+
+.invitado .nombre {
+  flex-grow: 1;
+}
+
+.rol {
+  font-size: 0.85rem;
+  margin-left: 0.5rem;
+}
+
+.rol.organizador {
+  color: #FF2E63;
+  font-weight: bold;
+}
+
+.rol.invitado {
+  color: #ccc;
+}
+
+.eliminar-btn {
+  background: transparent;
+  border: none;
+  color: #ccc;
+  cursor: pointer;
+}
+
+.agregar-form input {
+  padding: 0.5rem;
+  margin-right: 0.5rem;
+  border-radius: 5px;
+  border: none;
+}
+
+.agregar-form button {
+  background-color: #FF2E63;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.lista-tareas li {
+  margin: 0.5rem 0;
+}
+
+
 
 /**********************************************Formulario Registro********************************************/
 #registerForm label {
