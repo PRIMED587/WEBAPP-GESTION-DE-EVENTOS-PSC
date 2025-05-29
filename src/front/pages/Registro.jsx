@@ -21,7 +21,7 @@ const Registro = () => {
             return;
         }
 
-        fetch(import.meta.env.VITE_BACKEND_URL + "api/signup/", {
+        fetch(import.meta.env.VITE_BACKEND_URL + "/api/signup/", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({

@@ -13,7 +13,7 @@ const Loginform = () => {
     const onSubmit = async (data) => {
 
         try {
-            const response = await fetch(import.meta.env.VITE_BACKEND_URL + "api/login/", {
+            const response = await fetch(import.meta.env.VITE_BACKEND_URL + "/api/login/", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -51,6 +51,7 @@ const Loginform = () => {
     };
 
     return (
+        
         <div id="Logincontainer" className="col-lg-7 col-8 m-auto mt-5 p-5">
             <h1>INICIO DE SESION</h1>
             <form id="LoginForm m-auto w-auto" onSubmit={handleSubmit(onSubmit)}>
@@ -91,10 +92,10 @@ const Loginform = () => {
                 </div>
 
                 <div className="d-flex justify-content-center mt-5">
-                    <button type="submit" className="btn btn-primary me-2">
+                    <button id="LoginButton" type="submit" className="btn btn-primary me-2">
                         Log In
                     </button>
-                    <button
+                    <button id="ResetButton"
                         type="button"
                         className="btn btn-primary ms-2"
                         onClick={handleSendPassword}
@@ -104,6 +105,7 @@ const Loginform = () => {
                 </div>
             </form>
         </div>
+    
     );
 };
 
