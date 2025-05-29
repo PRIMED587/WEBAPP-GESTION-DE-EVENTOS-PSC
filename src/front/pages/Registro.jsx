@@ -21,7 +21,7 @@ const Registro = () => {
             return;
         }
 
-        fetch(import.meta.env.VITE_BACKEND_URL + "api/signup/", {
+        fetch(import.meta.env.VITE_BACKEND_URL + "/api/signup/", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -50,11 +50,11 @@ const Registro = () => {
     };
 
     return (
-        <div className="registerHeadTittle">
-            <h1>Formulario de Registro</h1>
+        <div className="registerHeadTitle">
+            <h1>FORMULARIO DE REGISTRO</h1>
             <div id="registerForm" className="container mt-5">
                 <form onSubmit={handleSubmit(onSubmit)}>
-                    <div className="row p-4 rounded align-items-center" id="imputRegisterForm">
+                    <div id="inputRegisterForm" className="row p-4 rounded align-items-center">
                         <div className="col-lg-12 col-12">
 
                             <div className="mb-3">
