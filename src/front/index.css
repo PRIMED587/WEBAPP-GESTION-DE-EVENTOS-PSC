@@ -464,3 +464,64 @@
     padding-top: 30px;
   }
 }
+
+
+/* Estilo para la página AboutUs */
+.team-title-container {
+  position: relative;
+  width: 100%;
+  margin-bottom: 60px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.team-title {
+  position: relative;
+  z-index: 1;
+  font-size: 2rem;
+  font-weight: bold;
+  color: #FF2E63;
+  background-color: transparent;
+  padding: 0 20px;
+}
+
+.team-title-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 10%;
+  width: 80%;
+  height: 100%;
+  background-color: black;
+  border-radius: 10px;
+  box-shadow: 0 0 10px #FF2E63;
+  z-index: 0;
+}
+
+
+/* Para que la página AboutUs se vea bien en todas las pantallas */
+@media (max-width: 768px) {
+  .team-title {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .team-title {
+    font-size: 1.2rem;
+  }
+}
+
+/* Estilo para las tarjetas */
+.card {
+  position: relative;
+  z-index: 2;
+  transition: transform 0.3s ease;
+}
+
+.card:hover {
+  transform: scale(1.05);
+}
+
