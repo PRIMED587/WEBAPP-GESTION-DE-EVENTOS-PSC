@@ -249,9 +249,8 @@ box-shadow: -1px 0px 17px 9px rgba(255,46,99,0.76);
   border-radius: 40px !important;
 }
 
-.registerHeadTittle h1 {
-  color: #ff0095d2;
-  text-shadow: -2px 3px 3px rgba(255, 255, 255, 0.582);
+.registerHeadTitle h1 {
+  color: #ff2e63;
   margin: auto;
   padding-top: 15px;
   text-align: center !important;

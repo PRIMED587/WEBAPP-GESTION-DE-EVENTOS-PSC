@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 
 const Loginform = () => {
     const {
@@ -10,8 +11,22 @@ const Loginform = () => {
         reset,
     } = useForm();
 
-    const onSubmit = async (data) => {
+    const navigate = useNavigate();
 
+    // Estado para manejar la alerta visual
+    const [alert, setAlert] = useState({
+        message: "",
+        type: "",
+        show: false,
+    });
+
+    // Función alertas
+    const showAlert = (message, type = "info") => {
+        setAlert({ message, type, show: true });
+        setTimeout(() => setAlert({ ...alert, show: false }), 2000);
+    };
+
+    const onSubmit = async (data) => {
         try {
             const response = await fetch(import.meta.env.VITE_BACKEND_URL + "/api/login/", {
                 method: "POST",
@@ -30,30 +45,56 @@ const Loginform = () => {
                 throw new Error(result.message || "Error al iniciar sesión");
             }
 
-            // Guardar el token en localStorage y mostrar éxito
             localStorage.setItem("token", result.access_token);
-            alert("Inicio de sesión exitoso");
+            showAlert("Inicio de sesión exitoso", "success");
+
             reset();
+            navigate("/dashboard");
         } catch (error) {
             console.error("Login error:", error.message);
-            alert("Correo o contraseña incorrectos");
+            showAlert("Correo o contraseña incorrectos", "danger");
         }
     };
 
-    const handleSendPassword = () => {
+    const handleSendPassword = async () => {
         const email = getValues("login");
         if (!email) {
-            alert("Por favor escribe tu correo primero.");
+            showAlert("Por favor escribe tu correo primero.", "warning");
             return;
         }
-        // Aquí podrías agregar la lógica real de envío
-        console.log(`Enviar enlace de recuperación a ${email}`);
+
+        try {
+            const response = await fetch(import.meta.env.VITE_BACKEND_URL + "/api/forgot-password/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ email }),
+            });
+
+            if (!response.ok) {
+                throw new Error("No se pudo enviar el correo de recuperación.");
+            }
+
+            showAlert("Correo de recuperación enviado exitosamente.", "success");
+        } catch (error) {
+            console.error("Error al enviar correo de recuperación:", error.message);
+            showAlert("Hubo un error al enviar el correo.", "danger");
+        }
     };
 
     return (
-        
         <div id="Logincontainer" className="col-lg-7 col-8 m-auto mt-5 p-5">
             <h1>INICIO DE SESION</h1>
+
+            {/* Alerta visual */}
+            {alert.show && (
+                <div className={`alert alert-${alert.type} alert-dismissible fade show`} role="alert">
+                    {alert.message}
+                    <button type="button" className="btn-close" onClick={() => setAlert({ ...alert, show: false })}></button>
+                </div>
+            )}
+
             <form id="LoginForm m-auto w-auto" onSubmit={handleSubmit(onSubmit)}>
                 <div id="LoginLabel1" className="form-group mt-5">
                     <label htmlFor="loginEmail">Correo Electrónico</label>
@@ -95,7 +136,8 @@ const Loginform = () => {
                     <button id="LoginButton" type="submit" className="btn btn-primary me-2">
                         Log In
                     </button>
-                    <button id="ResetButton"
+                    <button
+                        id="ResetButton"
                         type="button"
                         className="btn btn-primary ms-2"
                         onClick={handleSendPassword}
@@ -105,7 +147,6 @@ const Loginform = () => {
                 </div>
             </form>
         </div>
-    
     );
 };
 
