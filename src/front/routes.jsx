@@ -27,7 +27,7 @@ export const router = createBrowserRouter(
 
         {/* Nested Routes: Defines sub-routes within the BaseHome component. */}
         <Route path= "/" element={<Home />} />
-        <Route path="/single/:theId" element={ <Single />} />  {/* Dynamic route for single items */}
+        <Route path="/single/:theId" element={ <Single />} />
         <Route path="/demo" element={<Demo />} />
         <Route path="/registro" element={<Registro/>} />
         <Route path="/formulario-evento" element={<FormularioEvento />} />  
@@ -35,7 +35,7 @@ export const router = createBrowserRouter(
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/eventos/crear" element={<FormularioEvento />} />
         <Route path="/eventos/editar/:id" element={<FormularioEvento />} />
-        
+        <Route path="/aboutus" element={<AboutUs />} />
 
       </Route>
     )
