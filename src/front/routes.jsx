@@ -1,17 +1,18 @@
-// Import necessary components and functions from react-router-dom.
-
 import {
-    createBrowserRouter,
-    createRoutesFromElements,
-    Route,
+  createBrowserRouter,
+  createRoutesFromElements,
+  Route,
 } from "react-router-dom";
 import { Layout } from "./pages/Layout";
-import  Home  from "./pages/Home";
+import Home from "./pages/Home";
 import { Single } from "./pages/Single";
 import { Demo } from "./pages/Demo";
+import Dashboard from "./pages/Dashboard";
 import Registro from "./pages/Registro";
 import FormularioEvento from "./pages/FormularioEvento";  // <-- Importá tu componente
 import Loginform from "./pages/Loginform";
+import AboutUs from "./pages/AboutUs";
+
 
 export const router = createBrowserRouter(
     createRoutesFromElements(
@@ -26,11 +27,16 @@ export const router = createBrowserRouter(
 
         {/* Nested Routes: Defines sub-routes within the BaseHome component. */}
         <Route path= "/" element={<Home />} />
-        <Route path="/single/:theId" element={ <Single />} />  {/* Dynamic route for single items */}
+        <Route path="/single/:theId" element={ <Single />} />
         <Route path="/demo" element={<Demo />} />
         <Route path="/registro" element={<Registro/>} />
-        <Route path="/formulario-evento" element={<FormularioEvento />} />  {/* <-- NUEVA RUTA */}
-        <Route path="/loginform" element={<Loginform />} /> 
+        <Route path="/formulario-evento" element={<FormularioEvento />} />  
+        <Route path="/loginform" element={<Loginform />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/eventos/crear" element={<FormularioEvento />} />
+        <Route path="/eventos/editar/:id" element={<FormularioEvento />} />
+        <Route path="/aboutus" element={<AboutUs />} />
+
       </Route>
     )
 );
