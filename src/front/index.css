@@ -1,3 +1,20 @@
+/* Fondo y container general */
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: #1a1a1d;
+  background-image: radial-gradient(
+      circle,
+      rgba(175, 7, 85, 0.418) 1px,
+      transparent 1px
+    ),
+    radial-gradient(circle, rgba(175, 7, 85, 0.418) 1px, transparent 1px);
+  background-position: 0 0, 25px 25px;
+  background-size: 50px 50px;
+  color: #fff;
+  min-height: 100vh;
+}
 /* Animación que mueve el carrusel horizontalmente de derecha a izquierda */
 @keyframes scrollIcons {
   0% {
@@ -225,94 +242,223 @@
 }
 /*dashboard*/
 /*evento*/
-.evento-container {
-  padding: 2rem;
-  background-color: #1A1A1D;
+
+/* Fondo y contenedor principal */
+.evento-container { 
+  background-color: #1a1a1d;
+  background-image: radial-gradient(
+      circle,
+      rgba(175, 7, 85, 0.418) 1px,
+      transparent 1px
+    ),
+    radial-gradient(circle, rgba(175, 7, 85, 0.418) 1px, transparent 1px);
+  background-position: 0 0, 25px 25px;
+  background-size: 50px 50px;
+  color: #ffffff;
   min-height: 100vh;
-}
-
-.evento-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: auto auto;
-  gap: 2rem;
-}
-
-.info-box, .extra-box, .participantes-box, .tareas-box {
-  background-color: #2E2E31;
-  color: white;
-  padding: 1.5rem;
-  border-radius: 10px;
-}
-
-.descripcion-box {
-  margin-top: 1rem;
-  background-color: #222;
-  padding: 0.8rem;
-  border-radius: 8px;
-}
-
-.participantes-box .lista-participantes {
-  max-height: 200px;
-  overflow-y: auto;
-  margin-bottom: 1rem;
-}
-
-.invitado {
   display: flex;
-  justify-content: space-between;
-  padding: 0.5rem;
-  border-bottom: 1px solid #333;
+  flex-direction: column;
+  align-items: center;
 }
 
-.invitado .nombre {
+/* Contenedor para las dos listas (Invitados y Tareas) */
+.listas-container {
+  display: flex;
+  gap: 1rem;
+  margin: 1rem 0 2rem 0;
+  width: 100%;
+  max-width: 900px;
+  justify-content: center;
+  flex-wrap: row;
+}
+
+/* Estilo común de todas las cajas */
+.box-style {
+  background-color: rgba(0, 0, 0, 0.45);
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 12px rgba(255, 0, 150, 0.3);
+  width: 100%;
+  max-width: 450px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+/* InfoEvento ocupa todo el ancho del contenedor */
+.info-box,
+.extra-box {
+  
+  background-color: #2e2e33;
+  border-radius: 12px;
+  padding: 1.2rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  width: 100%;
+  max-width: 900px;
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.info-box {
+  margin-top: 1rem;
+}
+
+/* Listas invitados y tareas: tamaño fijo con scroll vertical */
+.participantes-box,
+.tareas-box {
+  background-color: #2e2e33;
+  flex: 1;
+  max-width: 440px;
+  height: 340px;
+  overflow-y: auto;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Listas ul: scroll vertical */
+.lista-participantes, .lista-tareas {
+  overflow-y: auto;
   flex-grow: 1;
+  margin-bottom: 0.75rem;
+  padding-right: 10px;
+  scrollbar-width: thin;
+  scrollbar-color: #ff2e63 transparent;
 }
 
-.rol {
-  font-size: 0.85rem;
-  margin-left: 0.5rem;
+/* Scrollbar estilizado para Webkit */
+.lista-participantes::-webkit-scrollbar,
+.lista-tareas::-webkit-scrollbar {
+  width: 8px;
 }
 
-.rol.organizador {
-  color: #FF2E63;
-  font-weight: bold;
+.lista-participantes::-webkit-scrollbar-thumb,
+.lista-tareas::-webkit-scrollbar-thumb {
+  background: #ff2e63;
+  border-radius: 4px;
 }
 
-.rol.invitado {
-  color: #ccc;
+.lista-participantes::-webkit-scrollbar-track,
+.lista-tareas::-webkit-scrollbar-track {
+  background: transparent;
 }
 
+/* Items de lista con flex para separar texto y botón */
+.lista-participantes li,
+.lista-tareas li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  border-bottom: 1px solid rgba(255, 0, 150, 0.15);
+  font-weight: 500;
+  color: #f0e9f5;
+}
+
+/* Info texto (nombre + etiqueta organizador) */
+.participant-info, .task-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Etiqueta organizador */
+.organizador-label {
+  background-color: #ff2e63;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  color: white;
+  
+}
+
+/* Checkbox completado */
+.task-info.completada {
+  text-decoration: line-through;
+  color: #aaaaaa;
+}
+
+/* Botones eliminar */
 .eliminar-btn {
   background: transparent;
   border: none;
-  color: #ccc;
+  color: #ff2e63;
+  font-size: 1rem;
   cursor: pointer;
 }
 
-.agregar-form input {
-  padding: 0.5rem;
-  margin-right: 0.5rem;
-  border-radius: 5px;
+/* Formulario agregar: fijo abajo */
+.agregar-form {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin-top: auto;
+  
+}
+
+.agregar-form input, .agregar-form select {
+  flex: 1;
+  padding: 6px 8px;
+  border-radius: 6px;
   border: none;
+  font-size: 0.9rem;
+  background-color: #1a1a1d;
+  color: #aaaaaa;
+  
 }
 
 .agregar-form button {
-  background-color: #FF2E63;
+  background-color: #ff2e63;
   color: white;
   border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 5px;
+  padding: 6px 12px;
+  border-radius: 6px;
   cursor: pointer;
+  font-weight: bold;
+  font-size: 0.9rem;
 }
 
-.lista-tareas li {
-  margin: 0.5rem 0;
+.agregar-form button:hover {
+  box-shadow: 0 6px 15px #ff2e63;
+}
+
+
+/* Responsive: cajas en columna en pantallas chicas */
+@media (max-width: 768px) {
+  .listas-container {
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+
+  }
+
+  .participantes-box,
+  .tareas-box,
+  .info-box,
+  .extra-box {
+    max-width: 100%;
+    width: 100%;
+  }
+  .participantes-box,
+  .tareas-box {
+    width: 100%;
+    height: auto;
+    max-height: 400px;
+  }
+
+  .lista-participantes,
+  .lista-tareas {
+    max-height: 150px;
+  }
 }
 
 
 
-/**********************************************Formulario Registro********************************************/
+
+/**********************************************Formulario Registro (PSC)********************************************/
 #registerForm label {
   color: #ffffff;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
@@ -386,6 +532,84 @@
   background-color: #ff008c;
   transform: scale(0.98);
 }
+
+/**********************************************Formulario LOGIN (PSC)********************************************/
+
+#Logincontainer {
+  border-radius: 1px 1px 1px 1px  !important;
+  border: 4px solid #ff004059;
+  margin-bottom: 50px !important;
+  background: linear-gradient(337deg,rgba(0, 0, 0, 1) 0%, rgb(31, 31, 39) 89%, rgb(65, 63, 63) 100%);
+  box-shadow: -10px 8px 5px 0px rgba(247, 8, 123, 0.75);
+  -webkit-box-shadow: -10px 8px 1px 0px rgba(247, 8, 123, 0.75);
+  -moz-box-shadow: -10px 8px 5px 0px rgba(247, 8, 123, 0.75);
+}
+#Logincontainer h1 {
+    text-align: center;
+  color: rgba(214, 209, 209, 0.815);
+  text-shadow: -2px 1px 4px rgba(255, 0, 132, 0.6);
+}
+
+#LoginForm {
+    border-radius: 2px 4px 5px 7px !important;
+     
+ 
+}
+
+#LoginLabel1 {
+  color: #FFFFFF;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 1.1rem;
+    letter-spacing: 0.5px;
+
+}
+#LoginLabel2 {
+  color: #FFFFFF;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 1.1rem;
+    letter-spacing: 0.5px;
+
+}
+
+#LoginButton {
+    background-color: #ff0095d2;
+    color: white;
+    padding: 12px 28px;
+    font-size: 1rem;
+    font-weight: 500;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+
+}
+#LoginButton:hover {
+    background-color: #ff008c;
+    transform: scale(0.95);
+
+}
+
+#ResetButton {
+    background-color: #ff0095d2;
+    color: white;
+    padding: 12px 28px;
+    margin-left: 10px;
+    font-size: 1rem;
+    font-weight: 500;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+
+}
+#ResetButton:hover {
+    background-color: #ff008c;
+    transform: scale(0.95);
+
+}
+
+
+
 /*formulario crear evento*/
 
 .btn-enviarForm-evento {
@@ -474,3 +698,64 @@
     padding-top: 30px;
   }
 }
+
+
+/* Estilo para la página AboutUs */
+.team-title-container {
+  position: relative;
+  width: 100%;
+  margin-bottom: 60px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.team-title {
+  position: relative;
+  z-index: 1;
+  font-size: 2rem;
+  font-weight: bold;
+  color: #FF2E63;
+  background-color: transparent;
+  padding: 0 20px;
+}
+
+.team-title-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 10%;
+  width: 80%;
+  height: 100%;
+  background-color: black;
+  border-radius: 10px;
+  box-shadow: 0 0 10px #FF2E63;
+  z-index: 0;
+}
+
+
+/* Para que la página AboutUs se vea bien en todas las pantallas */
+@media (max-width: 768px) {
+  .team-title {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .team-title {
+    font-size: 1.2rem;
+  }
+}
+
+/* Estilo para las tarjetas */
+.card {
+  position: relative;
+  z-index: 2;
+  transition: transform 0.3s ease;
+}
+
+.card:hover {
+  transform: scale(1.05);
+}
+

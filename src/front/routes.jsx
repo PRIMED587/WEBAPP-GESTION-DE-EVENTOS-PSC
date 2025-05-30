@@ -11,6 +11,7 @@ import Dashboard from "./pages/Dashboard";
 import Registro from "./pages/Registro";
 import FormularioEvento from "./pages/FormularioEvento";
 import Evento from "./pages/Evento";
+import AboutUs from "./pages/AboutUs";
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
@@ -22,7 +23,9 @@ export const router = createBrowserRouter(
       <Route path="/eventos/crear" element={<FormularioEvento />} />
       <Route path="/eventos/editar/:id" element={<FormularioEvento />} />
       <Route path="/dashboard" element={<Dashboard />} />
+      <Route path="/aboutus" element={<AboutUs />} />
       <Route path="/evento" element={<Evento />} />
+
     </Route>
   )
 );
