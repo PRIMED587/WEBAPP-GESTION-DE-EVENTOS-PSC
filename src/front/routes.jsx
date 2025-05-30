@@ -12,6 +12,7 @@ import Registro from "./pages/Registro";
 import FormularioEvento from "./pages/FormularioEvento";
 import Evento from "./pages/Evento";
 import AboutUs from "./pages/AboutUs";
+import Loginform from "./pages/Loginform";
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
@@ -20,6 +21,7 @@ export const router = createBrowserRouter(
       <Route path="/single/:theId" element={<Single />} />
       <Route path="/demo" element={<Demo />} />
       <Route path="/registro" element={<Registro />} />
+      <Route path="/loginform" element={<Loginform />} />
       <Route path="/formulario-evento" element={<FormularioEvento />} />
       <Route path="/eventos/crear" element={<FormularioEvento />} />
       <Route path="/eventos/editar/:id" element={<FormularioEvento />} />
