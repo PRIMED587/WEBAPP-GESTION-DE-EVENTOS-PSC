@@ -44,14 +44,14 @@ const Registro = () => {
                 return res.json();
             })
             .then(() => {
-                // ✅ Mensaje solicitado
+                
                 setAlerta( {
                     mensaje: "Usuario creado exitosamente, redirigiendo hacia inicio de sesion...",
                     tipo: "success",
                 });
                 reset();
 
-                // ✅ Espera 5 s y redirige
+                
                 setTimeout(() => navigate("/loginform"), 5000);
             })
             .catch((error) => {
