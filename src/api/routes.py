@@ -3,8 +3,9 @@ from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identi
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 from flask import request, jsonify
-
+from flask_mail import Message
 from .models import db, User, Evento, Invitacion, Gasto, Participante, Tarea
+
 
 api = Blueprint('api', __name__)
 
@@ -820,3 +821,62 @@ def eliminar_tarea(current_user_id, user_id, tarea_id):
     db.session.delete(tarea)
     db.session.commit()
     return jsonify({"message": f"Tarea {tarea_id} eliminada exitosamente"}), 200
+
+# Ruta para restablecer la contraseña de un usuario. Envía un email con un enlace de restablecimiento.
+@api.route('/forgot-password', methods=['POST'])
+def forgot_password():
+    from app import mail
+    email = request.json.get("email")
+    if not email:
+        return jsonify({"error": "Email requerido"}), 400
+
+    user = db.session.query(User).filter_by(email=email).first()
+    if not user:
+        return jsonify({"msg": "Si el email está registrado, recibirás instrucciones"}), 200
+
+    token = create_access_token(identity=user.id, expires_delta=timedelta(minutes=30))
+    reset_url = f"{os.getenv('FRONTEND_URL')}/reset-password/{token}"
+
+    msg = Message("Recuperar contraseña", recipients=[email])
+    msg.body = f"Para restablecer tu contraseña, visita este enlace:\n{reset_url}"
+    mail.send(msg)
+
+    return jsonify({"msg": "Email enviado si está registrado"}), 200
+
+# Ruta para restablecer la contraseña de un usuario. Requiere token válido y nueva contraseña.
+@api.route('/reset-password', methods=['POST'])
+@jwt_required()
+def reset_password():
+    from app import mail
+    user_id = get_jwt_identity()
+    data = request.get_json()
+    nueva_clave = data.get("password")
+
+    if not nueva_clave:
+        return jsonify({"error": "La contraseña es requerida"}), 400
+
+    user = db.session.get(User, user_id)
+    user.password = generate_password_hash(nueva_clave)
+    db.session.commit()
+
+    return jsonify({"msg": "Contraseña actualizada exitosamente"}), 200
+
+
+# Ruta para enviar un correo de prueba. Requiere un email en el body del request.
+@api.route("/enviar-correo-prueba", methods=["POST"])
+def enviar_correo_prueba():
+    from app import mail
+    data = request.get_json()
+    email_destino = data.get("email")
+
+    if not email_destino:
+        return jsonify({"error": "Falta el campo 'email' en el body"}), 400
+
+    msg = Message("Correo de prueba", recipients=[email_destino])
+    msg.body = "Este es un mensaje de prueba desde Flask-Mail 🤖"
+
+    try:
+        mail.send(msg)
+        return jsonify({"message": f"Correo enviado a {email_destino}"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
