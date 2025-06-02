@@ -84,7 +84,7 @@ const Loginform = () => {
     };
 
     return (
-        <div id="Logincontainer" className="col-lg-7 col-8 m-auto mt-5 p-5">
+        <div id="Logincontainer" className="col-lg-7 col-8 m-auto mt-5 p-5 mb-5">
             <h1>INICIO DE SESION</h1>
 
             {/* Alerta visual */}
