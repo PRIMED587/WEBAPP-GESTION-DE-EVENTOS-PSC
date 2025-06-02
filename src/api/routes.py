@@ -5,7 +5,8 @@ from datetime import datetime
 from flask import request, jsonify
 from flask_mail import Message
 from .models import db, User, Evento, Invitacion, Gasto, Participante, Tarea
-
+from datetime import timedelta
+import os
 
 api = Blueprint('api', __name__)
 
@@ -835,7 +836,9 @@ def forgot_password():
         return jsonify({"msg": "Si el email está registrado, recibirás instrucciones"}), 200
 
     token = create_access_token(identity=user.id, expires_delta=timedelta(minutes=30))
-    reset_url = f"{os.getenv('FRONTEND_URL')}/reset-password/{token}"
+
+    frontend_url = os.getenv('FRONTEND_URL', 'http://localhost:3000')
+    reset_url = f"{frontend_url}/reset-password/{token}"
 
     msg = Message("Recuperar contraseña", recipients=[email])
     msg.body = f"Para restablecer tu contraseña, visita este enlace:\n{reset_url}"
