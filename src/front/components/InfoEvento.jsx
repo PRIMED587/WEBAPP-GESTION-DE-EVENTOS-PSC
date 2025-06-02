@@ -1,17 +1,15 @@
-
 import React from "react";
 
-const InfoEvento = ({ participants }) => (
-  <div className="info-box box-style">
-    <h4>Información del Evento</h4>
-    <p><strong>Nombre:</strong> Fiesta en la terraza</p>
-    <p><strong>Fecha:</strong> 30/06/2025</p>
-    <p><strong>Lugar:</strong> Rancagua</p>
-    <p><strong>Participantes:</strong> {participants.length}</p>
-    <div className="descripcion-box">
-      <p>Esta será una reunión para celebrar el final del bootcamp con asado y buena música.</p>
-    </div>
-  </div>
-);
+const InfoEvento = ({ nombre, fecha, ubicacion, vestimenta, descripcion }) => {
+  return (
+    <section className="info-evento p-3 border rounded shadow-sm bg-light">
+      <h2 className="mb-3">{nombre}</h2>
+      <p><strong>Fecha y hora:</strong> {new Date(fecha).toLocaleString()}</p>
+      <p><strong>Ubicación:</strong> {ubicacion}</p>
+      <p><strong>Vestimenta:</strong> {vestimenta}</p>
+      <p>{descripcion}</p>
+    </section>
+  );
+};
 
 export default InfoEvento;
