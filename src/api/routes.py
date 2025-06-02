@@ -94,7 +94,6 @@ def obtener_eventos_usuario(current_user_id, user_id):
 
 # Ruta para obtener un evento específico de un usuario. Solo puede acceder el propio usuario.
 
-
 @api.route('/<int:user_id>/eventos/<int:evento_id>', methods=['GET'])
 @jwt_required()
 def get_evento(user_id, evento_id):
@@ -103,11 +102,28 @@ def get_evento(user_id, evento_id):
     if str(current_user_id) != str(user_id):
         return jsonify({"message": "No autorizado"}), 403
 
-    evento = Evento.query.filter_by(id=evento_id, creador_id=user_id).first()
+    # Buscar el evento
+    evento = Evento.query.filter_by(id=evento_id).first()
     if not evento:
         return jsonify({"message": "Evento no encontrado"}), 404
 
+    # Verificar permisos:
+    es_creador = (evento.creador_id == current_user_id)
+    es_participante = Participante.query.filter_by(evento_id=evento_id, usuario_id=current_user_id).first() is not None
+
+    usuario = User.query.get(current_user_id)
+    es_invitado = False
+    if usuario:
+        es_invitado = Invitacion.query.filter(
+            Invitacion.evento_id == evento_id,
+            ((Invitacion.usuario_id == current_user_id) | (Invitacion.email == usuario.email))
+        ).first() is not None
+
+    if not (es_creador or es_participante or es_invitado):
+        return jsonify({"message": "No autorizado para ver este evento"}), 403
+
     return jsonify(evento.serialize()), 200
+
 
 
 # Ruta para obtener todas las tareas asignadas a un usuario específico. Solo puede acceder el propio usuario.
@@ -119,7 +135,7 @@ def obtener_tareas_usuario(current_user_id, user_id):
     tareas = Tarea.query.filter_by(asignado_a=user_id).all()
     return jsonify([tarea.serialize() for tarea in tareas]), 200
 
-
+# Ruta para crear un nuevo evento. Solo puede acceder el propio usuario.
 @api.route('/<int:user_id>/eventos', methods=['POST'])
 @token_required
 def crear_evento(current_user_id, user_id):
@@ -178,12 +194,25 @@ def crear_evento(current_user_id, user_id):
         aceptado=True
     )
     db.session.add(nuevo_participante)
+
+    if invitados:
+        for correo in invitados:
+            usuario = User.query.filter_by(email=correo).first()
+            nueva_invitacion = Invitacion(
+                evento_id=nuevo_evento.id,
+                email=correo,
+                estado="pendiente",
+                usuario_id=usuario.id if usuario else None
+            )
+            db.session.add(nueva_invitacion)
+
     db.session.commit()
 
     return jsonify({
         "message": "Evento creado exitosamente",
         "evento": nuevo_evento.serialize()
     }), 201
+
 
 # Ruta para modificar un evento existente. Solo el creador del evento puede modificarlo.
 
@@ -326,18 +355,23 @@ def eliminar_gasto(current_user_id, user_id, evento_id, gasto_id):
 
 # Ruta para obtener todas las invitaciones que un usuario ha recibido.
 
-
 @api.route('/<int:user_id>/invitaciones', methods=['GET'])
 @token_required
 def obtener_invitaciones_usuario(current_user_id, user_id):
     if current_user_id != user_id:
         return jsonify({"message": "No autorizado"}), 403
 
-    invitaciones = Invitacion.query.filter_by(invitado_id=user_id).all()
+    usuario = User.query.get(user_id)
+    if not usuario:
+        return jsonify({"message": "Usuario no encontrado"}), 404
+
+    invitaciones = Invitacion.query.filter(
+        (Invitacion.usuario_id == user_id) | (Invitacion.email == usuario.email)
+    ).all()
+
     return jsonify([inv.serialize() for inv in invitaciones]), 200
 
 # Ruta para obtener todas las invitaciones de un evento específico. Solo el creador del evento puede acceder.
-
 
 @api.route('/<int:user_id>/eventos/<int:evento_id>/invitaciones', methods=['GET'])
 @token_required
