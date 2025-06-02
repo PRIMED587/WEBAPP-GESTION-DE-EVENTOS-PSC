@@ -95,7 +95,7 @@ const ResetPassword = () => {
           )}
         </div>
 
-        <button type="submit" className="btn btn-primary" disabled={loading}>
+        <button id="buttonNewPassword" type="submit" className="btn btn-primary mb-3" disabled={loading}>
           {loading ? "Cambiando..." : "Cambiar contraseña"}
         </button>
       </form>

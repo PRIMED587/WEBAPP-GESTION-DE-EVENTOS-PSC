@@ -95,7 +95,7 @@ const Loginform = () => {
                 </div>
             )}
 
-            <form id="LoginForm m-auto w-auto" onSubmit={handleSubmit(onSubmit)}>
+            <form id="LoginForm" className="m-auto w-100" onSubmit={handleSubmit(onSubmit)}>
                 <div id="LoginLabel1" className="form-group mt-5">
                     <label htmlFor="loginEmail">Correo Electrónico</label>
                     <input
@@ -132,7 +132,7 @@ const Loginform = () => {
                     )}
                 </div>
 
-                <div className="d-flex justify-content-center mt-5">
+                <div className="d-flex flex-column flex-md-row justify-content-center align-items-center gap-3 mt-5">
                     <button id="LoginButton" type="submit" className="btn btn-primary me-2">
                         Log In
                     </button>

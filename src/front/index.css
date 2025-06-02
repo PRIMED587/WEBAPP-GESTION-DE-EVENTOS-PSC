@@ -603,6 +603,60 @@ body {
   box-shadow: 0 6px 15px #ff2e63;
 }
 
+/* Responsive adjustments for login */
+#Logincontainer {
+  max-width: 600px;
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  #Logincontainer {
+    padding: 2rem 1rem;
+    margin-top: 2rem;
+  }
+
+  #LoginButton,
+  #ResetButton {
+    width: 100%;
+    margin-top: 0.5rem;
+  }
+
+  .d-flex.justify-content-center.mt-5 {
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
+@media (max-width: 576px) {
+  #Logincontainer h1 {
+    font-size: 1.5rem;
+  }
+
+  #LoginLabel1 label,
+  #LoginLabel2 label {
+    font-size: 1rem;
+  }
+
+  input.form-control {
+    font-size: 0.9rem;
+  }
+}
+
+/**********************************************RESET PASSWORD (PSC)********************************************/
+
+#buttonNewPassword {
+ border: none;
+  background-color: #ff2e63;
+  font-size: 1.1rem;
+  padding: 0.6rem 1.5rem;
+  border-radius: 8px;
+}
+
+#buttonNewPassword:hover {
+ transform: scale(1.05);
+  box-shadow: 0 6px 15px #ff2e63;
+}
+
 /*formulario crear evento*/
 
 .btn-enviarForm-evento {
