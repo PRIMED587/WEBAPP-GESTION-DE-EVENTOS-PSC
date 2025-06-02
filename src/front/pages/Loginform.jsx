@@ -62,7 +62,7 @@ const Loginform = () => {
             showAlert("Por favor escribe tu correo primero.", "warning");
             return;
         }
-
+        localStorage.setItem("email", email);
         try {
             const response = await fetch(import.meta.env.VITE_BACKEND_URL + "/api/forgot-password/", {
                 method: "POST",
