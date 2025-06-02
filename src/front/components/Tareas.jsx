@@ -1,68 +1,53 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 
-const Tareas = ({ participants }) => {
-  const [tasks, setTasks] = useState([
-    { text: "Comprar bebidas", assignedTo: "Marco", done: false },
-    { text: "Llevar carbón", assignedTo: "Brenda", done: false },
-    { text: "Preparar playlist", assignedTo: "Marco", done: false },
-  ]);
+const Tareas = () => {
+  const { eventoId } = useParams();
+  const [tareas, setTareas] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const [newTaskText, setNewTaskText] = useState("");
-  const [assignedTo, setAssignedTo] = useState(participants[0]?.name || "");
-
-  const handleAddTask = () => {
-    if (newTaskText.trim() === "" || assignedTo.trim() === "") return;
-    setTasks([...tasks, { text: newTaskText, assignedTo, done: false }]);
-    setNewTaskText("");
+  const fetchTareas = async () => {
+    try {
+      const response = await fetch(`${process.env.BACKEND_URL}/api/eventos/${eventoId}/tareas`);
+      const data = await response.json();
+      setTareas(data);
+    } catch (error) {
+      console.error("Error al obtener tareas:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const toggleTask = (index) => {
-    const updatedTasks = [...tasks];
-    updatedTasks[index].done = !updatedTasks[index].done;
-    setTasks(updatedTasks);
-  };
+  useEffect(() => {
+    fetchTareas();
+  }, []);
 
-  const removeTask = (index) => {
-    setTasks(tasks.filter((_, i) => i !== index));
-  };
+  if (loading) return <div>Cargando tareas...</div>;
 
   return (
-    <div className="tareas-box box-style">
-      <h4>Lista de Tareas</h4>
-      <ul className="lista-tareas">
-        {tasks.map((task, i) => (
-          <li key={i}>
-            <div className={`task-info ${task.done ? "completada" : ""}`}>
-              <input
-                type="checkbox"
-                checked={task.done}
-                onChange={() => toggleTask(i)}
-                style={{ marginRight: "8px" }}
-              />
-              {task.text} ({task.assignedTo})
-            </div>
-            <button className="eliminar-btn" onClick={() => removeTask(i)}>❌</button>
-          </li>
-        ))}
-      </ul>
-
-      <div className="agregar-tarea-form agregar-form">
-        <input
-          type="text"
-          placeholder="Nueva tarea"
-          value={newTaskText}
-          onChange={(e) => setNewTaskText(e.target.value)}
-        />
-        <select value={assignedTo} onChange={(e) => setAssignedTo(e.target.value)}>
-          {participants.map((p, i) => (
-            <option key={i} value={p.name}>{p.name}</option>
+    <div className="box-seccion-evento">
+      <h4 className="mb-3">Tareas</h4>
+      {tareas.length === 0 ? (
+        <p className="text-muted">Aún no hay tareas registradas.</p>
+      ) : (
+        <ul className="list-group">
+          {tareas.map((tarea) => (
+            <li key={tarea.id} className="list-group-item d-flex justify-content-between align-items-start">
+              <div className="ms-2 me-auto">
+                <div className="fw-bold">{tarea.descripcion}</div>
+                <small>Asignado a: {tarea.asignado_a || "No asignado"}</small>
+              </div>
+              {tarea.completada ? (
+                <span className="badge bg-success">Completada</span>
+              ) : (
+                <span className="badge bg-warning text-dark">Pendiente</span>
+              )}
+            </li>
           ))}
-        </select>
-        <button onClick={handleAddTask}>Agregar</button>
-      </div>
+        </ul>
+      )}
     </div>
   );
 };
 
 export default Tareas;
-

@@ -340,33 +340,30 @@ body,
   align-items: center;
 }
 
-/* Contenedor para las dos listas (Invitados y Tareas) */
-.listas-container {
-  display: flex;
-  gap: 1rem;
-  margin: 1rem 0 2rem 0;
-  width: 100%;
-  max-width: 900px;
-  justify-content: center;
-  flex-wrap: row;
+.evento-container {
+  max-width: 960px;
 }
 
-/* Estilo común de todas las cajas */
-.box-style {
-  background-color: rgba(0, 0, 0, 0.45);
-  border-radius: 12px;
-  padding: 16px;
-  box-shadow: 0 2px 12px rgba(255, 0, 150, 0.3);
-  width: 100%;
-  max-width: 450px;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
+.evento-container h2 {
+  font-weight: 700;
+  color: #343a40;
+  border-bottom: 2px solid #6c757d;
+  padding-bottom: 0.5rem;
+}
+
+.card {
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.card-header {
+  font-weight: 600;
+  font-size: 1.1rem;
 }
 
 /* InfoEvento ocupa todo el ancho del contenedor */
 .info-box,
 .extra-box {
+  
   background-color: #2e2e33;
   border-radius: 12px;
   padding: 1.2rem;
@@ -398,8 +395,7 @@ body,
 }
 
 /* Listas ul: scroll vertical */
-.lista-participantes,
-.lista-tareas {
+.lista-participantes, .lista-tareas {
   overflow-y: auto;
   flex-grow: 1;
   margin-bottom: 0.75rem;
@@ -408,16 +404,11 @@ body,
   scrollbar-color: #ff2e63 transparent;
 }
 
-/* Scrollbar estilizado para Webkit */
-.lista-participantes::-webkit-scrollbar,
-.lista-tareas::-webkit-scrollbar {
-  width: 8px;
-}
-
-.lista-participantes::-webkit-scrollbar-thumb,
-.lista-tareas::-webkit-scrollbar-thumb {
-  background: #ff2e63;
-  border-radius: 4px;
+/* Scrollbar styling */
+.participantes-list::-webkit-scrollbar,
+.tareas-list::-webkit-scrollbar,
+.gastos-list::-webkit-scrollbar {
+  width: 6px;
 }
 
 .lista-participantes::-webkit-scrollbar-track,
@@ -438,8 +429,7 @@ body,
 }
 
 /* Info texto (nombre + etiqueta organizador) */
-.participant-info,
-.task-info {
+.participant-info, .task-info {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -452,6 +442,7 @@ body,
   border-radius: 12px;
   font-size: 0.7rem;
   color: white;
+  
 }
 
 /* Checkbox completado */
@@ -475,10 +466,10 @@ body,
   gap: 6px;
   align-items: center;
   margin-top: auto;
+  
 }
 
-.agregar-form input,
-.agregar-form select {
+.agregar-form input, .agregar-form select {
   flex: 1;
   padding: 6px 8px;
   border-radius: 6px;
@@ -486,6 +477,7 @@ body,
   font-size: 0.9rem;
   background-color: #1a1a1d;
   color: #aaaaaa;
+  
 }
 
 .agregar-form button {
@@ -503,12 +495,14 @@ body,
   box-shadow: 0 6px 15px #ff2e63;
 }
 
+
 /* Responsive: cajas en columna en pantallas chicas */
 @media (max-width: 768px) {
   .listas-container {
     flex-direction: column;
     align-items: center;
     gap: 1rem;
+
   }
 
   .participantes-box,
