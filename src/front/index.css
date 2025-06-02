@@ -1,5 +1,7 @@
 /* Fondo y container general */
-html, body, #root {
+html,
+body,
+#root {
   height: 100%;
   margin: 0;
   padding: 0;
@@ -173,7 +175,7 @@ html, body, #root {
   padding: 2rem;
 }
 
-.dashboard-container h1{
+.dashboard-container h1 {
   color: #ff2e63;
 }
 .next-events {
@@ -232,8 +234,6 @@ html, body, #root {
   margin-top: 5rem;
 }
 
-
-
 /* Responsivo */
 @media (max-width: 576px) {
   .event-card {
@@ -244,7 +244,7 @@ html, body, #root {
 /*evento*/
 
 /* Fondo y contenedor principal */
-.evento-container { 
+.evento-container {
   background-color: #1a1a1d;
   background-image: radial-gradient(
       circle,
@@ -288,7 +288,6 @@ html, body, #root {
 /* InfoEvento ocupa todo el ancho del contenedor */
 .info-box,
 .extra-box {
-  
   background-color: #2e2e33;
   border-radius: 12px;
   padding: 1.2rem;
@@ -320,7 +319,8 @@ html, body, #root {
 }
 
 /* Listas ul: scroll vertical */
-.lista-participantes, .lista-tareas {
+.lista-participantes,
+.lista-tareas {
   overflow-y: auto;
   flex-grow: 1;
   margin-bottom: 0.75rem;
@@ -359,7 +359,8 @@ html, body, #root {
 }
 
 /* Info texto (nombre + etiqueta organizador) */
-.participant-info, .task-info {
+.participant-info,
+.task-info {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -372,7 +373,6 @@ html, body, #root {
   border-radius: 12px;
   font-size: 0.7rem;
   color: white;
-  
 }
 
 /* Checkbox completado */
@@ -396,10 +396,10 @@ html, body, #root {
   gap: 6px;
   align-items: center;
   margin-top: auto;
-  
 }
 
-.agregar-form input, .agregar-form select {
+.agregar-form input,
+.agregar-form select {
   flex: 1;
   padding: 6px 8px;
   border-radius: 6px;
@@ -407,7 +407,6 @@ html, body, #root {
   font-size: 0.9rem;
   background-color: #1a1a1d;
   color: #aaaaaa;
-  
 }
 
 .agregar-form button {
@@ -425,14 +424,12 @@ html, body, #root {
   box-shadow: 0 6px 15px #ff2e63;
 }
 
-
 /* Responsive: cajas en columna en pantallas chicas */
 @media (max-width: 768px) {
   .listas-container {
     flex-direction: column;
     align-items: center;
     gap: 1rem;
-
   }
 
   .participantes-box,
@@ -455,9 +452,6 @@ html, body, #root {
   }
 }
 
-
-
-
 /**********************************************Formulario Registro (PSC)********************************************/
 #registerForm label {
   color: #ffffff;
@@ -469,9 +463,9 @@ html, body, #root {
 
 #registerForm {
   margin-bottom: 40px;
-box-shadow: -1px 0px 17px 9px rgba(255,46,99,0.76);
--webkit-box-shadow: -1px 0px 17px 9px rgba(255,46,99,0.76);
--moz-box-shadow: -1px 0px 17px 9px rgba(255,46,99,0.76);
+  box-shadow: -1px 0px 17px 9px rgba(255, 46, 99, 0.76);
+  -webkit-box-shadow: -1px 0px 17px 9px rgba(255, 46, 99, 0.76);
+  -moz-box-shadow: -1px 0px 17px 9px rgba(255, 46, 99, 0.76);
 }
 
 #registerImg {
@@ -489,7 +483,6 @@ box-shadow: -1px 0px 17px 9px rgba(255,46,99,0.76);
   padding-top: 15px;
   text-align: center !important;
 }
-
 
 #inputRegisterForm {
   height: 700px;
@@ -524,7 +517,6 @@ box-shadow: -1px 0px 17px 9px rgba(255,46,99,0.76);
 
 body {
   text-align: left;
-  
   background-color: #1a1a1d;
   background-image: radial-gradient(
       circle,
@@ -556,7 +548,6 @@ body {
 #Logincontainer h1 {
   text-align: center;
   color: #ff2e63;
-  
 }
 
 #LoginForm {
@@ -601,6 +592,54 @@ body {
 #ResetButton:hover {
   transform: scale(1.05);
   box-shadow: 0 6px 15px #ff2e63;
+}
+
+/* Responsive adjustments for login */
+#Logincontainer {
+  max-width: 600px;
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  #Logincontainer {
+    padding: 2rem 1rem;
+    margin-top: 2rem;
+  }
+
+  #LoginButton,
+  #ResetButton {
+    width: 100%;
+    margin-top: 0.5rem;
+  }
+
+  .d-flex.justify-content-center.mt-5 {
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
+@media (max-width: 576px) {
+  #Logincontainer h1 {
+    font-size: 1.5rem;
+  }
+
+  #LoginLabel1 label,
+  #LoginLabel2 label {
+    font-size: 1rem;
+  }
+
+  input.form-control {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 768px) {
+  #LoginButton,
+  #ResetButton {
+    width: 100%;
+    text-align: center;
+    overflow: hidden !important;
+  }
 }
 
 /*formulario crear evento*/
@@ -692,7 +731,6 @@ body {
   }
 }
 
-
 /* Estilo para la página AboutUs */
 .team-title-container {
   position: relative;
@@ -709,13 +747,13 @@ body {
   z-index: 1;
   font-size: 2rem;
   font-weight: bold;
-  color: #FF2E63;
+  color: #ff2e63;
   background-color: transparent;
   padding: 0 20px;
 }
 
 .team-title-container::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 10%;
@@ -723,10 +761,9 @@ body {
   height: 100%;
   background-color: black;
   border-radius: 10px;
-  box-shadow: 0 0 10px #FF2E63;
+  box-shadow: 0 0 10px #ff2e63;
   z-index: 0;
 }
-
 
 /* Para que la página AboutUs se vea bien en todas las pantallas */
 @media (max-width: 768px) {
@@ -751,4 +788,3 @@ body {
 .card:hover {
   transform: scale(1.05);
 }
-
