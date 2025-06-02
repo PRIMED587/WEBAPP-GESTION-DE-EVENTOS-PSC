@@ -95,6 +95,85 @@ body,
   background-color: black;
   color: white;
 }
+
+/* Boton de pagina MisInvitaciones*/
+.btn-rechazar-invitacion {
+  background-color: transparent;
+  color: #ff2e63;
+  padding: 12px 28px;
+  font-size: 1rem;
+  font-weight: 600;
+  border: 2px solid #ff2e63;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-block;
+  text-align: center;
+  width: 100%;
+  max-width: 300px;
+  margin: 10px auto;
+  box-shadow: 0 4px 8px rgba(255, 46, 99, 0.3);
+}
+
+.btn-rechazar-invitacion:hover {
+  background-color: #ff2e63;
+  color: white;
+}
+
+.btn-rechazar-invitacion {
+  background-color: white;
+  color: #ff2e63;
+  padding: 12px 28px;
+  font-size: 1rem;
+  font-weight: 600;
+  border: 2px solid #ff2e63;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  display: inline-block;
+  text-align: center;
+  width: 100%;
+  max-width: 300px;
+  margin: 10px auto;
+  box-shadow: 0 4px 8px rgba(255, 46, 99, 0.3);
+}
+
+.btn-rechazar-invitacion:hover {
+  background-color: #ff2e63;
+  color: white;
+  transform: scale(1.03);
+}
+
+/* Estilo para las imágenes de decoración de la pagina Mis Invitaciones */
+.decoracion-img {
+  position: absolute;
+  width: 330px; /* Más grande */
+  height: auto;
+  opacity: 0.65; /* Más clara */
+  z-index: 0;
+  transform: rotate(-5deg);
+  transition: transform 0.3s ease;
+  filter: saturate(1.4) brightness(1.1); /* Más color y brillo */
+}
+
+.decoracion-img2 {
+  position: absolute;
+  width: 320px; /* Más grande */
+  height: auto;
+  opacity: 0.6; /* Más clara */
+  z-index: 0;
+  transform: rotate(8deg);
+  transition: transform 0.3s ease;
+  filter: saturate(1.4) brightness(1.1); /* Más color y brillo */
+}
+
+/* esto me le da movimiento a las imagenes de la pagina MisInvitaciones */
+.decoracion-img:hover,
+.decoracion-img2:hover {
+  transform: scale(1.05) rotate(0deg);
+}
+
+
 /*homepage*/
 .homepage-container {
   background-color: #1a1a1d;

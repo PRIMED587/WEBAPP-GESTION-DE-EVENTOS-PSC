@@ -40,6 +40,8 @@ const Loginform = () => {
             });
 
             const result = await response.json();
+            console.log(result); // Esto nos dirá qué datos devuelve el backend, para hacer el boton de logout. Jenn
+
 
             if (!response.ok) {
                 throw new Error(result.message || "Error al iniciar sesión");

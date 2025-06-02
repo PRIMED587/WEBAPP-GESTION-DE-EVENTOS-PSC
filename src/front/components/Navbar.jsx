@@ -1,5 +1,5 @@
-//  Se agregó 'useLocation' para saber en qué ruta estamos
-import { Link, useLocation } from "react-router-dom"; 
+//  Se agregó 'useLocation' para saber en qué ruta estamos 
+import { Link, useLocation } from "react-router-dom";
 
 export const Navbar = () => {
 	// SE CAMBIO: usamos el hook useLocation para obtener la ruta actual
@@ -7,6 +7,17 @@ export const Navbar = () => {
 
 	// SE CAMBIO: variable que verifica si estamos en /aboutus
 	const isAboutPage = location.pathname === "/aboutus";
+
+	// SE AGREGÓ: variable que verifica si estamos en la página principal
+	const isHomePage = location.pathname === "/";
+
+	// SE AGREGÓ: variable que verifica si estamos en la página de mis invitaciones
+	const isMisInvitaciones = location.pathname === "/mis-invitaciones";
+
+	// SE AGREGÓ: función para cerrar sesión
+	const handleLogout = () => {
+		console.log("Sesión cerrada"); // Aquí luego pondrás la lógica real
+	};
 
 	return (
 		<header>
@@ -35,6 +46,23 @@ export const Navbar = () => {
 									{isAboutPage ? <i className="fas fa-home"></i> : "About Us"}
 								</button>
 							</Link>
+
+							{/* SE AGREGÓ: botón Logout solo visible en la página principal */}
+							{isHomePage && (
+								<button className="btn btn-outline-black" onClick={handleLogout}>
+									Logout
+								</button>
+							)}
+
+							{/* SE AGREGÓ: botón para ir a Mis Invitaciones */}
+							{isMisInvitaciones && (
+								<Link to="/">
+									<button className="btn btn-outline-black">
+										<i className="fas fa-home me-1"></i>
+									</button>
+								</Link>
+							)}
+
 						</div>
 					</div>
 				</div>
