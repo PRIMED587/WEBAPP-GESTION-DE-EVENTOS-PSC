@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import axios from "axios";
 
 const ResetPassword = () => {
@@ -7,7 +7,10 @@ const ResetPassword = () => {
   const [newPassword, setNewPassword] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [searchParams] = useSearchParams();
+  const tokenFromSearch = searchParams.get("token");
 
+  
   const handleReset = async (e) => {
     e.preventDefault();
     setLoading(true);

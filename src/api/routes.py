@@ -7,6 +7,8 @@ from flask_mail import Message
 from .models import db, User, Evento, Invitacion, Gasto, Participante, Tarea
 from datetime import timedelta
 import os
+from itsdangerous import URLSafeTimedSerializer
+from flask import current_app
 
 api = Blueprint('api', __name__)
 
@@ -823,63 +825,110 @@ def eliminar_tarea(current_user_id, user_id, tarea_id):
     db.session.commit()
     return jsonify({"message": f"Tarea {tarea_id} eliminada exitosamente"}), 200
 
+# ------------------ RESTABLECER CONTRASEÑA ------------------
+
+# Utiliza Flask-Mail para enviar un correo de restablecimiento de contraseña.
+def generate_reset_token(user_id, expires_sec=1800):
+    serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
+    return serializer.dumps({"user_id": user_id}, salt='reset-password-salt')
+
+# Verifica el token de restablecimiento de contraseña. Devuelve el ID del usuario si es válido.
+def verify_reset_token(token, expires_sec=1800):
+    serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
+    try:
+        data = serializer.loads(token, salt='reset-password-salt', max_age=expires_sec)
+        return data["user_id"]
+    except (SignatureExpired, BadSignature):
+        return None
+
 # Ruta para restablecer la contraseña de un usuario. Envía un email con un enlace de restablecimiento.
 @api.route('/forgot-password', methods=['POST'])
 def forgot_password():
-    from app import mail
     email = request.json.get("email")
     if not email:
         return jsonify({"error": "Email requerido"}), 400
 
     user = db.session.query(User).filter_by(email=email).first()
     if not user:
+        # No revelamos si el usuario existe o no
         return jsonify({"msg": "Si el email está registrado, recibirás instrucciones"}), 200
 
-    token = create_access_token(identity=user.id, expires_delta=timedelta(minutes=30))
-
+    token = generate_reset_token(user.id)
     frontend_url = os.getenv('FRONTEND_URL', 'http://localhost:3000')
-    reset_url = f"{frontend_url}/reset-password/{token}"
+    reset_url = f"{frontend_url}/reset-password?token={token}"
 
     msg = Message("Recuperar contraseña", recipients=[email])
-    msg.body = f"Para restablecer tu contraseña, visita este enlace:\n{reset_url}"
+    msg.body = f"Para restablecer tu contraseña, visita este enlace:\n{reset_url}\n\nEste enlace expirará en 30 minutos."
+    from app import mail
     mail.send(msg)
 
     return jsonify({"msg": "Email enviado si está registrado"}), 200
 
 # Ruta para restablecer la contraseña de un usuario. Requiere token válido y nueva contraseña.
-@api.route('/reset-password', methods=['POST'])
-@jwt_required()
-def reset_password():
-    from app import mail
-    user_id = get_jwt_identity()
+@api.route('/reset-password/<token>', methods=['POST'])
+def reset_password(token):
     data = request.get_json()
     nueva_clave = data.get("password")
 
     if not nueva_clave:
         return jsonify({"error": "La contraseña es requerida"}), 400
 
+    user_id = verify_reset_token(token)
+    if not user_id:
+        return jsonify({"error": "Token inválido o expirado"}), 400
+
     user = db.session.get(User, user_id)
+    if not user:
+        return jsonify({"error": "Usuario no encontrado"}), 404
+
     user.password = generate_password_hash(nueva_clave)
     db.session.commit()
 
     return jsonify({"msg": "Contraseña actualizada exitosamente"}), 200
 
-
-# Ruta para enviar un correo de prueba. Requiere un email en el body del request.
-@api.route("/enviar-correo-prueba", methods=["POST"])
-def enviar_correo_prueba():
-    from app import mail
+    
+# Ruta para solicitar un enlace de restablecimiento de contraseña. Envía un email con el enlace.
+@api.route('/request-password-reset', methods=['POST'])
+def request_password_reset():
     data = request.get_json()
-    email_destino = data.get("email")
+    email = data.get("email")
 
-    if not email_destino:
-        return jsonify({"error": "Falta el campo 'email' en el body"}), 400
+    if not email:
+        return jsonify({"msg": "Email es requerido"}), 400
 
-    msg = Message("Correo de prueba", recipients=[email_destino])
-    msg.body = "Este es un mensaje de prueba desde Flask-Mail 🤖"
+    user = User.query.filter_by(email=email).first()
+    if not user:
+        return jsonify({"msg": "Usuario no encontrado con ese email"}), 404
 
-    try:
-        mail.send(msg)
-        return jsonify({"message": f"Correo enviado a {email_destino}"}), 200
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    # Crear token válido por 15 minutos (ajustable)
+    expires = timedelta(minutes=15)
+    reset_token = create_access_token(identity=user.id, expires_delta=expires)
+
+    # URL completa para el frontend
+    frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
+    reset_link = f"{frontend_url}/reset-password/{reset_token}"
+
+    # Aquí normalmente enviarías un correo, pero vamos a imprimirlo o devolverlo
+    print("Enlace para restablecer contraseña:", reset_link)
+
+    # Solo para desarrollo. En producción, enviá el link por email.
+    return jsonify({"msg": "Si el email está registrado, se envió un enlace", "reset_link": reset_link}), 200
+
+# # Ruta para enviar un correo de prueba. Requiere un email en el body del request.
+# @api.route("/enviar-correo-prueba", methods=["POST"])
+# def enviar_correo_prueba():
+#     from app import mail
+#     data = request.get_json()
+#     email_destino = data.get("email")
+
+#     if not email_destino:
+#         return jsonify({"error": "Falta el campo 'email' en el body"}), 400
+
+#     msg = Message("Correo de prueba", recipients=[email_destino])
+#     msg.body = "Este es un mensaje de prueba desde Flask-Mail 🤖"
+
+#     try:
+#         mail.send(msg)
+#         return jsonify({"message": f"Correo enviado a {email_destino}"}), 200
+#     except Exception as e:
+#         return jsonify({"error": str(e)}), 500
