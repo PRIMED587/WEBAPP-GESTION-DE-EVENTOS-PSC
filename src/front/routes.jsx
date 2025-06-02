@@ -12,6 +12,8 @@ import Registro from "./pages/Registro";
 import FormularioEvento from "./pages/FormularioEvento";  // <-- Importá tu componente
 import Loginform from "./pages/Loginform";
 import AboutUs from "./pages/AboutUs";
+import MisInvitaciones from "./pages/MisInvitaciones";
+
 
 
 export const router = createBrowserRouter(
@@ -33,6 +35,7 @@ export const router = createBrowserRouter(
         <Route path="/formulario-evento" element={<FormularioEvento />} />  {/* <-- NUEVA RUTA */}
         <Route path="/loginform" element={<Loginform />} /> 
         <Route path="/aboutus" element={<AboutUs />} />
+        <Route path="/mis-invitaciones" element={<MisInvitaciones />} />
       </Route>
     )
 );
