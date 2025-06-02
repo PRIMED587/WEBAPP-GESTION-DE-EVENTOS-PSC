@@ -1,5 +1,5 @@
 import React from "react";
-import { useParams, useSearchParams } from "react-router-dom";
+import { useParams, useSearchParams, useNavigate } from "react-router-dom"; // ⬅️ MODIFICADO
 import { useForm } from "react-hook-form";
 
 const ResetPassword = () => {
@@ -7,6 +7,8 @@ const ResetPassword = () => {
   const [searchParams] = useSearchParams();
   const tokenFromSearch = searchParams.get("token");
   const token = tokenFromParams || tokenFromSearch;
+
+  const navigate = useNavigate(); // ⬅️ AÑADIDO
 
   const {
     register,
@@ -29,10 +31,10 @@ const ResetPassword = () => {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`, // opcional, si lo necesitas para seguridad extra
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
-            password: data.newPassword, // debe coincidir con el backend
+            password: data.newPassword,
           }),
         }
       );
@@ -43,6 +45,7 @@ const ResetPassword = () => {
       }
 
       setMessage("Contraseña actualizada con éxito.");
+      navigate("/loginform"); // ⬅️ REDIRECCIÓN INMEDIATA
     } catch (error) {
       setMessage(error.message);
     } finally {
