@@ -1,7 +1,6 @@
-
-import React from "react";
-import { FormProvider, useForm } from "react-hook-form";
-
+import React, { useState } from "react";
+import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 
 const Registro = () => {
     const {
@@ -9,73 +8,121 @@ const Registro = () => {
         handleSubmit,
         watch,
         reset,
-        formState: { errors, isValid }
-    } = useForm({
-        mode: 'onChange',
-    });
+        formState: { errors, isValid },
+    } = useForm({ mode: "onChange" });
+
+    const navigate = useNavigate();
+    const [alerta, setAlerta] = useState(null);
 
     const onSubmit = (data) => {
-
-        if (data.password !== data.confirmPassword) {
-            alert("Las contraseñas no coinciden");
+        if (!isValid) {
+            setAlerta({ mensaje: "Faltan campos por rellenar", tipo: "warning" });
             return;
         }
 
-        fetch(import.meta.env.VITE_BACKEND_URL + "api/signup/", {
+        if (data.password !== data.confirmPassword) {
+            setAlerta({ mensaje: "Las contraseñas no coinciden", tipo: "danger" });
+            return;
+        }
+
+        fetch(import.meta.env.VITE_BACKEND_URL + "/api/signup/", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 nombre: data.nombre,
                 email: data.email,
                 telefono: data.telefono,
-                password: data.password
-            })
+                password: data.password,
+            }),
         })
-            .then(res => {
+            .then((res) => {
                 if (!res.ok) {
-                    return res.json().then(data => {
+                    return res.json().then((data) => {
                         throw new Error(data.message || "Error al registrar usuario");
                     });
                 }
                 return res.json();
             })
-            .then(data => {
-                alert("Usuario registrado exitosamente");
+            .then(() => {
+                
+                setAlerta( {
+                    mensaje: "Usuario creado exitosamente, redirigiendo hacia inicio de sesion...",
+                    tipo: "success",
+                });
                 reset();
-                console.log(data)
+
+                
+                setTimeout(() => navigate("/loginform"), 5000);
             })
-            .catch(error => {
-                alert("Error: " + error.message);
+            .catch((error) => {
+                setAlerta({ mensaje: "Error: " + error.message, tipo: "danger" });
             });
     };
 
-    return (
-        <div className="registerHeadTittle">
-            <h1>Formulario de Registro</h1>
-            <div id="registerForm" className="container mt-5">
-                <form onSubmit={handleSubmit(onSubmit)}>
-                    <div className="row p-4 rounded align-items-center" id="imputRegisterForm">
-                        <div className="col-lg-12 col-3">
+    const soloLetras = (e) => {
+        if (!/^[a-zA-ZÁÉÍÓÚáéíóúÑñ\s]*$/.test(e.key)) e.preventDefault();
+    };
 
+    const soloNumeros = (e) => {
+        if (!/[0-9]/.test(e.key)) e.preventDefault();
+    };
+
+    return (
+        <div className="registerHeadTitle">
+            <h1>FORMULARIO DE REGISTRO</h1>
+
+            <div id="registerForm" className="container mt-5">
+                {/* Alertas Bootstrap */}
+                {alerta && (
+                    <div
+                        className={`alertRedirigir alert-${alerta.tipo} alert-dismissible fade show`}
+                        role="alert"
+                    >
+                        {alerta.mensaje}
+                        <button
+                            type="button"
+                            className="btn-close"
+                            onClick={() => setAlerta(null)}
+                        ></button>
+                    </div>
+                )}
+
+                <form onSubmit={handleSubmit(onSubmit)}>
+                    <div
+                        id="inputRegisterForm"
+                        className="row p-4 rounded align-items-center"
+                    >
+                        <div className="col-lg-12 col-12">
+                            {/* Nombre */}
                             <div className="mb-3">
-                                <label htmlFor="nombre" className="form-label">Nombre Completo</label>
+                                <label htmlFor="nombre" className="form-label">
+                                    Nombre Completo
+                                </label>
                                 <input
                                     type="text"
                                     className="form-control"
                                     id="nombre"
+                                    onKeyPress={soloLetras}
                                     {...register("nombre", {
                                         required: "Este campo es obligatorio",
                                         pattern: {
                                             value: /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/,
-                                            message: "Solo letras y espacios"
-                                        }
+                                            message: "Solo letras y espacios",
+                                        },
                                     })}
                                 />
-                                {errors.nombre && <p className="text-danger">{errors.nombre.message}</p>}
+                                {errors.nombre && (
+                                    <p className="text-danger">
+                                        {errors.nombre.message}
+                                    </p>
+                                )}
                             </div>
 
+                            {/* Email */}
                             <div className="mb-3">
-                                <label htmlFor="email" className="form-label">Correo electrónico</label>
+                                <label htmlFor="email" className="form-label">
+                                    Correo electrónico
+                                </label>
                                 <input
                                     type="email"
                                     className="form-control"
@@ -83,33 +130,49 @@ const Registro = () => {
                                     {...register("email", {
                                         required: "El correo es obligatorio",
                                         pattern: {
-                                            value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                                            message: "Correo inválido"
-                                        }
+                                            value:
+                                                /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                                            message: "Correo inválido",
+                                        },
                                     })}
                                 />
-                                {errors.email && <p className="text-danger">{errors.email.message}</p>}
+                                {errors.email && (
+                                    <p className="text-danger">
+                                        {errors.email.message}
+                                    </p>
+                                )}
                             </div>
 
+                            {/* Teléfono */}
                             <div className="mb-3">
-                                <label htmlFor="telefono" className="form-label">Teléfono</label>
+                                <label htmlFor="telefono" className="form-label">
+                                    Teléfono
+                                </label>
                                 <input
                                     type="tel"
                                     className="form-control"
                                     id="telefono"
+                                    onKeyPress={soloNumeros}
                                     {...register("telefono", {
                                         required: "El teléfono es obligatorio",
                                         pattern: {
                                             value: /^[0-9]+$/,
-                                            message: "Solo números"
-                                        }
+                                            message: "Solo números",
+                                        },
                                     })}
                                 />
-                                {errors.telefono && <p className="text-danger">{errors.telefono.message}</p>}
+                                {errors.telefono && (
+                                    <p className="text-danger">
+                                        {errors.telefono.message}
+                                    </p>
+                                )}
                             </div>
 
+                            {/* Contraseña */}
                             <div className="mb-3">
-                                <label htmlFor="password" className="form-label">Contraseña</label>
+                                <label htmlFor="password" className="form-label">
+                                    Contraseña
+                                </label>
                                 <input
                                     type="password"
                                     className="form-control"
@@ -118,19 +181,29 @@ const Registro = () => {
                                         required: "La contraseña es obligatoria",
                                         minLength: {
                                             value: 6,
-                                            message: "Mínimo 6 caracteres"
+                                            message: "Mínimo 6 caracteres",
                                         },
                                         maxLength: {
                                             value: 8,
-                                            message: "Máximo 8 caracteres"
-                                        }
+                                            message: "Máximo 8 caracteres",
+                                        },
                                     })}
                                 />
-                                {errors.password && <p className="text-danger">{errors.password.message}</p>}
+                                {errors.password && (
+                                    <p className="text-danger">
+                                        {errors.password.message}
+                                    </p>
+                                )}
                             </div>
 
+                            {/* Confirmar contraseña */}
                             <div className="mb-3">
-                                <label htmlFor="confirmPassword" className="form-label">Confirmar Contraseña</label>
+                                <label
+                                    htmlFor="confirmPassword"
+                                    className="form-label"
+                                >
+                                    Confirmar Contraseña
+                                </label>
                                 <input
                                     type="password"
                                     className="form-control"
@@ -138,16 +211,22 @@ const Registro = () => {
                                     {...register("confirmPassword", {
                                         required: "Confirma tu contraseña",
                                         validate: (value) =>
-                                            value === watch("password") || "Las contraseñas no coinciden"
+                                            value === watch("password") ||
+                                            "Las contraseñas no coinciden",
                                     })}
                                 />
                                 {errors.confirmPassword && (
-                                    <p className="text-danger">{errors.confirmPassword.message}</p>
+                                    <p className="text-danger">
+                                        {errors.confirmPassword.message}
+                                    </p>
                                 )}
                             </div>
 
                             <div className="text-center mt-4 m-auto">
-                                <button type="submit" className="btn-enviarForm" disabled={!isValid}>
+                                <button
+                                    type="submit"
+                                    className="btn-enviarForm"
+                                >
                                     Enviar Formulario
                                 </button>
                             </div>
@@ -160,4 +239,3 @@ const Registro = () => {
 };
 
 export default Registro;
-

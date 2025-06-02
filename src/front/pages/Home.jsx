@@ -18,7 +18,7 @@ const Home = () => {
               onClick={() => navigate("/registro")}
               >Registrarse</button>
               <button className="btn btn-outline-primary px-4 py-2"
-              onClick={() => navigate("/login")}
+              onClick={() => navigate("/loginform")}
               >Iniciar Sesión</button>
             </div>
           </div>

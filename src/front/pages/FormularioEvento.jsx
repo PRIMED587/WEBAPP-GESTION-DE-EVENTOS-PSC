@@ -2,7 +2,6 @@ import { React, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useParams, useNavigate } from "react-router-dom";
 
-
 function parseJwt(token) {
   try {
     const base64Payload = token.split(".")[1];
@@ -22,9 +21,8 @@ const safeParseJSON = (str) => {
   }
 };
 
-
 const FormularioEvento = () => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const { id: eventId } = useParams();
   const {
     register,
@@ -40,6 +38,10 @@ const FormularioEvento = () => {
 
   const [loading, setLoading] = useState(false);
 
+  // --- NUEVO: estado para mensajes ---
+  const [message, setMessage] = useState(null);
+  // message = { type: "success"|"error", text: string } o null
+
   useEffect(() => {
     const loadEventData = async () => {
       if (!eventId) return;
@@ -49,7 +51,7 @@ const FormularioEvento = () => {
       const payload = token ? parseJwt(token) : null;
       const userId = payload?.sub;
       if (!userId) {
-        alert("Usuario no autenticado o token inválido");
+        setMessage({ type: "error", text: "Usuario no autenticado o token inválido" });
         setLoading(false);
         return;
       }
@@ -63,15 +65,12 @@ const FormularioEvento = () => {
         });
 
         if (!res.ok) {
-          alert("Error al cargar datos del evento");
+          setMessage({ type: "error", text: "Error al cargar datos del evento" });
           setLoading(false);
           return;
         }
         const eventData = await res.json();
 
-        console.log("Datos cargados para editar:", eventData);
-
-        // Asegurarse de que invitados, servicios y recursos sean arrays
         const invitadosArray = Array.isArray(eventData.invitados)
           ? eventData.invitados
           : safeParseJSON(eventData.invitados);
@@ -102,7 +101,7 @@ const FormularioEvento = () => {
 
         setLoading(false);
       } catch (error) {
-        alert("Error inesperado al cargar evento: " + error.message);
+        setMessage({ type: "error", text: "Error inesperado al cargar evento: " + error.message });
         setLoading(false);
       }
     };
@@ -110,115 +109,130 @@ const FormularioEvento = () => {
     loadEventData();
   }, [eventId, reset, setValue]);
 
+  // --- Modificar onSubmit para manejar mensajes y redireccionar ---
   const onSubmit = async (data) => {
-  console.log("Datos del formulario para enviar:", data);
+    setMessage(null); // limpiar mensajes previos
+    console.log("Datos del formulario para enviar:", data);
 
-  // Procesar campos para backend (snake_case)
-  const processedData = {
-  nombre: data.nombre,
-  descripcion: data.descripcion,
-  fecha: data.fechaHora,
-  ubicacion: data.ubicacion,
-  acepta_colaboradores: data.aceptaColaboradores,
-  invitados: null, // seguimos igual, invitados se envían aparte
-  max_invitados: data.maxInvitados ? Number(data.maxInvitados) : null,
-  tipo_actividad: data.tipoActividad,
-  vestimenta: data.vestimenta,
-  servicios: data.servicios
-    ? data.servicios
-        .split(",")
-        .map((s) => s.trim())
-        .filter((s) => s !== "")
-    : [],
-  recursos: data.recursos
-    ? data.recursos
-        .split(",")
-        .map((r) => r.trim())
-        .filter((r) => r !== "")
-    : [],
-};
+    const processedData = {
+      nombre: data.nombre,
+      descripcion: data.descripcion,
+      fecha: data.fechaHora,
+      ubicacion: data.ubicacion,
+      acepta_colaboradores: data.aceptaColaboradores,
+      invitados: null,
+      max_invitados: data.maxInvitados ? Number(data.maxInvitados) : null,
+      tipo_actividad: data.tipoActividad,
+      vestimenta: data.vestimenta,
+      servicios: data.servicios
+        ? data.servicios
+          .split(",")
+          .map((s) => s.trim())
+          .filter((s) => s !== "")
+        : [],
+      recursos: data.recursos
+        ? data.recursos
+          .split(",")
+          .map((r) => r.trim())
+          .filter((r) => r !== "")
+        : [],
+    };
 
-  const token = localStorage.getItem("token");
-  if (!token) {
-    alert("No estás autenticado");
-    return;
-  }
-  const payload = parseJwt(token);
-  const userId = payload?.sub;
-  if (!userId) {
-    alert("Usuario no autenticado o token inválido");
-    return;
-  }
-
-  const baseUrl = `${import.meta.env.VITE_BACKEND_URL}/api/${userId}/eventos`;
-  const url = eventId ? `${baseUrl}/${eventId}` : baseUrl;
-
-  try {
-    const res = await fetch(url, {
-      method: eventId ? "PUT" : "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(processedData),
-    });
-
-    if (!res.ok) {
-      const errorData = await res.json();
-      alert(
-        (eventId ? "Error al modificar" : "Error al crear") +
-          " evento: " +
-          (errorData.message || res.statusText)
-      );
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setMessage({ type: "error", text: "No estás autenticado" });
+      return;
+    }
+    const payload = parseJwt(token);
+    const userId = payload?.sub;
+    if (!userId) {
+      setMessage({ type: "error", text: "Usuario no autenticado o token inválido" });
       return;
     }
 
-    const eventResponse = await res.json();
-    alert(eventId ? "Evento modificado con éxito!" : "Evento creado con éxito!");
+    const baseUrl = `${import.meta.env.VITE_BACKEND_URL}/api/${userId}/eventos`;
+    const url = eventId ? `${baseUrl}/${eventId}` : baseUrl;
 
-    // Si es creación de evento (no edición), hacemos POST para crear invitaciones
-    if (!eventId) {
-      const nuevoEventoId = eventResponse.evento.id; // asumir que el backend devuelve el ID en evento.id
+    try {
+      const res = await fetch(url, {
+        method: eventId ? "PUT" : "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(processedData),
+      });
 
-      // Preparar lista de invitados
-      const invitadosArray = data.invitados
-        ? data.invitados
+      if (!res.ok) {
+        const errorData = await res.json();
+        setMessage({
+          type: "error",
+          text:
+            (eventId ? "Error al modificar" : "Error al crear") +
+            " evento: " +
+            (errorData.message || res.statusText),
+        });
+        return;
+      }
+
+      const eventResponse = await res.json();
+
+      // Mensaje de éxito
+      setMessage({
+        type: "success",
+        text: eventId ? "Evento modificado con éxito!" : "Evento creado con éxito!",
+      });
+
+      // Si es creación, crear invitaciones (puedes dejarlo o quitar para simplificar)
+      if (!eventId) {
+        const nuevoEventoId = eventResponse.evento.id;
+
+        const invitadosArray = data.invitados
+          ? data.invitados
             .split(",")
             .map((email) => email.trim())
             .filter((email) => email !== "")
-        : [];
+          : [];
 
-      if (invitadosArray.length > 0) {
-        const urlInvitaciones = `${baseUrl}/${nuevoEventoId}/invitaciones`;
+        if (invitadosArray.length > 0) {
+          const urlInvitaciones = `${baseUrl}/${nuevoEventoId}/invitaciones`;
 
-        const resInv = await fetch(urlInvitaciones, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ emails: invitadosArray }),
-        });
+          const resInv = await fetch(urlInvitaciones, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ emails: invitadosArray }),
+          });
 
-        if (!resInv.ok) {
-          const errorInv = await resInv.json();
-          alert(
-            "Evento creado pero error al agregar invitaciones: " +
-              (errorInv.message || resInv.statusText)
-          );
-        } else {
-          alert("Invitaciones enviadas correctamente");
+          if (!resInv.ok) {
+            const errorInv = await resInv.json();
+            setMessage((prev) => ({
+              type: "error",
+              text:
+                "Evento creado pero error al agregar invitaciones: " +
+                (errorInv.message || resInv.statusText),
+            }));
+            return;
+          } else {
+            // Opcional: Mensaje adicional de invitaciones
+            // setMessage({ type: "success", text: "Invitaciones enviadas correctamente" });
+          }
         }
       }
-    }
 
-    reset();
-    setValue("aceptaColaboradores", true);
-    navigate("/dashboard");
-  } catch (error) {
-    alert("Error de red o inesperado: " + error.message);
-  }
-};
+      reset();
+      setValue("aceptaColaboradores", true);
+
+      // Redireccionar después de 2 segundos solo si fue éxito
+      setTimeout(() => {
+        navigate("/dashboard");
+      }, 2000);
+    } catch (error) {
+      setMessage({ type: "error", text: "Error de red o inesperado: " + error.message });
+    }
+  };
 
   if (loading) {
     return <p>Cargando datos del evento...</p>;
@@ -228,7 +242,9 @@ const FormularioEvento = () => {
     <div className="homepage-container pt-5 pb-5 d-flex justify-content-center">
       <div className="container" style={{ maxWidth: "900px" }}>
         <div className="d-flex justify-content-between align-items-center flex-wrap mb-4">
-          <h1 style={{ color: '#ff2e63' }} className="mb-0 ">{eventId ? "Editar evento" : "Crear evento"}</h1>
+          <h1 style={{ color: "#ff2e63" }} className="mb-0 ">
+            {eventId ? "Editar evento" : "Crear evento"}
+          </h1>
           <div className="btn-group" role="group" aria-label="Navegación rápida">
             <button
               type="button"
@@ -251,7 +267,7 @@ const FormularioEvento = () => {
 
         <form
           id="eventForm"
-          className="row g-3 p-4 rounded shadow"
+          className="row g-3 p-4 rounded shadow position-relative"
           style={{ fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif" }}
           onSubmit={handleSubmit(onSubmit)}
         >
@@ -280,7 +296,9 @@ const FormularioEvento = () => {
               type="datetime-local"
               id="fechaHora"
               className={`form-control ${errors.fechaHora ? "is-invalid" : ""}`}
-              {...register("fechaHora", { required: "La fecha y hora son obligatorias" })}
+              {...register("fechaHora", {
+                required: "La fecha y hora son obligatorias",
+              })}
             />
             {errors.fechaHora && (
               <div className="invalid-feedback">{errors.fechaHora.message}</div>
@@ -423,13 +441,47 @@ const FormularioEvento = () => {
             />
           </div>
 
+          {/* Mensaje sobre el botón */}
+          {message && (
+            <div
+              className={`alert ${message.type === "success" ? "alert-success" : "alert-danger"
+                } d-flex justify-content-between align-items-center position-absolute w-100`}
+              style={{
+                bottom: "80px",
+                left: 0,
+                zIndex: 10,
+                padding: "10px 20px",
+                borderRadius: "4px",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+              }}
+              role="alert"
+            >
+              <span>{message.text}</span>
+              {message.type === "error" && (
+                <button
+                  type="button"
+                  className="btn-close"
+                  aria-label="Cerrar"
+                  onClick={() => setMessage(null)}
+                />
+              )}
+            </div>
+          )}
+
           {/* Botón submit */}
-          <div className="col-12 text-center mt-4">
-            <button type="submit" className="create-event-btn mb-5 fade-in-delay">
+          <div className="col-12 text-center mt-4 position-relative">
+            <button
+              type="submit"
+              className="create-event-btn mb-5 fade-in-delay btn btn-danger"
+              disabled={loading}
+              style={{ minWidth: "140px" }}
+            >
               {eventId ? "Guardar cambios" : "Crear evento"}
             </button>
+
           </div>
         </form>
+
       </div>
     </div>
   );
