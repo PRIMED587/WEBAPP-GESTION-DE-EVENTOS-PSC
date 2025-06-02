@@ -1,44 +1,43 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 
-const Participantes = ({ participants, setParticipants }) => {
-  const [newParticipant, setNewParticipant] = useState("");
+const Participantes = () => {
+  const { eventoId } = useParams();
+  const [participantes, setParticipantes] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const handleAddParticipant = () => {
-    if (newParticipant.trim() === "") return;
-    setParticipants([...participants, { name: newParticipant, isOrganizer: false }]);
-    setNewParticipant("");
+  const fetchParticipantes = async () => {
+    try {
+      const response = await fetch(`${process.env.BACKEND_URL}/api/eventos/${eventoId}/participantes`);
+      const data = await response.json();
+      setParticipantes(data);
+    } catch (error) {
+      console.error("Error al obtener participantes:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const removeParticipant = (index) => {
-    setParticipants(participants.filter((_, i) => i !== index));
-  };
+  useEffect(() => {
+    fetchParticipantes();
+  }, []);
+
+  if (loading) return <div>Cargando participantes...</div>;
 
   return (
-    <div className="participantes-box box-style">
-      <h4>Mis Invitados</h4>
-      <ul className="lista-participantes">
-        {participants.map((p, i) => (
-          <li key={i}>
-            <div className="participant-info">
-              {p.name}
-              {p.isOrganizer && <span className="organizador-label">Organizador 👑</span>}
+    <div className="box-seccion-evento">
+      <h4 className="mb-3">Participantes</h4>
+      <ul className="list-group">
+        {participantes.map((p) => (
+          <li key={p.id} className="list-group-item d-flex justify-content-between align-items-center">
+            <div>
+              <strong>ID Usuario:</strong> {p.usuario_id}
+              {p.aceptado && <span className="badge bg-success ms-2">Aceptado</span>}
+              {!p.aceptado && <span className="badge bg-secondary ms-2">Pendiente</span>}
             </div>
-            {!p.isOrganizer && (
-              <button className="eliminar-btn" onClick={() => removeParticipant(i)}>❌</button>
-            )}
           </li>
         ))}
       </ul>
-
-      <div className="agregar-form">
-        <input
-          type="text"
-          placeholder="Nuevo participante"
-          value={newParticipant}
-          onChange={(e) => setNewParticipant(e.target.value)}
-        />
-        <button onClick={handleAddParticipant}>Agregar</button>
-      </div>
     </div>
   );
 };
