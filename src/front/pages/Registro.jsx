@@ -68,7 +68,7 @@ const Registro = () => {
     };
 
     return (
-        <div className="registerHeadTitle">
+        <div className="registerHeadTitle mb-5">
             <h1>FORMULARIO DE REGISTRO</h1>
 
             <div id="registerForm" className="container mt-5">
