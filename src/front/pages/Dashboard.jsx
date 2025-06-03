@@ -42,7 +42,7 @@ useEffect(() => {
 
   return (
     <div className="dashboard-container d-flex flex-column align-items-center text-white py-5 px-3 fade-in">
-      <h1 className="mb-3 text-center slide-down">Tus Eventos</h1>
+      <h1 className="mb-3 text-center slide-down">Mis Eventos</h1>
 
       <Button
         variant="danger"
@@ -52,7 +52,7 @@ useEffect(() => {
         Crear nuevo evento
       </Button>
 
-      <h2 className="next-events text-center mb-4 fade-in-delay">Próximos Eventos</h2>
+      <h2 className="next-events text-center mb-4 fade-in-delay">Eventos proximos a participar</h2>
 
       {loading ? (
         <p className="text-center">Cargando eventos...</p>
