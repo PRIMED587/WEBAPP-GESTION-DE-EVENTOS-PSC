@@ -28,6 +28,15 @@ def token_required(func):
     wrapper.__name__ = func.__name__
     return wrapper
 
+# Ruta para obtener todos los eventos en los que un usuario es participante
+@api.route('/usuarios/<int:usuario_id>/eventos-participados', methods=['GET'])
+@token_required
+def obtener_eventos_donde_participa(current_user_id, usuario_id):
+    if current_user_id != usuario_id:
+        return jsonify({"message": "No autorizado"}), 403
+    participantes = Participante.query.filter_by(usuario_id=usuario_id).all()
+    eventos = [p.evento.serialize() for p in participantes if p.evento]
+    return jsonify(eventos), 200
 
 # ------------------ AUTH ------------------
 
@@ -68,7 +77,7 @@ def login():
         return jsonify({"message": "Credenciales inválidas"}), 401
 
     access_token = create_access_token(identity=str(user.id))
-    return jsonify(access_token=access_token)
+    return jsonify({"access_token":access_token, "user": user.serialize()})
 
 
 # ------------------ USUARIOS ------------------
