@@ -1,31 +1,73 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2";
 import fiestaImg from "../assets/istockphoto-2155511077-612x612.jpg";
 import parrilladaImg from "../assets/premium_photo-1666184130709-f3709060899a.avif";
 
-
 const MisInvitaciones = () => {
-  const [invitaciones, setInvitaciones] = useState([
-    {
-      id: 1,
-      evento: "Fiesta de cumpleaños",
-      fecha: "2025-06-15",
-      lugar: "Casa de Juan",
-      estado: "pendiente",
-    },
-  ]);
+  const token = sessionStorage.getItem("token");
+  const userId = sessionStorage.getItem("userId");
 
-  const responderInvitacion = (id, respuesta) => {
+  const [invitaciones, setInvitaciones] = useState([]);
+
+  useEffect(() => {
+    // Fetch invitaciones del backend
+    fetch(import.meta.env.VITE_BACKEND_URL + `/api/${userId}/invitaciones`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then(res => res.json())
+      .then(data => setInvitaciones(data))
+      .catch(() => {
+        Swal.fire({
+          title: "Error",
+          text: "No se pudieron cargar las invitaciones.",
+          icon: "error",
+          confirmButtonColor: "#FF2E63",
+          background: "#1A1A1D",
+          color: "#FFFFFF",
+        });
+      });
+  }, [userId, token]);
+
+  const responderInvitacion = async (id, respuesta, evento_id) => {
+    if (respuesta === "aceptado") {
+      // Llamar API para agregar participante
+      try {
+        const res = await fetch(import.meta.env.VITE_BACKEND_URL + `/api/${evento_id}/participantes`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ usuario_id: userId }),
+        });
+
+        if (!res.ok) throw new Error("Error agregando participante");
+
+        // Opcional: actualizar invitación en backend a estado aceptado si tienes endpoint
+      } catch (error) {
+        Swal.fire({
+          title: "Error",
+          text: "No se pudo aceptar la invitación.",
+          icon: "error",
+          confirmButtonColor: "#FF2E63",
+          background: "#1A1A1D",
+          color: "#FFFFFF",
+        });
+        
+        return;
+      }
+    }
+
+    // Actualizar estado local
     const nuevasInvitaciones = invitaciones.map((inv) => {
       if (inv.id === id && inv.estado !== respuesta) {
         return { ...inv, estado: respuesta };
       }
       return inv;
     });
-
     setInvitaciones(nuevasInvitaciones);
 
-    // Mensajes de alerta divertidos por tipo de respuesta (aceptar o rechazar)
+    // Mostrar alerta
     const mensajes = {
       aceptado: {
         title: "¡Genial! 🎉",
@@ -58,18 +100,16 @@ const MisInvitaciones = () => {
         color: "#FFFFFF",
         minHeight: "100vh",
         padding: "3rem",
-        position: "relative", // 🔑 importante para posicionar las imágenes
-        overflow: "hidden", // evita que las imágenes sobresalgan
+        position: "relative",
+        overflow: "hidden",
       }}
     >
-      {/* 🎉 Imagenes decorativas */}
       <img
         src={fiestaImg}
         alt="decoracion fiesta"
         className="decoracion-img"
         style={{ top: "30px", left: "10px" }}
       />
-
       <img
         src={parrilladaImg}
         alt="decoracion parrillada"
@@ -77,8 +117,6 @@ const MisInvitaciones = () => {
         style={{ bottom: "40px", right: "15px" }}
       />
 
-
-      {/* Título */}
       <h1
         style={{
           color: "#FF2E63",
@@ -90,7 +128,8 @@ const MisInvitaciones = () => {
         📨 Tienes una invitación
       </h1>
 
-      {/* Invitaciones */}
+      {invitaciones.length === 0 && <p>No tienes invitaciones pendientes.</p>}
+
       {invitaciones.map((inv) => (
         <div
           key={inv.id}
@@ -109,13 +148,13 @@ const MisInvitaciones = () => {
           }}
         >
           <h2 style={{ fontSize: "2.2rem", marginBottom: "1.5rem", color: "#FF2E63" }}>
-            🎉 {inv.evento}
+            🎉 {inv.evento_info?.nombre || "Sin nombre"}
           </h2>
           <p>
-            📅 <strong>Fecha:</strong> {inv.fecha}
+            📅 <strong>Fecha:</strong> {new Date(inv.evento_info?.fecha).toLocaleString() || "Sin fecha"}
           </p>
           <p>
-            📍 <strong>Lugar:</strong> {inv.lugar}
+            📍 <strong>Lugar:</strong> {inv.evento_info?.ubicacion || "Sin ubicación"}
           </p>
           <p>
             📌 <strong>Estado:</strong>{" "}
@@ -125,15 +164,14 @@ const MisInvitaciones = () => {
                   inv.estado === "aceptado"
                     ? "#00ffae"
                     : inv.estado === "rechazado"
-                      ? "#ff6b6b"
-                      : "#FF2E63",
+                    ? "#ff6b6b"
+                    : "#FF2E63",
               }}
             >
               {inv.estado}
             </span>
           </p>
 
-          {/* Botones solo si está pendiente */}
           {inv.estado === "pendiente" && (
             <div
               style={{
@@ -146,13 +184,13 @@ const MisInvitaciones = () => {
             >
               <button
                 className="btn-rechazar-invitacion"
-                onClick={() => responderInvitacion(inv.id, "aceptado")}
+                onClick={() => responderInvitacion(inv.id, "aceptado", inv.evento_id)}
               >
                 ✔️ Aceptar invitación
               </button>
               <button
                 className="btn-rechazar-invitacion"
-                onClick={() => responderInvitacion(inv.id, "rechazado")}
+                onClick={() => responderInvitacion(inv.id, "rechazado", inv.evento_id)}
               >
                 ❌ Rechazar invitación
               </button>

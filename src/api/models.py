@@ -146,6 +146,7 @@ class Invitacion(db.Model):
             "usuario_id": self.usuario_id,
             "estado": self.estado,
             "email": self.email,
+            "evento_info": self.evento.serialize() if self.evento else None
         }
 
 class Participante(db.Model):
