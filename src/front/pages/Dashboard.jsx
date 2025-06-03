@@ -1,39 +1,68 @@
-import React from "react";
-import { Button, Card } from "react-bootstrap";
+import React, { useEffect, useState } from "react";
+import { Button } from "react-bootstrap";
 import { useNavigate } from 'react-router-dom';
+import EventoSingle from "../components/EventoSingle";
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const [eventos, setEventos] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const token = sessionStorage.getItem("token");
+  const userId = sessionStorage.getItem("userId");
+  const user = JSON.parse(sessionStorage.getItem("user"));
+
+useEffect(() => {
+
+    const fetchEventos = async () => {
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_BACKEND_URL}/api/usuarios/${user.id}/eventos-participados`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (!response.ok) throw new Error("Error al obtener eventos");
+
+        const data = await response.json();
+        setEventos(data);
+        console.log(data)
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEventos();
+  }, []);
+
   return (
     <div className="dashboard-container d-flex flex-column align-items-center text-white py-5 px-3 fade-in">
       <h1 className="mb-3 text-center slide-down">Tus Eventos</h1>
-      <p className="no-events-text text-center fade-in-delay">No tienes eventos aún...</p>
 
-      <Button variant="danger" className="create-event-btn mb-5 fade-in-delay"
-      onClick={() => navigate("/eventos/crear")}
-      >Crear nuevo evento
+      <Button
+        variant="danger"
+        className="create-event-btn mb-5 fade-in-delay"
+        onClick={() => navigate("/eventos/crear")}
+      >
+        Crear nuevo evento
       </Button>
 
       <h2 className="next-events text-center mb-4 fade-in-delay">Próximos Eventos</h2>
 
-      <div className="events-section d-flex flex-wrap justify-content-center gap-4">
-        {[1, 2, 3].map((event, index) => (
-          <Card key={index} className="event-card text-white slide-up">
-            <Card.Body>
-              <Card.Title>Evento #{event}</Card.Title>
-              <Card.Text>
-                Descripción breve del evento. Aquí puedes poner el lugar, hora o tipo.
-              </Card.Text>
-              <Button className="ver-detalles-btn" size="sm">
-                Ver detalles
-              </Button>
-            </Card.Body>
-          </Card>
-        ))}
-      </div>
+      {loading ? (
+        <p className="text-center">Cargando eventos...</p>
+      ) : eventos.length === 0 ? (
+        <p className="no-events-text text-center fade-in-delay">No tienes eventos aún...</p>
+      ) : (
+        <EventoSingle eventos={eventos} />
+      )}
     </div>
   );
 };
 
 export default Dashboard;
-

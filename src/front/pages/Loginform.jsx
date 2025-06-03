@@ -42,12 +42,15 @@ const Loginform = () => {
             const result = await response.json();
             console.log(result); // Esto nos dirá qué datos devuelve el backend, para hacer el boton de logout. Jenn
 
-
             if (!response.ok) {
                 throw new Error(result.message || "Error al iniciar sesión");
             }
 
-            localStorage.setItem("token", result.access_token);
+            // ✅ Guardar token y userId en sessionStorage
+            sessionStorage.setItem("token", result.access_token);
+            sessionStorage.setItem("userId", result.user.id); // <-- ESTA LÍNEA ES LA NUEVA
+            sessionStorage.setItem("user", JSON.stringify(result.user))
+
             showAlert("Inicio de sesión exitoso", "success");
 
             reset();
@@ -58,13 +61,14 @@ const Loginform = () => {
         }
     };
 
+
     const handleSendPassword = async () => {
         const email = getValues("login");
         if (!email) {
             showAlert("Por favor escribe tu correo primero.", "warning");
             return;
         }
-        localStorage.setItem("email", email);
+        sessionStorage.setItem("email", email);
         try {
             const response = await fetch(import.meta.env.VITE_BACKEND_URL + "/api/forgot-password/", {
                 method: "POST",
