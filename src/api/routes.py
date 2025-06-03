@@ -961,6 +961,26 @@ def request_password_reset():
     # Solo para desarrollo. En producción, enviá el link por email.
     return jsonify({"msg": "Si el email está registrado, se envió un enlace", "reset_link": reset_link}), 200
 
+# # ----------ruta para obtener todas las invitaciones de un usuario con detalles del evento ----------- 
+# # ruta nueva para trabajarla con MisInvitaciones
+# @api.route('/<int:user_id>/invitaciones', methods=['GET'])
+# @token_required
+# def obtener_invitaciones_usuario(current_user_id, user_id):
+#     if current_user_id != user_id:
+#         return jsonify({"message": "No autorizado"}), 403
+
+#     invitaciones = Invitacion.query.filter_by(usuario_id=user_id).all()
+
+#     resultado = []
+#     for inv in invitaciones:
+#         evento = Evento.query.get(inv.evento_id)
+#         invitacion_data = inv.serialize()
+#         evento_data = evento.serialize() if evento else {}
+#         invitacion_data["evento"] = evento_data
+#         resultado.append(invitacion_data)
+
+#     return jsonify(resultado), 200
+
 # # Ruta para enviar un correo de prueba. Requiere un email en el body del request.
 # @api.route("/enviar-correo-prueba", methods=["POST"])
 # def enviar_correo_prueba():

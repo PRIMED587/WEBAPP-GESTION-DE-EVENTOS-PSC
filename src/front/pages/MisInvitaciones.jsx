@@ -8,7 +8,6 @@ const MisInvitaciones = () => {
   const [invitaciones, setInvitaciones] = useState([]); // Estado para almacenar invitaciones
 
   useEffect(() => {
-    // Obtener token e ID de usuario desde localStorage
     const token = localStorage.getItem("token");
     const userId = localStorage.getItem("user_id");
 
@@ -17,8 +16,7 @@ const MisInvitaciones = () => {
       return;
     }
 
-    // Petición al backend para obtener invitaciones del usuario
-    fetch(`http://localhost:5000/api/${userId}/invitaciones`, {
+    fetch(`${import.meta.env.VITE_BACKEND_URL}/api/${userId}/invitaciones`, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -29,7 +27,6 @@ const MisInvitaciones = () => {
         return res.json();
       })
       .then((data) => {
-        // Formatea las invitaciones para mostrarlas
         const invitacionesFormateadas = data.map((inv) => ({
           id: inv.id,
           evento: inv.evento.titulo,
@@ -151,8 +148,8 @@ const MisInvitaciones = () => {
                   inv.estado === "aceptado"
                     ? "#00ffae"
                     : inv.estado === "rechazado"
-                    ? "#ff6b6b"
-                    : "#FF2E63",
+                      ? "#ff6b6b"
+                      : "#FF2E63",
               }}
             >
               {inv.estado}

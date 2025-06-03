@@ -48,6 +48,8 @@ const Loginform = () => {
             }
 
             localStorage.setItem("token", result.access_token);
+            {/* parte agregada para el token de misInvitaciones */ }
+            localStorage.setItem("user_id", result.user_id || result.user?.id);
             showAlert("Inicio de sesión exitoso", "success");
 
             reset();
