@@ -64,7 +64,7 @@ const Loginform = () => {
             showAlert("Por favor escribe tu correo primero.", "warning");
             return;
         }
-
+        localStorage.setItem("email", email);
         try {
             const response = await fetch(import.meta.env.VITE_BACKEND_URL + "/api/forgot-password/", {
                 method: "POST",
@@ -86,7 +86,7 @@ const Loginform = () => {
     };
 
     return (
-        <div id="Logincontainer" className="col-lg-7 col-8 m-auto mt-5 p-5">
+        <div id="Logincontainer" className="col-lg-7 col-8 m-auto mt-5 p-5 mb-5">
             <h1>INICIO DE SESION</h1>
 
             {/* Alerta visual */}
@@ -97,7 +97,7 @@ const Loginform = () => {
                 </div>
             )}
 
-            <form id="LoginForm m-auto w-auto" onSubmit={handleSubmit(onSubmit)}>
+            <form id="LoginForm" className="m-auto w-100" onSubmit={handleSubmit(onSubmit)}>
                 <div id="LoginLabel1" className="form-group mt-5">
                     <label htmlFor="loginEmail">Correo Electrónico</label>
                     <input
@@ -141,7 +141,7 @@ const Loginform = () => {
                     <button
                         id="ResetButton"
                         type="button"
-                        className="btn btn-primary ms-2"
+                        className="btn btn-primary m-auto"
                         onClick={handleSendPassword}
                     >
                         Enviar Contraseña al correo
