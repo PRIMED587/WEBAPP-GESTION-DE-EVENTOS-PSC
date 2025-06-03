@@ -354,6 +354,7 @@ def eliminar_gasto(current_user_id, user_id, evento_id, gasto_id):
 # ------------------ INVITACIONES ------------------
 
 # Ruta para obtener todas las invitaciones que un usuario ha recibido.
+# Ruta se modifica para incluir la info del evento para la pagina Mis Invitaciones. 
 
 @api.route('/<int:user_id>/invitaciones', methods=['GET'])
 @token_required
@@ -369,7 +370,19 @@ def obtener_invitaciones_usuario(current_user_id, user_id):
         (Invitacion.usuario_id == user_id) | (Invitacion.email == usuario.email)
     ).all()
 
-    return jsonify([inv.serialize() for inv in invitaciones]), 200
+    resultado = []
+    for inv in invitaciones:
+        invitacion_serializada = inv.serialize()
+        if inv.evento:
+            evento = inv.evento
+            invitacion_serializada["evento"] = {
+                "nombre": evento.nombre,
+                "lugar": evento.lugar,
+                "fecha": evento.fecha.isoformat() if evento.fecha else None
+            }
+        resultado.append(invitacion_serializada)
+
+    return jsonify(resultado), 200
 
 # Ruta para obtener todas las invitaciones de un evento específico. Solo el creador del evento puede acceder.
 

@@ -1,21 +1,52 @@
-import React, { useState } from "react";
+// Importaciones necesarias
+import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2";
 import fiestaImg from "../assets/istockphoto-2155511077-612x612.jpg";
 import parrilladaImg from "../assets/premium_photo-1666184130709-f3709060899a.avif";
 
-
 const MisInvitaciones = () => {
-  const [invitaciones, setInvitaciones] = useState([
-    {
-      id: 1,
-      evento: "Fiesta de cumpleaños",
-      fecha: "2025-06-15",
-      lugar: "Casa de Juan",
-      estado: "pendiente",
-    },
-  ]);
+  const [invitaciones, setInvitaciones] = useState([]); // Estado para almacenar invitaciones
 
+  useEffect(() => {
+    // Obtener token e ID de usuario desde localStorage
+    const token = localStorage.getItem("token");
+    const userId = localStorage.getItem("user_id");
+
+    if (!token || !userId) {
+      console.error("Falta token o user_id en localStorage");
+      return;
+    }
+
+    // Petición al backend para obtener invitaciones del usuario
+    fetch(`http://localhost:5000/api/${userId}/invitaciones`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Error al obtener invitaciones");
+        return res.json();
+      })
+      .then((data) => {
+        // Formatea las invitaciones para mostrarlas
+        const invitacionesFormateadas = data.map((inv) => ({
+          id: inv.id,
+          evento: inv.evento.titulo,
+          fecha: inv.evento.fecha,
+          lugar: inv.evento.lugar,
+          estado: inv.estado,
+        }));
+        setInvitaciones(invitacionesFormateadas);
+      })
+      .catch((error) => {
+        console.error("Error al obtener las invitaciones:", error);
+      });
+  }, []);
+
+  // Función para aceptar o rechazar una invitación
   const responderInvitacion = (id, respuesta) => {
+    // Actualiza el estado local de la invitación
     const nuevasInvitaciones = invitaciones.map((inv) => {
       if (inv.id === id && inv.estado !== respuesta) {
         return { ...inv, estado: respuesta };
@@ -25,7 +56,7 @@ const MisInvitaciones = () => {
 
     setInvitaciones(nuevasInvitaciones);
 
-    // Mensajes de alerta divertidos por tipo de respuesta (aceptar o rechazar)
+    // Mensajes personalizados para cada respuesta
     const mensajes = {
       aceptado: {
         title: "¡Genial! 🎉",
@@ -39,8 +70,8 @@ const MisInvitaciones = () => {
       },
     };
 
+    // Muestra alerta con SweetAlert
     const mensaje = mensajes[respuesta];
-
     Swal.fire({
       title: mensaje.title,
       text: mensaje.text,
@@ -58,18 +89,17 @@ const MisInvitaciones = () => {
         color: "#FFFFFF",
         minHeight: "100vh",
         padding: "3rem",
-        position: "relative", // 🔑 importante para posicionar las imágenes
-        overflow: "hidden", // evita que las imágenes sobresalgan
+        position: "relative",
+        overflow: "hidden",
       }}
     >
-      {/* 🎉 Imagenes decorativas */}
+      {/* Imágenes decorativas */}
       <img
         src={fiestaImg}
         alt="decoracion fiesta"
         className="decoracion-img"
         style={{ top: "30px", left: "10px" }}
       />
-
       <img
         src={parrilladaImg}
         alt="decoracion parrillada"
@@ -77,8 +107,7 @@ const MisInvitaciones = () => {
         style={{ bottom: "40px", right: "15px" }}
       />
 
-
-      {/* Título */}
+      {/* Título principal */}
       <h1
         style={{
           color: "#FF2E63",
@@ -90,7 +119,7 @@ const MisInvitaciones = () => {
         📨 Tienes una invitación
       </h1>
 
-      {/* Invitaciones */}
+      {/* Muestra cada invitación */}
       {invitaciones.map((inv) => (
         <div
           key={inv.id}
@@ -108,15 +137,12 @@ const MisInvitaciones = () => {
             position: "relative",
           }}
         >
+          {/* Detalles del evento */}
           <h2 style={{ fontSize: "2.2rem", marginBottom: "1.5rem", color: "#FF2E63" }}>
             🎉 {inv.evento}
           </h2>
-          <p>
-            📅 <strong>Fecha:</strong> {inv.fecha}
-          </p>
-          <p>
-            📍 <strong>Lugar:</strong> {inv.lugar}
-          </p>
+          <p>📅 <strong>Fecha:</strong> {inv.fecha}</p>
+          <p>📍 <strong>Lugar:</strong> {inv.lugar}</p>
           <p>
             📌 <strong>Estado:</strong>{" "}
             <span
@@ -125,15 +151,15 @@ const MisInvitaciones = () => {
                   inv.estado === "aceptado"
                     ? "#00ffae"
                     : inv.estado === "rechazado"
-                      ? "#ff6b6b"
-                      : "#FF2E63",
+                    ? "#ff6b6b"
+                    : "#FF2E63",
               }}
             >
               {inv.estado}
             </span>
           </p>
 
-          {/* Botones solo si está pendiente */}
+          {/* Botones solo si la invitación está pendiente */}
           {inv.estado === "pendiente" && (
             <div
               style={{
