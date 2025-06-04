@@ -520,6 +520,54 @@ body,
     max-height: 150px;
   }
 }
+#TextMisEventos {
+   margin-left: 15% !important; 
+}
+
+.create-event-btn {
+  margin-right: 15% !important; 
+}
+
+/* Responsivo: Ajustes para pantallas pequeñas */
+@media (max-width: 768px) {
+  .info-box,
+  .extra-box,
+  .participantes-box,
+  .tareas-box {
+    max-width: 100%;
+    height: auto;
+  }
+
+  .dashboard-container h1 {
+    font-size: 1.8rem;
+    text-align: center;
+  }
+
+  .create-event-btn {
+    width: 100%;
+    font-size: 1rem;
+  }
+
+  .d-flex.justify-content-between {
+    flex-direction: column;
+    align-items: stretch !important;
+    gap: 1rem;
+  }
+
+  .lista-participantes li,
+  .lista-tareas li {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .participant-info,
+  .task-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+}
+
 /**********************************************Event Cards (PSC)******************************************************/
 
 @keyframes fadeInUp {
@@ -669,6 +717,8 @@ body,
   text-align: justify;
   line-height: 1.6;
 }
+
+
 
 /**********************************************Formulario Registro (PSC)********************************************/
 

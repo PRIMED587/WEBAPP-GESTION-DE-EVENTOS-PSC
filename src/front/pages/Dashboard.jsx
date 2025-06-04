@@ -41,16 +41,20 @@ useEffect(() => {
   }, []);
 
   return (
-    <div className="dashboard-container d-flex flex-column align-items-center text-white py-5 px-3 fade-in">
-      <h1 className="mb-3 text-center slide-down">Mis Eventos</h1>
+  <div className="dashboard-container container-fluid d-flex flex-column align-items-center text-white py-5 px-3 fade-in">
 
-      <Button
-        variant="danger"
-        className="create-event-btn mb-5 fade-in-delay"
-        onClick={() => navigate("/eventos/crear")}
-      >
-        Crear nuevo evento
-      </Button>
+  <div className="d-flex flex-column flex-md-row justify-content-between align-items-center w-100 mb-5 gap-3">
+
+    <h1 id="TextMisEventos" className="mb-0 slide-down">Mis Eventos</h1>
+
+    <Button
+      variant="danger"
+      className="create-event-btn fade-in-delay"
+      onClick={() => navigate("/eventos/crear")}
+    >
+      Crear nuevo evento
+    </Button>
+  </div>
 
 
       {loading ? (

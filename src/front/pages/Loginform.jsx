@@ -139,13 +139,13 @@ const Loginform = () => {
                 </div>
 
                 <div className="d-flex justify-content-center mt-5">
-                    <button id="LoginButton" type="submit" className="btn btn-primary m-auto mb-3">
+                    <button id="LoginButton" type="submit" className="btn btn-primary mx-1 my-1">
                         Log In
                     </button>
                     <button
                         id="ResetButton"
                         type="button"
-                        className="btn btn-primary m-auto"
+                        className="btn btn-primary mx-1 my-1"
                         onClick={handleSendPassword}
                     >
                         Enviar Contraseña al correo
