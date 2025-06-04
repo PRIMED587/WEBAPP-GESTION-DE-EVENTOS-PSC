@@ -6,7 +6,6 @@ export const Navbar = () => {
 	const location = useLocation();
 	const navigate = useNavigate();
 
-	// Páginas donde se deben ocultar ciertos botones
 	const isHomePage = location.pathname === "/";
 	const isAboutPage = location.pathname === "/aboutus";
 	const isDashboardPage = location.pathname === "/dashboard";
@@ -15,7 +14,6 @@ export const Navbar = () => {
 	const hideAboutUsButton = ["/registro", "/aboutus", "/mis-invitaciones"].includes(location.pathname);
 	const isLoggedIn = !!sessionStorage.getItem("token");
 
-	// 🔒 Función para cerrar sesión con mensaje personalizado
 	const handleLogout = () => {
 		const userStr = sessionStorage.getItem("user");
 		let userName = "";
@@ -63,11 +61,11 @@ export const Navbar = () => {
 			<nav className="px-4 py-3" style={{ backgroundColor: "#FF2E63", backdropFilter: "blur(6px)" }}>
 				<div className="container">
 					<div className="row align-items-center">
-						{/* Logo del sitio */}
+						{/* Logo del sitio - ahora no clickeable */}
 						<div className="col-12 col-md-6 text-center text-md-start mb-3 mb-md-0">
-							<Link to="/" className="navbar-brand text-black h3 mb-0">
+							<div className="navbar-brand text-black h3 mb-0">
 								<h2>ASAD-APP</h2>
-							</Link>
+							</div>
 						</div>
 
 						{/* Botones de navegación */}
@@ -88,8 +86,8 @@ export const Navbar = () => {
 								</Link>
 							)}
 
-							{/* Home (oculto si ya estás en Home) */}
-							{!isHomePage && (
+							{/* Home (oculto si estás en Home o si ya iniciaste sesión) */}
+							{!isHomePage && !isLoggedIn && (
 								<Link to="/">
 									<button className="btn btn-outline-black">
 										<i className="fas fa-home me-1"></i> Home
