@@ -17,7 +17,53 @@ body,
   color: #fff;
   min-height: 100vh;
 }
-/* Animación que mueve el carrusel horizontalmente de derecha a izquierda */
+
+/* === BOTÓN PERSONALIZADO NAVBAR === */
+.btn-outline-black {
+  padding: 0.5rem 1.2rem;
+  font-size: 1rem;
+  font-weight: 500;
+  border-radius: 5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: transparent;
+  border: 2px solid #1a1a1d;
+  color: #1a1a1d; /* Letra negra */
+  text-decoration: none;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.btn-outline-black:hover {
+  background-color: #1a1a1d;
+  color: white;
+}
+
+/* Asegurar que los enlaces no estén subrayados */
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* === RESPONSIVE para móviles === */
+@media (max-width: 768px) {
+  .navbar-buttons {
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: center;
+  }
+
+  .btn-outline-black {
+    width: 100%;
+    justify-content: center;
+    font-size: 0.95rem;
+    padding: 0.6rem 1rem;
+  }
+}
+
+
+/* Footer Animación que mueve el carrusel horizontalmente de derecha a izquierda */
 @keyframes scrollIcons {
   0% {
     transform: translateX(0%);
@@ -461,6 +507,53 @@ body,
     min-width: auto;
   }
 }
+#TextMisEventos {
+   margin-left: 15% !important; 
+}
+
+.create-event-btn {
+  margin-right: 15% !important; 
+}
+
+/* Responsivo: Ajustes para pantallas pequeñas */
+@media (max-width: 768px) {
+  .info-box,
+  .extra-box,
+  .participantes-box,
+  .tareas-box {
+    max-width: 100%;
+    height: auto;
+  }
+
+  .dashboard-container h1 {
+    font-size: 1.8rem;
+    text-align: center;
+  }
+
+  .create-event-btn {
+    width: 100%;
+    font-size: 1rem;
+  }
+
+  .d-flex.justify-content-between {
+    flex-direction: column;
+    align-items: stretch !important;
+    gap: 1rem;
+  }
+
+  .lista-participantes li,
+  .lista-tareas li {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .participant-info,
+  .task-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+}
 
 /**********************************************Event Cards (PSC)******************************************************/
 
@@ -547,6 +640,72 @@ body,
     font-size: 0.85rem;
   }
 }
+
+#arrowButtonBack {
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 1.8rem;
+  padding: 0.3rem 0.8rem;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+#arrowButtonBack:hover {
+  color: #ff2e63 !important;
+}
+
+#arrowButtonFor {
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 1.8rem;
+  padding: 0.3rem 0.8rem;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+#arrowButtonFor:hover {
+  color: #ff2e63 !important;
+}
+
+.slide-left {
+  animation: slideLeft 0.5s ease-in-out;
+}
+
+.slide-right {
+  animation: slideRight 0.5s ease-in-out;
+}
+
+@keyframes slideLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideRight {
+  from {
+    opacity: 0;
+    transform: translateX(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Justificado y espaciado de texto */
+.event-card .card-body {
+  text-align: justify;
+  line-height: 1.6;
+}
+
+
 
 /**********************************************Formulario Registro (PSC)********************************************/
 
@@ -635,6 +794,46 @@ body,
   font-size: 1.05rem;
   letter-spacing: 0.5px;
 }
+
+/* Responsividad adicional sin afectar estilos existentes */
+
+/* Que el contenedor ocupe un porcentaje adaptable */
+#registerForm {
+  width: 90%;
+  max-width: 600px;
+  box-sizing: border-box;
+}
+
+/* Ajustes para pantallas medianas */
+@media (max-width: 768px) {
+  #registerForm {
+    padding-left: 1.5rem !important;
+    padding-right: 1.5rem !important;
+    margin-left: 1rem !important;
+    margin-right: 1rem !important;
+  }
+
+  .registerHeadTitle h1 {
+    font-size: 1.5rem;
+  }
+}
+
+/* Ajustes para pantallas pequeñas */
+@media (max-width: 480px) {
+  #registerForm {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+
+  /* Inputs y labels toman todo el ancho, pero sin modificar otras propiedades */
+  #inputRegisterForm input,
+  #inputRegisterForm label {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+}
+
 
 /**********************************************Formulario LOGIN (PSC)********************************************/
 
@@ -969,3 +1168,5 @@ input.form-control::placeholder {
 .card:hover {
   transform: scale(1.05);
 }
+
+

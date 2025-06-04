@@ -5,7 +5,8 @@ import Participantes from "../components/Participantes";
 import Tareas from "../components/Tareas";
 import Gastos from "../components/Gastos";
 import ExtraBox from "../components/ExtraBox";
-import Invitados from "../components/Invitados"; // Asegurate de tener este componente
+import Invitados from "../components/Invitados";
+import ClimaYMapa from "../components/ClimaYMapa";
 
 const Evento = () => {
   const { eventoId } = useParams();
@@ -17,7 +18,7 @@ const Evento = () => {
   const fetchEvento = async () => {
     const token = sessionStorage.getItem("token");
     const backendUrl = import.meta.env.VITE_BACKEND_URL;
-    const userId = sessionStorage.getItem("userId"); // OJO: "userId" como lo guardaste
+    const userId = sessionStorage.getItem("userId");
 
     if (!token || !backendUrl || !eventoId) {
       setErrorMsg("Faltan datos necesarios");
@@ -74,12 +75,12 @@ const Evento = () => {
       </div>
 
       {/* InfoEvento ocupa todo el ancho */}
-      <div className="col-lg-12 ">
+      <div className="col-lg-12">
         <InfoEvento evento={evento} />
       </div>
 
       {/* Contenedor para las 4 boxes centrales */}
-      <div className="row gx-4 gy-4 mb-4">
+      <div className="row gx-4 gy-4">
         {/* Invitados */}
         <div className="col-lg-6 col-12 caja-central">
           <Invitados eventoId={eventoId} />
@@ -90,23 +91,32 @@ const Evento = () => {
           <Participantes eventoId={eventoId} />
         </div>
 
-        {/* Tareas */}
+        {/* ExtraBox */}
         <div className="col-lg-6 col-12 caja-central">
-          <Tareas eventoId={eventoId} />
+          <ExtraBox evento={evento} />
         </div>
 
         {/* Gastos */}
         <div className="col-lg-6 col-12 caja-central">
           <Gastos eventoId={parseInt(eventoId, 10)} />
         </div>
-      </div>
 
-      {/* ExtraBox ocupa todo el ancho */}
-      <div className="col-lg-12 ">
-        <ExtraBox evento={evento} />
+        {/* Tareas */}
+        <div className="col-lg-6 col-12 caja-central">
+          <Tareas eventoId={eventoId} />
+        </div>
+
+        {/* Ubicación y Clima */}
+        <div className="col-lg-6 col-12 caja-central">
+          <ClimaYMapa
+            direccion={evento.direccion}
+            fecha={evento.fecha}
+            latitud={evento.latitud}
+            longitud={evento.longitud}
+          />
+        </div>
       </div>
     </div>
-
   );
 };
 

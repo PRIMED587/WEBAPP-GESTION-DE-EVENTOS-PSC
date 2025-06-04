@@ -9,9 +9,39 @@ from datetime import timedelta
 import os
 from itsdangerous import URLSafeTimedSerializer
 from flask import current_app
+import requests
+from dotenv import load_dotenv
+
+load_dotenv()
+
+MAPBOX_ACCESS_TOKEN = os.getenv("MAPBOX_ACCESS_TOKEN")
+OPENWEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY")
 
 api = Blueprint('api', __name__)
 
+def geocode_address(address):
+    access_token = MAPBOX_ACCESS_TOKEN
+    print("== GEOCODING ==")
+    print("Address:", address)
+    print("Token (last 4 chars):", access_token[-4:] if access_token else "Ninguno")
+    url = f"https://api.mapbox.com/geocoding/v5/mapbox.places/{address}.json"
+    params = {
+        "access_token": access_token,
+        "limit": 1,
+        "language": "es"
+    }
+    response = requests.get(url, params=params)
+
+    print("Status code:", response.status_code)
+    print("Response:", response.text[:300])  # Para no saturar la consola
+
+    if response.status_code == 200:
+        data = response.json()
+        if data['features']:
+            lng, lat = data['features'][0]['center']
+            return lat, lng
+        print("== Geocoding falló")
+    return None, None
 
 def token_required(func):
     @jwt_required()
@@ -27,7 +57,6 @@ def token_required(func):
         return func(current_user_id, *args, **kwargs)
     wrapper.__name__ = func.__name__
     return wrapper
-
 
 # ------------------ AUTH ------------------
 
@@ -171,6 +200,7 @@ def crear_evento(current_user_id, user_id):
     descripcion = data.get('descripcion')
     fecha_str = data.get('fecha')
     ubicacion = data.get('ubicacion')
+    direccion = data.get('direccion')
     acepta_colaboradores = data.get('acepta_colaboradores', True)
     invitados = data.get('invitados')
     max_invitados = data.get('max_invitados')
@@ -198,6 +228,7 @@ def crear_evento(current_user_id, user_id):
         descripcion=descripcion,
         fecha=fecha,
         ubicacion=ubicacion,
+        direccion=direccion,
         acepta_colaboradores=acepta_colaboradores,
         invitados=invitados,
         max_invitados=max_invitados,
@@ -210,6 +241,14 @@ def crear_evento(current_user_id, user_id):
 
     db.session.add(nuevo_evento)
     db.session.commit()
+
+    # Geocodificar dirección (prioriza direccion, si no existe usa ubicacion)
+    addr_for_geocode = direccion if direccion else ubicacion
+    lat, lng = geocode_address(addr_for_geocode)
+    if lat and lng:
+        nuevo_evento.latitud = lat
+        nuevo_evento.longitud = lng
+        db.session.commit()
 
     # Agregar creador como participante aceptado
     nuevo_participante = Participante(
@@ -239,8 +278,6 @@ def crear_evento(current_user_id, user_id):
 
 
 # Ruta para modificar un evento existente. Solo el creador del evento puede modificarlo.
-
-
 @api.route('/<int:user_id>/eventos/<int:evento_id>', methods=['PUT'])
 @token_required
 def actualizar_evento(current_user_id, user_id, evento_id):
@@ -257,6 +294,7 @@ def actualizar_evento(current_user_id, user_id, evento_id):
     descripcion = data.get('descripcion')
     fecha_str = data.get('fecha')
     ubicacion = data.get('ubicacion')
+    direccion = data.get('direccion')
     acepta_colaboradores = data.get('acepta_colaboradores')
     invitados = data.get('invitados')
     max_invitados = data.get('max_invitados')
@@ -276,6 +314,8 @@ def actualizar_evento(current_user_id, user_id, evento_id):
             return jsonify({"message": "Formato de fecha inválido. Usa YYYY-MM-DDTHH:MM:SS"}), 400
     if ubicacion is not None:
         evento.ubicacion = ubicacion
+    if direccion is not None:
+        evento.direccion = direccion
     if acepta_colaboradores is not None:
         evento.acepta_colaboradores = bool(acepta_colaboradores)
     if invitados is not None:
@@ -295,7 +335,17 @@ def actualizar_evento(current_user_id, user_id, evento_id):
         evento.recursos = recursos
 
     db.session.commit()
+
+    # Geocodificar dirección (prioriza direccion, si no existe usa ubicacion)
+    addr_for_geocode = evento.direccion if evento.direccion else evento.ubicacion
+    lat, lng = geocode_address(addr_for_geocode)
+    if lat and lng:
+        evento.latitud = lat
+        evento.longitud = lng
+        db.session.commit()
+
     return jsonify(evento.serialize()), 200
+
 
 
 # Ruta para eliminar un evento existente. Solo el creador puede eliminarlo.
