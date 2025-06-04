@@ -33,7 +33,9 @@ const Invitados = () => {
 
   return (
     <div className="box-seccion-evento">
-      <h4 className="mb-3">Invitados pendientes</h4>
+      <div className="card-header">
+      <h4 className="mb-0 text-white">Invitados pendientes</h4>
+      </div>
       {invitados.length === 0 ? (
         <p>No hay invitados pendientes.</p>
       ) : (

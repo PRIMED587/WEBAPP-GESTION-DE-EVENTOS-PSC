@@ -8,13 +8,13 @@ const Gastos = ({ eventoId }) => {
     const gastosDelEvento = store.gastos?.filter(gasto => gasto.evento_id === eventoId) || [];
 
     return (
-        <div className="card mb-4 shadow-sm">
-            <div className="card-header bg-primary text-white">
+        <div className="box-seccion-evento">
+            <div className="card-header">
                 <h5 className="mb-0">Gastos del Evento</h5>
             </div>
             <div className="card-body">
                 {gastosDelEvento.length === 0 ? (
-                    <p className="text-muted">No hay gastos registrados para este evento.</p>
+                    <p className="text-white">No hay gastos registrados para este evento.</p>
                 ) : (
                     <table className="table table-striped table-bordered">
                         <thead className="table-light">
