@@ -6,16 +6,16 @@ import parrilladaImg from "../assets/premium_photo-1666184130709-f3709060899a.av
 const MisInvitaciones = () => {
   const token = sessionStorage.getItem("token");
   const userId = sessionStorage.getItem("userId");
+  const email = JSON.parse(sessionStorage.getItem("user"))?.email || "";
 
   const [invitaciones, setInvitaciones] = useState([]);
 
   useEffect(() => {
-    // Fetch invitaciones del backend
     fetch(import.meta.env.VITE_BACKEND_URL + `/api/${userId}/invitaciones`, {
       headers: { Authorization: `Bearer ${token}` },
     })
-      .then(res => res.json())
-      .then(data => setInvitaciones(data))
+      .then((res) => res.json())
+      .then((data) => setInvitaciones(data))
       .catch(() => {
         Swal.fire({
           title: "Error",
@@ -29,68 +29,75 @@ const MisInvitaciones = () => {
   }, [userId, token]);
 
   const responderInvitacion = async (id, respuesta, evento_id) => {
-    if (respuesta === "aceptado") {
-      // Llamar API para agregar participante
-      try {
-        const res = await fetch(import.meta.env.VITE_BACKEND_URL + `/api/${evento_id}/participantes`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ usuario_id: userId }),
-        });
+    if (respuesta === "rechazado") {
+      const resultado = await Swal.fire({
+        title: "¿Estás seguro?",
+        text: "¿Querés rechazar esta invitación?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#FF2E63",
+        cancelButtonColor: "#6c757d",
+        confirmButtonText: "Sí, rechazar",
+        cancelButtonText: "Cancelar",
+        background: "#1A1A1D",
+        color: "#FFFFFF",
+      });
 
-        if (!res.ok) throw new Error("Error agregando participante");
-
-        // Opcional: actualizar invitación en backend a estado aceptado si tienes endpoint
-      } catch (error) {
-        Swal.fire({
-          title: "Error",
-          text: "No se pudo aceptar la invitación.",
-          icon: "error",
-          confirmButtonColor: "#FF2E63",
-          background: "#1A1A1D",
-          color: "#FFFFFF",
-        });
-        
-        return;
-      }
+      if (!resultado.isConfirmed) return;
     }
 
-    // Actualizar estado local
-    const nuevasInvitaciones = invitaciones.map((inv) => {
-      if (inv.id === id && inv.estado !== respuesta) {
-        return { ...inv, estado: respuesta };
-      }
-      return inv;
-    });
-    setInvitaciones(nuevasInvitaciones);
+    const endpoint =
+      respuesta === "aceptado"
+        ? `/api/eventos/${evento_id}/invitacion/aceptar`
+        : `/api/eventos/${evento_id}/invitacion/rechazar`;
 
-    // Mostrar alerta
-    const mensajes = {
-      aceptado: {
-        title: "¡Genial! 🎉",
-        text: "Nos alegra saber que vendrás. ¡Prepárate para divertirte!",
-        icon: "success",
-      },
-      rechazado: {
-        title: "¡Oh no! 😢",
-        text: "Te vamos a extrañar, esperamos verte en el próximo evento.",
-        icon: "info",
-      },
-    };
+    try {
+      const res = await fetch(import.meta.env.VITE_BACKEND_URL + endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ email }),
+      });
 
-    const mensaje = mensajes[respuesta];
+      if (!res.ok) throw new Error("Error en la respuesta del servidor");
 
-    Swal.fire({
-      title: mensaje.title,
-      text: mensaje.text,
-      icon: mensaje.icon,
-      confirmButtonColor: "#FF2E63",
-      background: "#1A1A1D",
-      color: "#FFFFFF",
-    });
+      setInvitaciones((prev) => prev.filter((inv) => inv.id !== id));
+
+      const mensajes = {
+        aceptado: {
+          title: "¡Genial! 🎉",
+          text: "Nos alegra saber que vendrás. ¡Prepárate para divertirte!",
+          icon: "success",
+        },
+        rechazado: {
+          title: "¡Oh no! 😢",
+          text: "Te vamos a extrañar, esperamos verte en el próximo evento.",
+          icon: "info",
+        },
+      };
+
+      const mensaje = mensajes[respuesta];
+
+      Swal.fire({
+        title: mensaje.title,
+        text: mensaje.text,
+        icon: mensaje.icon,
+        confirmButtonColor: "#FF2E63",
+        background: "#1A1A1D",
+        color: "#FFFFFF",
+      });
+    } catch (error) {
+      Swal.fire({
+        title: "Error",
+        text: "No se pudo procesar la invitación.",
+        icon: "error",
+        confirmButtonColor: "#FF2E63",
+        background: "#1A1A1D",
+        color: "#FFFFFF",
+      });
+    }
   };
 
   return (
@@ -147,11 +154,16 @@ const MisInvitaciones = () => {
             position: "relative",
           }}
         >
-          <h2 style={{ fontSize: "2.2rem", marginBottom: "1.5rem", color: "#FF2E63" }}>
+          <h2
+            style={{ fontSize: "2.2rem", marginBottom: "1.5rem", color: "#FF2E63" }}
+          >
             🎉 {inv.evento_info?.nombre || "Sin nombre"}
           </h2>
           <p>
-            📅 <strong>Fecha:</strong> {new Date(inv.evento_info?.fecha).toLocaleString() || "Sin fecha"}
+            📅 <strong>Fecha:</strong>{" "}
+            {inv.evento_info?.fecha
+              ? new Date(inv.evento_info.fecha).toLocaleString()
+              : "Sin fecha"}
           </p>
           <p>
             📍 <strong>Lugar:</strong> {inv.evento_info?.ubicacion || "Sin ubicación"}

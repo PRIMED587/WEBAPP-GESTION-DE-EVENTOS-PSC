@@ -48,7 +48,7 @@ const Loginform = () => {
 
             // ✅ Guardar token y userId en sessionStorage
             sessionStorage.setItem("token", result.access_token);
-            sessionStorage.setItem("userId", result.user.id); // <-- ESTA LÍNEA ES LA NUEVA
+            sessionStorage.setItem("userId", result.user.id);
             sessionStorage.setItem("user", JSON.stringify(result.user))
 
             showAlert("Inicio de sesión exitoso", "success");
