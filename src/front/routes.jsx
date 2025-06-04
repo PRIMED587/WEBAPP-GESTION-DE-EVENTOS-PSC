@@ -17,33 +17,55 @@ import MisInvitaciones from "./pages/MisInvitaciones";
 import Loginform from "./pages/Loginform";
 import ResetPassword from "./components/ResetPassword";
 
+// IMPORTA la ruta protegida
+import RutaProtegida from "./components/RutaProtegida";
+
 export const router = createBrowserRouter(
   createRoutesFromElements(
-    // CreateRoutesFromElements function allows you to build route elements declaratively.
-    // Create your routes here, if you want to keep the Navbar and Footer in all views, add your new routes inside the containing Route.
-    // Root, on the contrary, create a sister Route, if you have doubts, try it!
-    // Note: keep in mind that errorElement will be the default page when you don't get a route, customize that page to make your project more attractive.
-    // Note: The child paths of the Layout element replace the Outlet component with the elements contained in the "element" attribute of these child paths.
-
-    // Root Route: All navigation will start from here.
     <Route path="/" element={<Layout />} errorElement={<h1>Not found!</h1>}>
-      {/* Nested Routes: Defines sub-routes within the BaseHome component. */}
+      {/* Página principal */}
       <Route path="/" element={<Home />} />
-      <Route path="/single/:theId" element={<Single />} /> {/* Dynamic route for single items */}
+
+      {/* Otras rutas */}
+      <Route path="/single/:theId" element={<Single />} />
       <Route path="/demo" element={<Demo />} />
       <Route path="/registro" element={<Registro />} />
-      <Route path="/formulario-evento" element={<FormularioEvento />} /> {/* <-- NUEVA RUTA */}
+      <Route path="/formulario-evento" element={<FormularioEvento />} />
       <Route path="/eventos/crear" element={<FormularioEvento />} />
       <Route path="/eventos/editar/:id" element={<FormularioEvento />} />
-      <Route path="/dashboard" element={<Dashboard />} />
-      <Route path="/dashboard/:id" element={<Dashboard />} />
       <Route path="/loginform" element={<Loginform />} />
       <Route path="/aboutus" element={<AboutUs />} />
       <Route path="/evento" element={<Evento />} />
-      {/* <Route path="/evento/:id" element={<Evento />} /> */}
-      <Route path="/reset-password" element={<ResetPassword />} />
-      <Route path="/mis-invitaciones" element={<MisInvitaciones />} />
       <Route path="/evento/:eventoId" element={<Evento />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
+
+      {/* Protegido: Solo logueados pueden ver Dashboard */}
+      <Route
+        path="/dashboard"
+        element={
+          <RutaProtegida>
+            <Dashboard />
+          </RutaProtegida>
+        }
+      />
+      <Route
+        path="/dashboard/:id"
+        element={
+          <RutaProtegida>
+            <Dashboard />
+          </RutaProtegida>
+        }
+      />
+
+      {/* Protegido: Solo logueados pueden ver Mis Invitaciones */}
+      <Route
+        path="/mis-invitaciones"
+        element={
+          <RutaProtegida>
+            <MisInvitaciones />
+          </RutaProtegida>
+        }
+      />
     </Route>
   )
 );

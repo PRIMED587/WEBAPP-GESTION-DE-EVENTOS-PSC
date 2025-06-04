@@ -1,7 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Swal from "sweetalert2";
-import fiestaImg from "../assets/istockphoto-2155511077-612x612.jpg";
-import parrilladaImg from "../assets/premium_photo-1666184130709-f3709060899a.avif";
 
 const MisInvitaciones = () => {
   const token = sessionStorage.getItem("token");
@@ -101,56 +99,21 @@ const MisInvitaciones = () => {
   };
 
   return (
-    <div
-      style={{
-        backgroundColor: "#1A1A1D",
-        color: "#FFFFFF",
-        minHeight: "100vh",
-        padding: "3rem",
-        position: "relative",
-        overflow: "hidden",
-      }}
-    >
-      <img
-        src={fiestaImg}
-        alt="decoracion fiesta"
-        className="decoracion-img"
-        style={{ top: "30px", left: "10px" }}
-      />
-      <img
-        src={parrilladaImg}
-        alt="decoracion parrillada"
-        className="decoracion-img2"
-        style={{ bottom: "40px", right: "15px" }}
-      />
-
-      <h1
-        style={{
-          color: "#FF2E63",
-          textAlign: "center",
-          marginBottom: "3rem",
-          fontSize: "2.5rem",
-        }}
-      >
-        📨 Tienes una invitación
-      </h1>
-
-      {invitaciones.length === 0 && <p>No tienes invitaciones pendientes.</p>}
+    <div style={{ backgroundColor: "#1A1A1D", color: "#FFFFFF", minHeight: "100vh", padding: "2rem" }}>
+      <h1 style={{ color: "#FF2E63", textAlign: "center", marginBottom: "2rem" }}>📨 Mis Invitaciones</h1>
 
       {invitaciones.map((inv) => (
         <div
           key={inv.id}
           style={{
             background: "linear-gradient(145deg, #1A1A1D, #2C2C2E)",
-            border: "3px dashed #FF2E63",
-            boxShadow: "0 0 20px rgba(255, 46, 99, 0.4)",
-            borderRadius: "20px",
-            padding: "3rem",
-            margin: "0 auto 3rem auto",
-            maxWidth: "800px",
+            border: "2px dashed #FF2E63",
+            boxShadow: "0 0 10px rgba(255, 46, 99, 0.3)",
+            borderRadius: "15px",
+            padding: "2rem",
+            margin: "0 auto 2rem auto",
+            maxWidth: "600px",
             textAlign: "center",
-            fontSize: "1.3rem",
-            zIndex: 1,
             position: "relative",
           }}
         >
@@ -170,41 +133,47 @@ const MisInvitaciones = () => {
           </p>
           <p>
             📌 <strong>Estado:</strong>{" "}
-            <span
-              style={{
-                color:
-                  inv.estado === "aceptado"
-                    ? "#00ffae"
-                    : inv.estado === "rechazado"
-                    ? "#ff6b6b"
-                    : "#FF2E63",
-              }}
-            >
+            <span style={{ color: inv.estado === "aceptado" ? "#00ffae" : inv.estado === "rechazado" ? "#ff6b6b" : "#FF2E63" }}>
               {inv.estado}
             </span>
           </p>
 
           {inv.estado === "pendiente" && (
-            <div
-              style={{
-                marginTop: "2rem",
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: "1rem",
-              }}
-            >
+            <div style={{ marginTop: "1.5rem" }}>
               <button
-                className="btn-rechazar-invitacion"
-                onClick={() => responderInvitacion(inv.id, "aceptado", inv.evento_id)}
+                onClick={() => responderInvitacion(inv.id, "aceptado")}
+                style={{
+                  backgroundColor: "#FF2E63",
+                  color: "#FFFFFF",
+                  border: "none",
+                  padding: "0.7rem 1.5rem",
+                  marginRight: "1rem",
+                  borderRadius: "5px",
+                  fontSize: "1rem",
+                  cursor: "pointer",
+                  transition: "transform 0.2s ease",
+                }}
+                onMouseOver={(e) => (e.target.style.transform = "scale(1.05)")}
+                onMouseOut={(e) => (e.target.style.transform = "scale(1)")}
               >
-                ✔️ Aceptar invitación
+                ✅ Aceptar
               </button>
               <button
-                className="btn-rechazar-invitacion"
-                onClick={() => responderInvitacion(inv.id, "rechazado", inv.evento_id)}
+                onClick={() => responderInvitacion(inv.id, "rechazado")}
+                style={{
+                  backgroundColor: "transparent",
+                  color: "#FF2E63",
+                  border: "2px solid #FF2E63",
+                  padding: "0.7rem 1.5rem",
+                  borderRadius: "5px",
+                  fontSize: "1rem",
+                  cursor: "pointer",
+                  transition: "transform 0.2s ease",
+                }}
+                onMouseOver={(e) => (e.target.style.transform = "scale(1.05)")}
+                onMouseOut={(e) => (e.target.style.transform = "scale(1)")}
               >
-                ❌ Rechazar invitación
+                ❌ Rechazar
               </button>
             </div>
           )}

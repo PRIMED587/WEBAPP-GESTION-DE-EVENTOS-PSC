@@ -1,6 +1,11 @@
-import { React, useEffect, useState } from "react";
+import { React, useEffect, useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { useParams, useNavigate } from "react-router-dom";
+import mapboxgl from "mapbox-gl";
+import MapboxGeocoder from "@mapbox/mapbox-gl-geocoder";
+import "@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css";
+
+mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN;
 
 function parseJwt(token) {
   try {
@@ -24,6 +29,10 @@ const safeParseJSON = (str) => {
 const FormularioEvento = () => {
   const navigate = useNavigate();
   const { id: eventId } = useParams();
+  const geocoderContainer = useRef(null);
+
+  const [coords, setCoords] = useState({ lat: null, lng: null });
+
   const {
     register,
     handleSubmit,
@@ -37,11 +46,9 @@ const FormularioEvento = () => {
   });
 
   const [loading, setLoading] = useState(false);
-
-  // Estado para mensajes
   const [message, setMessage] = useState(null);
-  // message = { type: "success"|"error", text: string } o null
 
+  // Carga datos del evento si editamos
   useEffect(() => {
     const loadEventData = async () => {
       if (!eventId) return;
@@ -79,7 +86,6 @@ const FormularioEvento = () => {
 
         const eventData = await res.json();
 
-        // Procesar campos que pueden ser strings JSON o arrays directamente
         const invitadosArray = Array.isArray(eventData.invitados)
           ? eventData.invitados
           : safeParseJSON(eventData.invitados);
@@ -96,6 +102,7 @@ const FormularioEvento = () => {
           nombre: eventData.nombre || "",
           fechaHora: eventData.fecha || "",
           ubicacion: eventData.ubicacion || "",
+          direccion: eventData.direccion || "",
           descripcion: eventData.descripcion || "",
           invitados: invitadosArray.join(", "),
           maxInvitados: eventData.max_invitados || "",
@@ -108,6 +115,11 @@ const FormularioEvento = () => {
 
         setValue("aceptaColaboradores", eventData.acepta_colaboradores ?? true);
 
+        setCoords({
+          lat: eventData.latitud || null,
+          lng: eventData.longitud || null,
+        });
+
         setLoading(false);
       } catch (error) {
         setMessage({ type: "error", text: "Error inesperado al cargar evento: " + error.message });
@@ -118,32 +130,59 @@ const FormularioEvento = () => {
     loadEventData();
   }, [eventId, reset, setValue]);
 
+  // Inicializar Mapbox Geocoder
+  useEffect(() => {
+    if (!geocoderContainer.current) return;
+
+    const geocoder = new MapboxGeocoder({
+      accessToken: mapboxgl.accessToken,
+      placeholder: "Buscar dirección exacta",
+      types: "address,place,locality",
+      autocomplete: true,
+      language: "es",
+    });
+
+    geocoder.addTo(geocoderContainer.current);
+
+    geocoder.on("result", (e) => {
+      const direccionSeleccionada = e.result.place_name;
+      const [lng, lat] = e.result.center;
+
+      setValue("direccion", direccionSeleccionada);
+      setCoords({ lat, lng });
+    });
+
+    // Limpieza al desmontar
+    return () => {
+      geocoder.clear();
+      if (geocoderContainer.current) {
+        geocoderContainer.current.innerHTML = "";
+      }
+    };
+  }, [geocoderContainer, setValue]);
+
   const onSubmit = async (data) => {
-    setMessage(null); // limpiar mensajes previos
-    console.log("Datos del formulario para enviar:", data);
+    setMessage(null);
 
     const processedData = {
       nombre: data.nombre,
       descripcion: data.descripcion,
       fecha: data.fechaHora,
       ubicacion: data.ubicacion,
+      direccion: data.direccion,
       acepta_colaboradores: data.aceptaColaboradores,
       invitados: null,
       max_invitados: data.maxInvitados ? Number(data.maxInvitados) : null,
       tipo_actividad: data.tipoActividad,
       vestimenta: data.vestimenta,
       servicios: data.servicios
-        ? data.servicios
-          .split(",")
-          .map((s) => s.trim())
-          .filter((s) => s !== "")
+        ? data.servicios.split(",").map((s) => s.trim()).filter((s) => s !== "")
         : [],
       recursos: data.recursos
-        ? data.recursos
-          .split(",")
-          .map((r) => r.trim())
-          .filter((r) => r !== "")
+        ? data.recursos.split(",").map((r) => r.trim()).filter((r) => r !== "")
         : [],
+      latitud: coords.lat,
+      longitud: coords.lng,
     };
 
     const token = sessionStorage.getItem("token");
@@ -227,6 +266,7 @@ const FormularioEvento = () => {
 
       reset();
       setValue("aceptaColaboradores", true);
+      setCoords({ lat: null, lng: null });
 
       setTimeout(() => {
         navigate("/dashboard");
@@ -274,15 +314,21 @@ const FormularioEvento = () => {
           onSubmit={handleSubmit(onSubmit)}
         >
           {/* Nombre del evento - obligatorio */}
-          <div className="col-md-12">
+          <div className="col-md-6">
             <label htmlFor="nombre" className="form-label">
-              Nombre del evento *
+              Nombre del evento
             </label>
             <input
               type="text"
-              id="nombre"
               className={`form-control ${errors.nombre ? "is-invalid" : ""}`}
-              {...register("nombre", { required: "El nombre es obligatorio" })}
+              id="nombre"
+              {...register("nombre", {
+                required: "El nombre es obligatorio",
+                maxLength: {
+                  value: 100,
+                  message: "El nombre no puede superar 100 caracteres",
+                },
+              })}
             />
             {errors.nombre && (
               <div className="invalid-feedback">{errors.nombre.message}</div>
@@ -292,35 +338,19 @@ const FormularioEvento = () => {
           {/* Fecha y hora - obligatorio */}
           <div className="col-md-6">
             <label htmlFor="fechaHora" className="form-label">
-              Fecha y hora *
+              Fecha y hora
             </label>
             <input
               type="datetime-local"
-              id="fechaHora"
               className={`form-control ${errors.fechaHora ? "is-invalid" : ""}`}
+              id="fechaHora"
               {...register("fechaHora", {
-                required: "La fecha y hora son obligatorias",
+                required: "La fecha y hora es obligatoria",
               })}
             />
             {errors.fechaHora && (
               <div className="invalid-feedback">{errors.fechaHora.message}</div>
             )}
-          </div>
-
-          {/* Switch acepta colaboradores - obligatorio, default true */}
-          <div className="col-md-6 d-flex align-items-center">
-            <div className="form-check form-switch mt-4">
-              <input
-                className="form-check-input"
-                type="checkbox"
-                id="aceptaColaboradores"
-                {...register("aceptaColaboradores")}
-                defaultChecked={true}
-              />
-              <label className="form-check-label" htmlFor="aceptaColaboradores">
-                Acepta colaboradores
-              </label>
-            </div>
           </div>
 
           {/* Ubicación - opcional */}
@@ -330,139 +360,153 @@ const FormularioEvento = () => {
             </label>
             <input
               type="text"
-              id="ubicacion"
               className="form-control"
+              id="ubicacion"
               {...register("ubicacion")}
             />
           </div>
 
-          {/* Descripción - opcional */}
+          {/* Dirección exacta con Mapbox Geocoder - opcional */}
           <div className="col-md-6">
+            <label htmlFor="direccion" className="form-label">
+              Dirección exacta
+            </label>
+            <div ref={geocoderContainer} />
+            {/* Campo oculto para registrar dirección en el formulario */}
+            <input type="hidden" id="direccion" {...register("direccion")} />
+          </div>
+
+          {/* Descripción - opcional */}
+          <div className="col-md-12">
             <label htmlFor="descripcion" className="form-label">
               Descripción
             </label>
             <textarea
-              id="descripcion"
               className="form-control"
-              rows={3}
+              id="descripcion"
+              rows="3"
               {...register("descripcion")}
-            />
+            ></textarea>
           </div>
 
-          {/* Correos invitados (pendientes) - opcional, múltiples emails separados por comas */}
+          {/* Correos para invitaciones - opcional */}
           <div className="col-md-12">
             <label htmlFor="invitados" className="form-label">
-              Correos electrónicos para invitar (separados por comas)
+              Correos electrónicos para enviar invitaciones (separados por coma)
             </label>
-            <textarea
-              id="invitados"
+            <input
+              type="text"
               className="form-control"
-              rows={2}
+              id="invitados"
               {...register("invitados")}
-              placeholder="email1@example.com, email2@example.com"
+              placeholder="ejemplo1@mail.com, ejemplo2@mail.com"
             />
           </div>
 
-          {/* Cantidad máxima de invitados - opcional, número */}
-          <div className="col-md-4">
+          {/* Switch acepta colaboradores - obligatorio */}
+          <div className="col-md-6 d-flex align-items-center">
+            <label className="form-label me-2" htmlFor="aceptaColaboradores">
+              ¿Acepta colaboradores?
+            </label>
+            <input
+              type="checkbox"
+              id="aceptaColaboradores"
+              {...register("aceptaColaboradores")}
+              defaultChecked={true}
+            />
+          </div>
+
+          {/* Máximo invitados - opcional */}
+          <div className="col-md-6">
             <label htmlFor="maxInvitados" className="form-label">
               Cantidad máxima de invitados
             </label>
             <input
               type="number"
-              id="maxInvitados"
+              min="1"
               className="form-control"
-              min={1}
-              {...register("maxInvitados", {
-                valueAsNumber: true,
-                min: { value: 1, message: "Debe ser un número positivo" },
-              })}
+              id="maxInvitados"
+              {...register("maxInvitados")}
+              placeholder="Ej: 50"
             />
-            {errors.maxInvitados && (
-              <div className="invalid-feedback">{errors.maxInvitados.message}</div>
-            )}
           </div>
 
           {/* Tipo de actividad - opcional */}
-          <div className="col-md-4">
+          <div className="col-md-6">
             <label htmlFor="tipoActividad" className="form-label">
               Tipo de actividad
             </label>
             <input
               type="text"
-              id="tipoActividad"
               className="form-control"
+              id="tipoActividad"
               {...register("tipoActividad")}
-              placeholder="Ej: asado, boda, reunión"
+              placeholder="Ej: Asado, boda, reunión"
             />
           </div>
 
-          {/* Tipo de vestimenta recomendada - opcional */}
-          <div className="col-md-4">
+          {/* Tipo de vestimenta - opcional */}
+          <div className="col-md-6">
             <label htmlFor="vestimenta" className="form-label">
               Tipo de vestimenta recomendada
             </label>
             <input
               type="text"
-              id="vestimenta"
               className="form-control"
+              id="vestimenta"
               {...register("vestimenta")}
-              placeholder="Ej: casual, formal"
+              placeholder="Ej: Casual, formal, temático"
             />
           </div>
 
-          {/* Servicios necesarios - opcional, múltiples separados por comas */}
+          {/* Servicios necesarios - opcional */}
           <div className="col-md-6">
             <label htmlFor="servicios" className="form-label">
-              Servicios necesarios (separados por comas)
+              Servicios necesarios (separados por coma)
             </label>
-            <textarea
-              id="servicios"
+            <input
+              type="text"
               className="form-control"
-              rows={2}
+              id="servicios"
               {...register("servicios")}
-              placeholder="fotógrafo, cocinero, música"
+              placeholder="Ej: Fotógrafo, cocinero"
             />
           </div>
 
-          {/* Recursos necesarios - opcional, múltiples separados por comas */}
+          {/* Recursos necesarios - opcional */}
           <div className="col-md-6">
             <label htmlFor="recursos" className="form-label">
-              Recursos necesarios (separados por comas)
+              Recursos necesarios (separados por coma)
             </label>
-            <textarea
-              id="recursos"
+            <input
+              type="text"
               className="form-control"
-              rows={2}
+              id="recursos"
               {...register("recursos")}
-              placeholder="comida, bebida, mesas"
+              placeholder="Ej: Comida, bebida, mesas"
             />
           </div>
 
-          {/* Mensajes de error o éxito */}
+          {/* Mensajes */}
           {message && (
             <div
-              className={`alert mt-3 ${message.type === "error" ? "alert-danger" : "alert-success"
-                }`}
+              className={`alert mt-3 ${
+                message.type === "error" ? "alert-danger" : "alert-success"
+              }`}
               role="alert"
             >
               {message.text}
             </div>
           )}
 
-          {/* Botón de enviar */}
-          <div className="col-12 d-flex justify-content-end">
+          {/* Botón submit */}
+          <div className="col-12 mt-4 d-flex justify-content-center">
             <button
-              type="button"
-              onClick={() => {
-                navigate(`/evento/${eventId}`); 
-              }}
-              className="btn btn-secondary"
+              type="submit"
+              className="btn btn-outline-primary w-50"
+              disabled={loading}
             >
-              Volver sin editar
-            </button>
-            <button type="submit" className="btn btn-primary px-5 ms-3">
-              {eventId ? "Guardar cambios" : "Crear evento"}
+              {eventId ? "Modificar evento" : "Crear evento"}
             </button>
           </div>
         </form>
@@ -472,3 +516,4 @@ const FormularioEvento = () => {
 };
 
 export default FormularioEvento;
+

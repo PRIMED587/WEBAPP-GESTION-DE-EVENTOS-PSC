@@ -46,6 +46,9 @@ const Loginform = () => {
                 throw new Error(result.message || "Error al iniciar sesión");
             }
 
+            localStorage.setItem("token", result.access_token);
+            {/* parte agregada para el token de misInvitaciones */ }
+            localStorage.setItem("user_id", result.user_id || result.user?.id);
             // ✅ Guardar token y userId en sessionStorage
             sessionStorage.setItem("token", result.access_token);
             sessionStorage.setItem("userId", result.user.id);

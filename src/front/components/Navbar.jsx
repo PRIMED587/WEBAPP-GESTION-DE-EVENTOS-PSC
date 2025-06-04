@@ -1,68 +1,126 @@
-//  Se agregó 'useLocation' para saber en qué ruta estamos 
-import { Link, useLocation } from "react-router-dom";
+// Navbar.jsx
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 
 export const Navbar = () => {
-	// SE CAMBIO: usamos el hook useLocation para obtener la ruta actual
-	const location = useLocation(); // Para saber en qué ruta estamos
+	const location = useLocation();
+	const navigate = useNavigate();
 
-	// SE CAMBIO: variable que verifica si estamos en /aboutus
-	const isAboutPage = location.pathname === "/aboutus";
-
-	// SE AGREGÓ: variable que verifica si estamos en la página principal
+	// Páginas donde se deben ocultar ciertos botones
 	const isHomePage = location.pathname === "/";
+	const isAboutPage = location.pathname === "/aboutus";
+	const isDashboardPage = location.pathname === "/dashboard";
+	const isMisInvitacionesPage = location.pathname === "/mis-invitaciones";
 
-	// SE AGREGÓ: variable que verifica si estamos en la página de mis invitaciones
-	const isMisInvitaciones = location.pathname === "/mis-invitaciones";
+	const hideAboutUsButton = ["/registro", "/aboutus", "/mis-invitaciones"].includes(location.pathname);
+	const isLoggedIn = !!sessionStorage.getItem("token");
 
-	// SE AGREGÓ: función para cerrar sesión
+	// 🔒 Función para cerrar sesión con mensaje personalizado
 	const handleLogout = () => {
-		console.log("Sesión cerrada"); // Aquí luego pondrás la lógica real
+		const userStr = sessionStorage.getItem("user");
+		let userName = "";
+
+		if (userStr) {
+			try {
+				const userObj = JSON.parse(userStr);
+				userName = userObj.nombre || userObj.email || "";
+			} catch (e) {
+				userName = "";
+			}
+		}
+
+		Swal.fire({
+			title: "¿Cerrar sesión?",
+			text: "¿Estás seguro que deseas cerrar tu sesión?",
+			icon: "warning",
+			showCancelButton: true,
+			confirmButtonColor: "#FF2E63",
+			cancelButtonColor: "#6c757d",
+			confirmButtonText: "Sí, cerrar sesión",
+			cancelButtonText: "Cancelar",
+			background: "#1A1A1D",
+			color: "#FFFFFF",
+		}).then((result) => {
+			if (result.isConfirmed) {
+				sessionStorage.clear();
+
+				Swal.fire({
+					title: `¡Hasta luego, ${userName || "amigo"}! 👋`,
+					text: "Has cerrado sesión correctamente.",
+					icon: "success",
+					confirmButtonColor: "#FF2E63",
+					background: "#1A1A1D",
+					color: "#FFFFFF",
+				}).then(() => {
+					navigate("/loginform");
+				});
+			}
+		});
 	};
 
 	return (
 		<header>
-			<nav
-				className="px-4 py-3"
-				style={{
-					backgroundColor: "#FF2E63",
-					backdropFilter: "blur(6px)",
-				}}
-			>
+			<nav className="px-4 py-3" style={{ backgroundColor: "#FF2E63", backdropFilter: "blur(6px)" }}>
 				<div className="container">
 					<div className="row align-items-center">
-						{/* Nombre del sitio */}
+						{/* Logo del sitio */}
 						<div className="col-12 col-md-6 text-center text-md-start mb-3 mb-md-0">
 							<Link to="/" className="navbar-brand text-black h3 mb-0">
 								<h2>ASAD-APP</h2>
 							</Link>
 						</div>
 
-						{/* SE CAMBIO: ahora el botón cambia de destino y texto según la ruta */}
+						{/* Botones de navegación */}
 						<div className="col-12 col-md-6 d-flex justify-content-center justify-content-md-end gap-2">
-							{/* SE CAMBIO: si estamos en AboutUs, el botón lleva a Home */}
-							<Link to={isAboutPage ? "/" : "/aboutus"}>
-								<button className="btn btn-outline-black">
-									{/* Esto es para cambiar el texto del botón dinámicamente */}
-									{isAboutPage ? <i className="fas fa-home"></i> : "About Us"}
-								</button>
-							</Link>
 
-							{/* SE AGREGÓ: botón Logout solo visible en la página principal */}
-							{isHomePage && (
-								<button className="btn btn-outline-black" onClick={handleLogout}>
-									Logout
-								</button>
-							)}
-
-							{/* SE AGREGÓ: botón para ir a Mis Invitaciones */}
-							{isMisInvitaciones && (
-								<Link to="/">
+							{/* About Us (oculto en páginas específicas) */}
+							{!hideAboutUsButton && (
+								<Link to={isAboutPage ? "/" : "/aboutus"}>
 									<button className="btn btn-outline-black">
-										<i className="fas fa-home me-1"></i>
+										{isAboutPage ? (
+											<i className="fas fa-home"></i>
+										) : (
+											<>
+												<i className="fas fa-info-circle me-1"></i> About Us
+											</>
+										)}
 									</button>
 								</Link>
 							)}
 
+							{/* Home (oculto si ya estás en Home) */}
+							{!isHomePage && (
+								<Link to="/">
+									<button className="btn btn-outline-black">
+										<i className="fas fa-home me-1"></i> Home
+									</button>
+								</Link>
+							)}
+
+							{/* Dashboard (solo si está logueado y NO estás ya en dashboard) */}
+							{isLoggedIn && !isDashboardPage && (
+								<Link to="/dashboard">
+									<button className="btn btn-outline-black">
+										<i className="fas fa-tachometer-alt me-1"></i> Dashboard
+									</button>
+								</Link>
+							)}
+
+							{/* Mis Invitaciones (solo si está logueado y NO estás ya en esa página) */}
+							{isLoggedIn && !isMisInvitacionesPage && (
+								<Link to="/mis-invitaciones">
+									<button className="btn btn-outline-black">
+										<i className="fas fa-envelope-open-text me-1"></i> Mis Invitaciones
+									</button>
+								</Link>
+							)}
+
+							{/* Logout (solo si está logueado) */}
+							{isLoggedIn && (
+								<button className="btn btn-outline-black" onClick={handleLogout}>
+									<i className="fas fa-sign-out-alt me-1"></i> Logout
+								</button>
+							)}
 						</div>
 					</div>
 				</div>
