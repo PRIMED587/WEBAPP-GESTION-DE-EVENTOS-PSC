@@ -148,7 +148,7 @@ const Loginform = () => {
                         className="btn btn-primary mx-1 my-1"
                         onClick={handleSendPassword}
                     >
-                        Enviar Contraseña al correo
+                       Restablecer Contraseña
                     </button>
                 </div>
             </form>
