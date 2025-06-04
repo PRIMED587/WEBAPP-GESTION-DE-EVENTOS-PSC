@@ -451,7 +451,7 @@ def obtener_invitaciones_usuario(current_user_id, user_id):
             evento = inv.evento
             invitacion_serializada["evento"] = {
                 "nombre": evento.nombre,
-                "lugar": evento.lugar,
+                "ubicacion": evento.ubicacion,
                 "fecha": evento.fecha.isoformat() if evento.fecha else None
             }
         resultado.append(invitacion_serializada)
