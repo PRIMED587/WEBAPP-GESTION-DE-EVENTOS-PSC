@@ -5,26 +5,33 @@ import { useNavigate } from "react-router-dom";
 const EventoSingle = ({ eventos }) => {
   const navigate = useNavigate();
   const [startIndex, setStartIndex] = useState(0);
-  const [slideDirection, setSlideDirection] = useState("none");
 
-  const eventosOrdenados = [...eventos].sort(
+  // Elimina duplicados por id
+  const eventosUnicos = eventos.reduce((acc, curr) => {
+    if (!acc.some(evento => evento.id === curr.id)) {
+      acc.push(curr);
+    }
+    return acc;
+  }, []);
+
+  // Ordena por fecha ascendente
+  const eventosOrdenados = eventosUnicos.sort(
     (a, b) => new Date(a.fecha) - new Date(b.fecha)
   );
 
   const eventosPorPagina = 3;
+  const totalEventos = eventosOrdenados.length;
   const eventosAMostrar = eventosOrdenados.slice(startIndex, startIndex + eventosPorPagina);
 
   const handlePrev = () => {
     if (startIndex > 0) {
-      setSlideDirection("left");
-      setStartIndex(startIndex - eventosPorPagina);
+      setStartIndex(prev => Math.max(prev - eventosPorPagina, 0));
     }
   };
 
   const handleNext = () => {
-    if (startIndex + eventosPorPagina < eventosOrdenados.length) {
-      setSlideDirection("right");
-      setStartIndex(startIndex + eventosPorPagina);
+    if (startIndex + eventosPorPagina < totalEventos) {
+      setStartIndex(prev => prev + eventosPorPagina);
     }
   };
 
@@ -44,15 +51,15 @@ const EventoSingle = ({ eventos }) => {
           id="arrowButtonFor"
           variant="outline-light"
           onClick={handleNext}
-          disabled={startIndex + eventosPorPagina >= eventosOrdenados.length}
+          disabled={startIndex + eventosPorPagina >= totalEventos}
         >
           <i className="fa-solid fa-chevron-right"></i>
         </Button>
       </div>
 
-      <div className={`events-section d-flex flex-wrap justify-content-center gap-4 slide-${slideDirection}`}>
-        {eventosAMostrar.map((event, index) => (
-          <Card key={index} className="event-card text-white mt-3">
+      <div className="events-section d-flex flex-wrap justify-content-center gap-4">
+        {eventosAMostrar.map((event) => (
+          <Card key={event.id} className="event-card text-white mt-3">
             <Card.Body>
               <Card.Title>
                 <i className="fa-solid fa-people-roof"></i> {event.nombre.toUpperCase()}
