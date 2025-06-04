@@ -2,34 +2,100 @@ import React, { useState } from "react";
 import Swal from "sweetalert2";
 
 const MisInvitaciones = () => {
-  const [invitaciones, setInvitaciones] = useState([
-    {
-      id: 1,
-      evento: "Fiesta de cumpleaños",
-      fecha: "2025-06-15",
-      lugar: "Casa de Juan",
-      estado: "pendiente",
-    },
-  ]);
+  const token = sessionStorage.getItem("token");
+  const userId = sessionStorage.getItem("userId");
+  const email = JSON.parse(sessionStorage.getItem("user"))?.email || "";
 
-  const responderInvitacion = (id, respuesta) => {
-    const nuevasInvitaciones = invitaciones.map((inv) => {
-      if (inv.id === id && inv.estado !== respuesta) {
-        return { ...inv, estado: respuesta };
-      }
-      return inv;
-    });
+  const [invitaciones, setInvitaciones] = useState([]);
 
-    setInvitaciones(nuevasInvitaciones);
+  useEffect(() => {
+    fetch(import.meta.env.VITE_BACKEND_URL + `/api/${userId}/invitaciones`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => res.json())
+      .then((data) => setInvitaciones(data))
+      .catch(() => {
+        Swal.fire({
+          title: "Error",
+          text: "No se pudieron cargar las invitaciones.",
+          icon: "error",
+          confirmButtonColor: "#FF2E63",
+          background: "#1A1A1D",
+          color: "#FFFFFF",
+        });
+      });
+  }, [userId, token]);
 
-    Swal.fire({
-      title: "¡Respuesta registrada!",
-      text: `Has ${respuesta === "aceptado" ? "aceptado" : "rechazado"} la invitación.`,
-      icon: "success",
-      confirmButtonColor: "#FF2E63",
-      background: "#1A1A1D",
-      color: "#FFFFFF"
-    });
+  const responderInvitacion = async (id, respuesta, evento_id) => {
+    if (respuesta === "rechazado") {
+      const resultado = await Swal.fire({
+        title: "¿Estás seguro?",
+        text: "¿Querés rechazar esta invitación?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#FF2E63",
+        cancelButtonColor: "#6c757d",
+        confirmButtonText: "Sí, rechazar",
+        cancelButtonText: "Cancelar",
+        background: "#1A1A1D",
+        color: "#FFFFFF",
+      });
+
+      if (!resultado.isConfirmed) return;
+    }
+
+    const endpoint =
+      respuesta === "aceptado"
+        ? `/api/eventos/${evento_id}/invitacion/aceptar`
+        : `/api/eventos/${evento_id}/invitacion/rechazar`;
+
+    try {
+      const res = await fetch(import.meta.env.VITE_BACKEND_URL + endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      if (!res.ok) throw new Error("Error en la respuesta del servidor");
+
+      setInvitaciones((prev) => prev.filter((inv) => inv.id !== id));
+
+      const mensajes = {
+        aceptado: {
+          title: "¡Genial! 🎉",
+          text: "Nos alegra saber que vendrás. ¡Prepárate para divertirte!",
+          icon: "success",
+        },
+        rechazado: {
+          title: "¡Oh no! 😢",
+          text: "Te vamos a extrañar, esperamos verte en el próximo evento.",
+          icon: "info",
+        },
+      };
+
+      const mensaje = mensajes[respuesta];
+
+      Swal.fire({
+        title: mensaje.title,
+        text: mensaje.text,
+        icon: mensaje.icon,
+        confirmButtonColor: "#FF2E63",
+        background: "#1A1A1D",
+        color: "#FFFFFF",
+      });
+    } catch (error) {
+      Swal.fire({
+        title: "Error",
+        text: "No se pudo procesar la invitación.",
+        icon: "error",
+        confirmButtonColor: "#FF2E63",
+        background: "#1A1A1D",
+        color: "#FFFFFF",
+      });
+    }
   };
 
   return (
@@ -51,12 +117,21 @@ const MisInvitaciones = () => {
             position: "relative",
           }}
         >
-          <h2 style={{ fontSize: "1.8rem", marginBottom: "1rem", color: "#FF2E63" }}>
-            🎉 {inv.evento}
+          <h2
+            style={{ fontSize: "2.2rem", marginBottom: "1.5rem", color: "#FF2E63" }}
+          >
+            🎉 {inv.evento_info?.nombre || "Sin nombre"}
           </h2>
-          <p style={{ fontSize: "1.1rem", margin: "0.5rem 0" }}>📅 <strong>Fecha:</strong> {inv.fecha}</p>
-          <p style={{ fontSize: "1.1rem", margin: "0.5rem 0" }}>📍 <strong>Lugar:</strong> {inv.lugar}</p>
-          <p style={{ fontSize: "1.1rem", margin: "0.5rem 0" }}>
+          <p>
+            📅 <strong>Fecha:</strong>{" "}
+            {inv.evento_info?.fecha
+              ? new Date(inv.evento_info.fecha).toLocaleString()
+              : "Sin fecha"}
+          </p>
+          <p>
+            📍 <strong>Lugar:</strong> {inv.evento_info?.ubicacion || "Sin ubicación"}
+          </p>
+          <p>
             📌 <strong>Estado:</strong>{" "}
             <span style={{ color: inv.estado === "aceptado" ? "#00ffae" : inv.estado === "rechazado" ? "#ff6b6b" : "#FF2E63" }}>
               {inv.estado}

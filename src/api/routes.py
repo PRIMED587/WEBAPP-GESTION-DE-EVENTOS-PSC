@@ -463,8 +463,6 @@ def agregar_invitaciones(current_user_id, user_id, evento_id):
     return jsonify([inv.serialize() for inv in nuevas_invitaciones]), 201
 
 # Ruta para crear una invitación a un usuario a un evento. Valida permisos, existencia de evento e invitado.
-
-
 @api.route('/<int:user_id>/invitaciones', methods=['POST'])
 @token_required
 def crear_invitacion(current_user_id, user_id):
@@ -691,8 +689,6 @@ def eliminar_invitacion_evento(current_user_id, evento_id, invitacion_id):
     return jsonify({"message": "Invitación eliminada correctamente"}), 200
 
 # Ruta para aceptar una invitación a un evento, solo permitido al usuario invitado
-
-
 @api.route('/eventos/<int:evento_id>/invitacion/aceptar', methods=['POST'])
 def aceptar_invitacion(evento_id):
     data = request.json
@@ -724,6 +720,27 @@ def aceptar_invitacion(evento_id):
     db.session.commit()
 
     return jsonify({"message": "Invitación aceptada y participante agregado", "participante": participante.serialize()}), 200
+
+# Ruta para rechazar una invitación a un evento
+@api.route('/eventos/<int:evento_id>/invitacion/rechazar', methods=['POST'])
+def rechazar_invitacion(evento_id):
+    data = request.json
+    email = data.get('email')
+
+    if not email:
+        return jsonify({"message": "Email requerido"}), 400
+
+    invitacion = Invitacion.query.filter_by(
+        evento_id=evento_id, email=email).first()
+
+    if not invitacion:
+        return jsonify({"message": "Invitación no encontrada"}), 404
+
+    # Eliminar invitación sin agregar participante
+    db.session.delete(invitacion)
+    db.session.commit()
+
+    return jsonify({"message": "Invitación rechazada y eliminada"}), 200
 
 # ------------------ PARTICIPANTES ------------------
 

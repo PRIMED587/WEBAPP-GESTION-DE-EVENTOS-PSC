@@ -40,9 +40,10 @@ export const router = createBrowserRouter(
       <Route path="/loginform" element={<Loginform />} />
       <Route path="/aboutus" element={<AboutUs />} />
       <Route path="/evento" element={<Evento />} />
-      <Route path="/evento/:id" element={<Evento />} />
+      {/* <Route path="/evento/:id" element={<Evento />} /> */}
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/mis-invitaciones" element={<MisInvitaciones />} />
+      <Route path="/evento/:eventoId" element={<Evento />} />
     </Route>
   )
 );

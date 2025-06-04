@@ -7,8 +7,15 @@ const Participantes = () => {
   const [loading, setLoading] = useState(true);
 
   const fetchParticipantes = async () => {
+    const token = sessionStorage.getItem("token");
+    const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
     try {
-      const response = await fetch(`${process.env.BACKEND_URL}/api/eventos/${eventoId}/participantes`);
+      const response = await fetch(`${backendUrl}/api/eventos/${eventoId}/participantes`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       const data = await response.json();
       setParticipantes(data);
     } catch (error) {
@@ -20,24 +27,25 @@ const Participantes = () => {
 
   useEffect(() => {
     fetchParticipantes();
-  }, []);
+  }, [eventoId]);
 
   if (loading) return <div>Cargando participantes...</div>;
 
   return (
     <div className="box-seccion-evento">
       <h4 className="mb-3">Participantes</h4>
-      <ul className="list-group">
-        {participantes.map((p) => (
-          <li key={p.id} className="list-group-item d-flex justify-content-between align-items-center">
-            <div>
+      {participantes.length === 0 ? (
+        <p>No hay participantes confirmados.</p>
+      ) : (
+        <ul className="list-group">
+          {participantes.map((p) => (
+            <li key={p.id} className="list-group-item">
               <strong>ID Usuario:</strong> {p.usuario_id}
-              {p.aceptado && <span className="badge bg-success ms-2">Aceptado</span>}
-              {!p.aceptado && <span className="badge bg-secondary ms-2">Pendiente</span>}
-            </div>
-          </li>
-        ))}
-      </ul>
+              {p.es_creador && <span className="badge bg-primary ms-2">Creador</span>}
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 };
