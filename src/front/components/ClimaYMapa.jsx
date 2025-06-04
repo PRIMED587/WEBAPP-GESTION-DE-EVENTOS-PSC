@@ -14,14 +14,14 @@ function ClimaYMapa({ direccion, fecha, latitud, longitud }) {
   useEffect(() => {
     if (!latitud || !longitud) return;
 
-    if (map.current) return; // inicializa solo una vez
+    if (map.current) return;
 
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
       style: "mapbox://styles/mapbox/streets-v11",
       center: [longitud, latitud],
       zoom: 12,
-      attributionControl: false,  // Aquí desactivo el control de atribución
+      attributionControl: false,
     });
 
     new mapboxgl.Marker().setLngLat([longitud, latitud]).addTo(map.current);
@@ -48,52 +48,54 @@ function ClimaYMapa({ direccion, fecha, latitud, longitud }) {
   }, [latitud, longitud]);
 
   return (
-    <div
-      id="clima-mapa-container"
-      className="container my-4"
-      style={{ minHeight: "350px", marginBottom: "5rem" }}
-    >
-      <div
-        className="row gx-4 gy-3 align-items-center flex-column flex-md-row"
-        style={{ minHeight: "300px" }}
-      >
-        <div className="col-12 col-md-6" style={{ height: "300px" }}>
-          <div
-            ref={mapContainer}
-            style={{
-              width: "100%",
-              height: "100%",
-              borderRadius: "8px",
-              boxShadow: "0 0 8px rgba(0,0,0,0.15)",
-            }}
-          />
-        </div>
+    <div className="card caja-central h-100 shadow-sm">
+      <div className="card-header text-white">
+        <h5 className="mb-0">Ubicación y Clima</h5>
+      </div>
 
-        <div className="col-12 col-md-6">
-          {error && <p className="text-danger">{error}</p>}
+      <div className="card-body">
+        <div
+          className="row gx-4 gy-3 align-items-center flex-column flex-md-row"
+          style={{ minHeight: "300px" }}
+        >
+          <div className="col-12 col-md-6" style={{ height: "300px" }}>
+            <div
+              ref={mapContainer}
+              style={{
+                width: "100%",
+                height: "100%",
+                borderRadius: "8px",
+                boxShadow: "0 0 8px rgba(0,0,0,0.15)",
+              }}
+            />
+          </div>
 
-          {clima && (
-            <div>
-              <h5>Clima actual en {clima.name}</h5>
-              <p>
-                <strong>Temperatura:</strong> {clima.main.temp}°C
-              </p>
-              <p>
-                <strong>Humedad:</strong> {clima.main.humidity}%
-              </p>
-              <p>
-                <strong>Viento:</strong> {clima.wind.speed} m/s
-              </p>
-              <p>
-                <strong>Descripción:</strong> {clima.weather[0].description}{" "}
-                <img
-                  src={`https://openweathermap.org/img/wn/${clima.weather[0].icon}@2x.png`}
-                  alt={clima.weather[0].description}
-                  style={{ verticalAlign: "middle" }}
-                />
-              </p>
-            </div>
-          )}
+          <div className="col-12 col-md-6 mt-3 mt-md-0">
+            {error && <p className="text-danger">{error}</p>}
+
+            {clima && (
+              <div>
+                <h6>Clima actual en {clima.name}</h6>
+                <p>
+                  <strong>Temperatura:</strong> {clima.main.temp}°C
+                </p>
+                <p>
+                  <strong>Humedad:</strong> {clima.main.humidity}%
+                </p>
+                <p>
+                  <strong>Viento:</strong> {clima.wind.speed} m/s
+                </p>
+                <p>
+                  <strong>Descripción:</strong> {clima.weather[0].description}{" "}
+                  <img
+                    src={`https://openweathermap.org/img/wn/${clima.weather[0].icon}@2x.png`}
+                    alt={clima.weather[0].description}
+                    style={{ verticalAlign: "middle" }}
+                  />
+                </p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
