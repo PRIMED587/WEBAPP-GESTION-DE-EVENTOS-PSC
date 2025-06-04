@@ -483,10 +483,8 @@ a {
 }
 .caja-central {
   height: 400px; /* mismo alto fijo para todas */
-  background-color: #2c2c34; /* o mantener el color que ya usas */
   border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 0 15px rgba(255, 46, 99, 0.5);
+  padding: 0.5rem;
   color: #fff;
   overflow-y: auto; /* scroll vertical cuando haga falta */
   display: flex;
