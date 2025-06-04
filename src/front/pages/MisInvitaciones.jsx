@@ -141,7 +141,7 @@ const MisInvitaciones = () => {
           {inv.estado === "pendiente" && (
             <div style={{ marginTop: "1.5rem" }}>
               <button
-                onClick={() => responderInvitacion(inv.id, "aceptado")}
+                onClick={() => responderInvitacion(inv.id, "aceptado", inv.evento_info?.id)}
                 style={{
                   backgroundColor: "#FF2E63",
                   color: "#FFFFFF",
@@ -159,7 +159,7 @@ const MisInvitaciones = () => {
                 ✅ Aceptar
               </button>
               <button
-                onClick={() => responderInvitacion(inv.id, "rechazado")}
+                onClick={() => responderInvitacion(inv.id, "rechazado", inv.evento_info?.id)}
                 style={{
                   backgroundColor: "transparent",
                   color: "#FF2E63",
