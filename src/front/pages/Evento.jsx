@@ -5,7 +5,8 @@ import Participantes from "../components/Participantes";
 import Tareas from "../components/Tareas";
 import Gastos from "../components/Gastos";
 import ExtraBox from "../components/ExtraBox";
-import Invitados from "../components/Invitados"; // Asegurate de tener este componente
+import Invitados from "../components/Invitados";
+import ClimaYMapa from "../components/ClimaYMapa";
 
 const Evento = () => {
   const { eventoId } = useParams();
@@ -76,6 +77,14 @@ const Evento = () => {
         <div className="col-lg-6">
           <InfoEvento evento={evento} />
           <ExtraBox evento={evento} />
+          {evento.latitud && evento.longitud && evento.fecha && (
+            <ClimaYMapa
+              direccion={evento.direccion}
+              fecha={evento.fecha}
+              latitud={evento.latitud}
+              longitud={evento.longitud}
+            />
+          )}
         </div>
         <div className="col-lg-6">
           <Invitados eventoId={eventoId} />
