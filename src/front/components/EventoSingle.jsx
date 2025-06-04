@@ -5,6 +5,8 @@ import { useNavigate } from "react-router-dom";
 const EventoSingle = ({ eventos }) => {
   const navigate = useNavigate();
   const [startIndex, setStartIndex] = useState(0);
+  const [slideDirection, setSlideDirection] = useState("none");
+
   const eventosOrdenados = [...eventos].sort(
     (a, b) => new Date(a.fecha) - new Date(b.fecha)
   );
@@ -14,12 +16,14 @@ const EventoSingle = ({ eventos }) => {
 
   const handlePrev = () => {
     if (startIndex > 0) {
+      setSlideDirection("left");
       setStartIndex(startIndex - eventosPorPagina);
     }
   };
 
   const handleNext = () => {
     if (startIndex + eventosPorPagina < eventosOrdenados.length) {
+      setSlideDirection("right");
       setStartIndex(startIndex + eventosPorPagina);
     }
   };
@@ -27,21 +31,28 @@ const EventoSingle = ({ eventos }) => {
   return (
     <div className="text-center">
       <div className="d-flex justify-content-between align-items-center mb-3 px-3">
-        <Button variant="outline-light" onClick={handlePrev} disabled={startIndex === 0}><i class="fa-solid fa-backward"></i>
+        <Button
+          id="arrowButtonBack"
+          variant="outline-light"
+          onClick={handlePrev}
+          disabled={startIndex === 0}
+        >
+          <i className="fa-solid fa-chevron-left"></i>
         </Button>
         <h4 className="text-white">Próximos Eventos</h4>
         <Button
+          id="arrowButtonFor"
           variant="outline-light"
           onClick={handleNext}
           disabled={startIndex + eventosPorPagina >= eventosOrdenados.length}
         >
-          <i class="fa-solid fa-forward"></i>
+          <i className="fa-solid fa-chevron-right"></i>
         </Button>
       </div>
 
-      <div className="events-section d-flex flex-wrap justify-content-center gap-4">
+      <div className={`events-section d-flex flex-wrap justify-content-center gap-4 slide-${slideDirection}`}>
         {eventosAMostrar.map((event, index) => (
-          <Card key={index} className="event-card text-white slide-up mt-3">
+          <Card key={index} className="event-card text-white mt-3">
             <Card.Body>
               <Card.Title>
                 <i className="fa-solid fa-people-roof"></i> {event.nombre.toUpperCase()}

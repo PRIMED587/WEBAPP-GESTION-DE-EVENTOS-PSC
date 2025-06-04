@@ -611,6 +611,72 @@ body,
   }
 }
 
+#arrowButtonBack {
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 1.8rem;
+  padding: 0.3rem 0.8rem;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+#arrowButtonBack:hover {
+  color: #ff2e63 !important;
+}
+
+#arrowButtonFor {
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 1.8rem;
+  padding: 0.3rem 0.8rem;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+#arrowButtonFor:hover {
+  color: #ff2e63 !important;
+}
+
+.slide-left {
+  animation: slideLeft 0.5s ease-in-out;
+}
+
+.slide-right {
+  animation: slideRight 0.5s ease-in-out;
+}
+
+@keyframes slideLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideRight {
+  from {
+    opacity: 0;
+    transform: translateX(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Justificado y espaciado de texto */
+.event-card .card-body {
+  text-align: justify;
+  line-height: 1.6;
+}
+
+.
+
 /**********************************************Formulario Registro (PSC)********************************************/
 
 #registerForm {
