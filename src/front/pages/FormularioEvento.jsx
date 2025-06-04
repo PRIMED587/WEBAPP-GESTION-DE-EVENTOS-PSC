@@ -38,7 +38,7 @@ const FormularioEvento = () => {
 
   const [loading, setLoading] = useState(false);
 
-  // --- NUEVO: estado para mensajes ---
+  // Estado para mensajes
   const [message, setMessage] = useState(null);
   // message = { type: "success"|"error", text: string } o null
 
@@ -47,8 +47,15 @@ const FormularioEvento = () => {
       if (!eventId) return;
 
       setLoading(true);
-      const token = localStorage.getItem("token");
-      const payload = token ? parseJwt(token) : null;
+
+      const token = sessionStorage.getItem("token");
+      if (!token) {
+        setMessage({ type: "error", text: "Token de autenticación no encontrado" });
+        setLoading(false);
+        return;
+      }
+
+      const payload = parseJwt(token);
       const userId = payload?.sub;
       if (!userId) {
         setMessage({ type: "error", text: "Usuario no autenticado o token inválido" });
@@ -69,8 +76,10 @@ const FormularioEvento = () => {
           setLoading(false);
           return;
         }
+
         const eventData = await res.json();
 
+        // Procesar campos que pueden ser strings JSON o arrays directamente
         const invitadosArray = Array.isArray(eventData.invitados)
           ? eventData.invitados
           : safeParseJSON(eventData.invitados);
@@ -109,7 +118,6 @@ const FormularioEvento = () => {
     loadEventData();
   }, [eventId, reset, setValue]);
 
-  // --- Modificar onSubmit para manejar mensajes y redireccionar ---
   const onSubmit = async (data) => {
     setMessage(null); // limpiar mensajes previos
     console.log("Datos del formulario para enviar:", data);
@@ -138,7 +146,7 @@ const FormularioEvento = () => {
         : [],
     };
 
-    const token = localStorage.getItem("token");
+    const token = sessionStorage.getItem("token");
     if (!token) {
       setMessage({ type: "error", text: "No estás autenticado" });
       return;
@@ -177,13 +185,11 @@ const FormularioEvento = () => {
 
       const eventResponse = await res.json();
 
-      // Mensaje de éxito
       setMessage({
         type: "success",
         text: eventId ? "Evento modificado con éxito!" : "Evento creado con éxito!",
       });
 
-      // Si es creación, crear invitaciones (puedes dejarlo o quitar para simplificar)
       if (!eventId) {
         const nuevoEventoId = eventResponse.evento.id;
 
@@ -215,9 +221,6 @@ const FormularioEvento = () => {
                 (errorInv.message || resInv.statusText),
             }));
             return;
-          } else {
-            // Opcional: Mensaje adicional de invitaciones
-            // setMessage({ type: "success", text: "Invitaciones enviadas correctamente" });
           }
         }
       }
@@ -225,7 +228,6 @@ const FormularioEvento = () => {
       reset();
       setValue("aceptaColaboradores", true);
 
-      // Redireccionar después de 2 segundos solo si fue éxito
       setTimeout(() => {
         navigate("/dashboard");
       }, 2000);
@@ -322,7 +324,7 @@ const FormularioEvento = () => {
           </div>
 
           {/* Ubicación - opcional */}
-          <div className="col-md-12">
+          <div className="col-md-6">
             <label htmlFor="ubicacion" className="form-label">
               Ubicación
             </label>
@@ -335,7 +337,7 @@ const FormularioEvento = () => {
           </div>
 
           {/* Descripción - opcional */}
-          <div className="col-md-12">
+          <div className="col-md-6">
             <label htmlFor="descripcion" className="form-label">
               Descripción
             </label>
@@ -347,22 +349,22 @@ const FormularioEvento = () => {
             />
           </div>
 
-          {/* Correos electrónicos invitados - opcional, múltiples separados por coma */}
+          {/* Correos invitados (pendientes) - opcional, múltiples emails separados por comas */}
           <div className="col-md-12">
             <label htmlFor="invitados" className="form-label">
-              Correos electrónicos para invitaciones (separados por coma)
+              Correos electrónicos para invitar (separados por comas)
             </label>
             <textarea
               id="invitados"
               className="form-control"
-              rows={3}
-              placeholder="ejemplo@correo.com, otro@correo.com"
+              rows={2}
               {...register("invitados")}
+              placeholder="email1@example.com, email2@example.com"
             />
           </div>
 
-          {/* Cantidad máxima de invitados - opcional, solo números */}
-          <div className="col-md-6">
+          {/* Cantidad máxima de invitados - opcional, número */}
+          <div className="col-md-4">
             <label htmlFor="maxInvitados" className="form-label">
               Cantidad máxima de invitados
             </label>
@@ -370,6 +372,7 @@ const FormularioEvento = () => {
               type="number"
               id="maxInvitados"
               className="form-control"
+              min={1}
               {...register("maxInvitados", {
                 valueAsNumber: true,
                 min: { value: 1, message: "Debe ser un número positivo" },
@@ -381,27 +384,21 @@ const FormularioEvento = () => {
           </div>
 
           {/* Tipo de actividad - opcional */}
-          <div className="col-md-6">
+          <div className="col-md-4">
             <label htmlFor="tipoActividad" className="form-label">
               Tipo de actividad
             </label>
-            <select
+            <input
+              type="text"
               id="tipoActividad"
-              className="form-select"
+              className="form-control"
               {...register("tipoActividad")}
-              defaultValue=""
-            >
-              <option value="">Selecciona...</option>
-              <option value="asado">Asado</option>
-              <option value="boda">Boda</option>
-              <option value="cumpleaños">Cumpleaños</option>
-              <option value="reunión">Reunión</option>
-              <option value="otro">Otro</option>
-            </select>
+              placeholder="Ej: asado, boda, reunión"
+            />
           </div>
 
           {/* Tipo de vestimenta recomendada - opcional */}
-          <div className="col-md-12">
+          <div className="col-md-4">
             <label htmlFor="vestimenta" className="form-label">
               Tipo de vestimenta recomendada
             </label>
@@ -410,78 +407,65 @@ const FormularioEvento = () => {
               id="vestimenta"
               className="form-control"
               {...register("vestimenta")}
+              placeholder="Ej: casual, formal"
             />
           </div>
 
-          {/* Servicios necesarios - opcional, múltiples separados por coma */}
-          <div className="col-md-12">
+          {/* Servicios necesarios - opcional, múltiples separados por comas */}
+          <div className="col-md-6">
             <label htmlFor="servicios" className="form-label">
-              Servicios necesarios (separados por coma)
+              Servicios necesarios (separados por comas)
             </label>
-            <input
-              type="text"
+            <textarea
               id="servicios"
               className="form-control"
-              placeholder="fotógrafo, cocinero, música"
+              rows={2}
               {...register("servicios")}
+              placeholder="fotógrafo, cocinero, música"
             />
           </div>
 
-          {/* Recursos necesarios - opcional, múltiples separados por coma */}
-          <div className="col-md-12">
+          {/* Recursos necesarios - opcional, múltiples separados por comas */}
+          <div className="col-md-6">
             <label htmlFor="recursos" className="form-label">
-              Recursos necesarios (separados por coma)
+              Recursos necesarios (separados por comas)
             </label>
-            <input
-              type="text"
+            <textarea
               id="recursos"
               className="form-control"
-              placeholder="comida, bebida, mesas"
+              rows={2}
               {...register("recursos")}
+              placeholder="comida, bebida, mesas"
             />
           </div>
 
-          {/* Mensaje sobre el botón */}
+          {/* Mensajes de error o éxito */}
           {message && (
             <div
-              className={`alert ${message.type === "success" ? "alert-success" : "alert-danger"
-                } d-flex justify-content-between align-items-center position-absolute w-100`}
-              style={{
-                bottom: "80px",
-                left: 0,
-                zIndex: 10,
-                padding: "10px 20px",
-                borderRadius: "4px",
-                boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
-              }}
+              className={`alert mt-3 ${message.type === "error" ? "alert-danger" : "alert-success"
+                }`}
               role="alert"
             >
-              <span>{message.text}</span>
-              {message.type === "error" && (
-                <button
-                  type="button"
-                  className="btn-close"
-                  aria-label="Cerrar"
-                  onClick={() => setMessage(null)}
-                />
-              )}
+              {message.text}
             </div>
           )}
 
-          {/* Botón submit */}
-          <div className="col-12 text-center mt-4 position-relative">
+          {/* Botón de enviar */}
+          <div className="col-12 d-flex justify-content-end">
             <button
-              type="submit"
-              className="create-event-btn mb-5 fade-in-delay btn btn-danger"
-              disabled={loading}
-              style={{ minWidth: "140px" }}
+              type="button"
+              onClick={() => {
+                navigate(`/evento/${eventId}`); 
+              }}
+              className="btn btn-secondary"
             >
+              Volver sin editar
+            </button>
+            <button type="submit" className="btn btn-primary px-5 ms-3">
               {eventId ? "Guardar cambios" : "Crear evento"}
             </button>
-
           </div>
         </form>
-
       </div>
     </div>
   );
