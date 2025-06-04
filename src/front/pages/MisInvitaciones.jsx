@@ -1,49 +1,18 @@
-// Importaciones necesarias
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Swal from "sweetalert2";
-import fiestaImg from "../assets/istockphoto-2155511077-612x612.jpg";
-import parrilladaImg from "../assets/premium_photo-1666184130709-f3709060899a.avif";
 
 const MisInvitaciones = () => {
-  const [invitaciones, setInvitaciones] = useState([]); // Estado para almacenar invitaciones
+  const [invitaciones, setInvitaciones] = useState([
+    {
+      id: 1,
+      evento: "Fiesta de cumpleaños",
+      fecha: "2025-06-15",
+      lugar: "Casa de Juan",
+      estado: "pendiente",
+    },
+  ]);
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    const userId = localStorage.getItem("user_id");
-
-    if (!token || !userId) {
-      console.error("Falta token o user_id en localStorage");
-      return;
-    }
-
-    fetch(`${import.meta.env.VITE_BACKEND_URL}/api/${userId}/invitaciones`, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error("Error al obtener invitaciones");
-        return res.json();
-      })
-      .then((data) => {
-        const invitacionesFormateadas = data.map((inv) => ({
-          id: inv.id,
-          evento: inv.evento.titulo,
-          fecha: inv.evento.fecha,
-          lugar: inv.evento.lugar,
-          estado: inv.estado,
-        }));
-        setInvitaciones(invitacionesFormateadas);
-      })
-      .catch((error) => {
-        console.error("Error al obtener las invitaciones:", error);
-      });
-  }, []);
-
-  // Función para aceptar o rechazar una invitación
   const responderInvitacion = (id, respuesta) => {
-    // Actualiza el estado local de la invitación
     const nuevasInvitaciones = invitaciones.map((inv) => {
       if (inv.id === id && inv.estado !== respuesta) {
         return { ...inv, estado: respuesta };
@@ -53,131 +22,83 @@ const MisInvitaciones = () => {
 
     setInvitaciones(nuevasInvitaciones);
 
-    // Mensajes personalizados para cada respuesta
-    const mensajes = {
-      aceptado: {
-        title: "¡Genial! 🎉",
-        text: "Nos alegra saber que vendrás. ¡Prepárate para divertirte!",
-        icon: "success",
-      },
-      rechazado: {
-        title: "¡Oh no! 😢",
-        text: "Te vamos a extrañar, esperamos verte en el próximo evento.",
-        icon: "info",
-      },
-    };
-
-    // Muestra alerta con SweetAlert
-    const mensaje = mensajes[respuesta];
     Swal.fire({
-      title: mensaje.title,
-      text: mensaje.text,
-      icon: mensaje.icon,
+      title: "¡Respuesta registrada!",
+      text: `Has ${respuesta === "aceptado" ? "aceptado" : "rechazado"} la invitación.`,
+      icon: "success",
       confirmButtonColor: "#FF2E63",
       background: "#1A1A1D",
-      color: "#FFFFFF",
+      color: "#FFFFFF"
     });
   };
 
   return (
-    <div
-      style={{
-        backgroundColor: "#1A1A1D",
-        color: "#FFFFFF",
-        minHeight: "100vh",
-        padding: "3rem",
-        position: "relative",
-        overflow: "hidden",
-      }}
-    >
-      {/* Imágenes decorativas */}
-      <img
-        src={fiestaImg}
-        alt="decoracion fiesta"
-        className="decoracion-img"
-        style={{ top: "30px", left: "10px" }}
-      />
-      <img
-        src={parrilladaImg}
-        alt="decoracion parrillada"
-        className="decoracion-img2"
-        style={{ bottom: "40px", right: "15px" }}
-      />
+    <div style={{ backgroundColor: "#1A1A1D", color: "#FFFFFF", minHeight: "100vh", padding: "2rem" }}>
+      <h1 style={{ color: "#FF2E63", textAlign: "center", marginBottom: "2rem" }}>📨 Mis Invitaciones</h1>
 
-      {/* Título principal */}
-      <h1
-        style={{
-          color: "#FF2E63",
-          textAlign: "center",
-          marginBottom: "3rem",
-          fontSize: "2.5rem",
-        }}
-      >
-        📨 Tienes una invitación
-      </h1>
-
-      {/* Muestra cada invitación */}
       {invitaciones.map((inv) => (
         <div
           key={inv.id}
           style={{
             background: "linear-gradient(145deg, #1A1A1D, #2C2C2E)",
-            border: "3px dashed #FF2E63",
-            boxShadow: "0 0 20px rgba(255, 46, 99, 0.4)",
-            borderRadius: "20px",
-            padding: "3rem",
-            margin: "0 auto 3rem auto",
-            maxWidth: "800px",
+            border: "2px dashed #FF2E63",
+            boxShadow: "0 0 10px rgba(255, 46, 99, 0.3)",
+            borderRadius: "15px",
+            padding: "2rem",
+            margin: "0 auto 2rem auto",
+            maxWidth: "600px",
             textAlign: "center",
-            fontSize: "1.3rem",
-            zIndex: 1,
             position: "relative",
           }}
         >
-          {/* Detalles del evento */}
-          <h2 style={{ fontSize: "2.2rem", marginBottom: "1.5rem", color: "#FF2E63" }}>
+          <h2 style={{ fontSize: "1.8rem", marginBottom: "1rem", color: "#FF2E63" }}>
             🎉 {inv.evento}
           </h2>
-          <p>📅 <strong>Fecha:</strong> {inv.fecha}</p>
-          <p>📍 <strong>Lugar:</strong> {inv.lugar}</p>
-          <p>
+          <p style={{ fontSize: "1.1rem", margin: "0.5rem 0" }}>📅 <strong>Fecha:</strong> {inv.fecha}</p>
+          <p style={{ fontSize: "1.1rem", margin: "0.5rem 0" }}>📍 <strong>Lugar:</strong> {inv.lugar}</p>
+          <p style={{ fontSize: "1.1rem", margin: "0.5rem 0" }}>
             📌 <strong>Estado:</strong>{" "}
-            <span
-              style={{
-                color:
-                  inv.estado === "aceptado"
-                    ? "#00ffae"
-                    : inv.estado === "rechazado"
-                      ? "#ff6b6b"
-                      : "#FF2E63",
-              }}
-            >
+            <span style={{ color: inv.estado === "aceptado" ? "#00ffae" : inv.estado === "rechazado" ? "#ff6b6b" : "#FF2E63" }}>
               {inv.estado}
             </span>
           </p>
 
-          {/* Botones solo si la invitación está pendiente */}
           {inv.estado === "pendiente" && (
-            <div
-              style={{
-                marginTop: "2rem",
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: "1rem",
-              }}
-            >
+            <div style={{ marginTop: "1.5rem" }}>
               <button
-                className="btn-rechazar-invitacion"
                 onClick={() => responderInvitacion(inv.id, "aceptado")}
+                style={{
+                  backgroundColor: "#FF2E63",
+                  color: "#FFFFFF",
+                  border: "none",
+                  padding: "0.7rem 1.5rem",
+                  marginRight: "1rem",
+                  borderRadius: "5px",
+                  fontSize: "1rem",
+                  cursor: "pointer",
+                  transition: "transform 0.2s ease",
+                }}
+                onMouseOver={(e) => (e.target.style.transform = "scale(1.05)")}
+                onMouseOut={(e) => (e.target.style.transform = "scale(1)")}
               >
-                ✔️ Aceptar invitación
+                ✅ Aceptar
               </button>
               <button
-                className="btn-rechazar-invitacion"
                 onClick={() => responderInvitacion(inv.id, "rechazado")}
+                style={{
+                  backgroundColor: "transparent",
+                  color: "#FF2E63",
+                  border: "2px solid #FF2E63",
+                  padding: "0.7rem 1.5rem",
+                  borderRadius: "5px",
+                  fontSize: "1rem",
+                  cursor: "pointer",
+                  transition: "transform 0.2s ease",
+                }}
+                onMouseOver={(e) => (e.target.style.transform = "scale(1.05)")}
+                onMouseOut={(e) => (e.target.style.transform = "scale(1)")}
               >
-                ❌ Rechazar invitación
+                ❌ Rechazar
               </button>
             </div>
           )}
