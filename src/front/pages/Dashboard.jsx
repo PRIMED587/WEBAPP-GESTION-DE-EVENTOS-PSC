@@ -52,7 +52,6 @@ useEffect(() => {
         Crear nuevo evento
       </Button>
 
-      <h2 className="next-events text-center mb-4 fade-in-delay">Eventos proximos a participar</h2>
 
       {loading ? (
         <p className="text-center">Cargando eventos...</p>

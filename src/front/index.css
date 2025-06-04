@@ -173,7 +173,6 @@ body,
   transform: scale(1.05) rotate(0deg);
 }
 
-
 /*homepage*/
 .homepage-container {
   background-color: #1a1a1d;
@@ -352,7 +351,7 @@ body,
 }
 
 .card {
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .card-header {
@@ -363,7 +362,6 @@ body,
 /* InfoEvento ocupa todo el ancho del contenedor */
 .info-box,
 .extra-box {
-  
   background-color: #2e2e33;
   border-radius: 12px;
   padding: 1.2rem;
@@ -395,7 +393,8 @@ body,
 }
 
 /* Listas ul: scroll vertical */
-.lista-participantes, .lista-tareas {
+.lista-participantes,
+.lista-tareas {
   overflow-y: auto;
   flex-grow: 1;
   margin-bottom: 0.75rem;
@@ -429,7 +428,8 @@ body,
 }
 
 /* Info texto (nombre + etiqueta organizador) */
-.participant-info, .task-info {
+.participant-info,
+.task-info {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -442,7 +442,6 @@ body,
   border-radius: 12px;
   font-size: 0.7rem;
   color: white;
-  
 }
 
 /* Checkbox completado */
@@ -466,10 +465,10 @@ body,
   gap: 6px;
   align-items: center;
   margin-top: auto;
-  
 }
 
-.agregar-form input, .agregar-form select {
+.agregar-form input,
+.agregar-form select {
   flex: 1;
   padding: 6px 8px;
   border-radius: 6px;
@@ -477,7 +476,6 @@ body,
   font-size: 0.9rem;
   background-color: #1a1a1d;
   color: #aaaaaa;
-  
 }
 
 .agregar-form button {
@@ -495,14 +493,12 @@ body,
   box-shadow: 0 6px 15px #ff2e63;
 }
 
-
 /* Responsive: cajas en columna en pantallas chicas */
 @media (max-width: 768px) {
   .listas-container {
     flex-direction: column;
     align-items: center;
     gap: 1rem;
-
   }
 
   .participantes-box,
@@ -561,7 +557,6 @@ body,
   z-index: -1; /* pone la imagen detrás del contenido */
   opacity: 0.3; /* puedes ajustar la opacidad para que no opaque el texto */
 }
-
 
 .event-card .card-title {
   font-size: 1.4rem;
@@ -675,8 +670,6 @@ body,
   line-height: 1.6;
 }
 
-.
-
 /**********************************************Formulario Registro (PSC)********************************************/
 
 #registerForm {
@@ -763,6 +756,45 @@ body,
   font-weight: bold;
   font-size: 1.05rem;
   letter-spacing: 0.5px;
+}
+
+/* Responsividad adicional sin afectar estilos existentes */
+
+/* Que el contenedor ocupe un porcentaje adaptable */
+#registerForm {
+  width: 90%;
+  max-width: 600px;
+  box-sizing: border-box;
+}
+
+/* Ajustes para pantallas medianas */
+@media (max-width: 768px) {
+  #registerForm {
+    padding-left: 1.5rem !important;
+    padding-right: 1.5rem !important;
+    margin-left: 1rem !important;
+    margin-right: 1rem !important;
+  }
+
+  .registerHeadTitle h1 {
+    font-size: 1.5rem;
+  }
+}
+
+/* Ajustes para pantallas pequeñas */
+@media (max-width: 480px) {
+  #registerForm {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+
+  /* Inputs y labels toman todo el ancho, pero sin modificar otras propiedades */
+  #inputRegisterForm input,
+  #inputRegisterForm label {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
 }
 
 
@@ -894,7 +926,7 @@ input.form-control::placeholder {
 /**********************************************RESET PASSWORD (PSC)********************************************/
 
 #buttonNewPassword {
- border: none;
+  border: none;
   background-color: #ff2e63;
   font-size: 1.1rem;
   padding: 0.6rem 1.5rem;
@@ -902,7 +934,7 @@ input.form-control::placeholder {
 }
 
 #buttonNewPassword:hover {
- transform: scale(1.05);
+  transform: scale(1.05);
   box-shadow: 0 6px 15px #ff2e63;
 }
 
@@ -950,7 +982,6 @@ input.form-control::placeholder {
   #ResetButton {
     width: 100%;
     text-align: center;
-  
   }
 }
 
