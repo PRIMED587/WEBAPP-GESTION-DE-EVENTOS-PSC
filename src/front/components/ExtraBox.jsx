@@ -4,8 +4,8 @@ const ExtraBox = ({ evento }) => {
   const { servicios, recursos } = evento;
 
   return (
-    <div className="card mb-4 shadow-sm">
-      <div className="card-header bg-secondary text-white">
+    <div className="box-seccion-evento">
+      <div className="card-header">
         <h5 className="mb-0">Extras del Evento</h5>
       </div>
       <div className="card-body">

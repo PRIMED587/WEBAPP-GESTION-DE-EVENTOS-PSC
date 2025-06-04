@@ -33,7 +33,9 @@ const Participantes = () => {
 
   return (
     <div className="box-seccion-evento">
-      <h4 className="mb-3">Participantes</h4>
+      <div className="card-header">
+      <h4 className="mb-0 text-white">Participantes</h4>
+      </div>
       {participantes.length === 0 ? (
         <p>No hay participantes confirmados.</p>
       ) : (

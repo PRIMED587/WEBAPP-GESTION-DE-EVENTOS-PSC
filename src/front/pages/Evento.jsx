@@ -73,27 +73,41 @@ const Evento = () => {
           </button>
         )}
       </div>
-      <div className="row g-4">
-        <div className="col-lg-6">
-          <InfoEvento evento={evento} />
-          <ExtraBox evento={evento} />
-          {evento.latitud && evento.longitud && evento.fecha && (
-            <ClimaYMapa
-              direccion={evento.direccion}
-              fecha={evento.fecha}
-              latitud={evento.latitud}
-              longitud={evento.longitud}
-            />
-          )}
-        </div>
-        <div className="col-lg-6">
+
+      {/* InfoEvento ocupa todo el ancho */}
+      <div className="col-lg-12 ">
+        <InfoEvento evento={evento} />
+      </div>
+
+      {/* Contenedor para las 4 boxes centrales */}
+      <div className="row gx-4 gy-4 mb-4">
+        {/* Invitados */}
+        <div className="col-lg-6 col-12 caja-central">
           <Invitados eventoId={eventoId} />
+        </div>
+
+        {/* Participantes */}
+        <div className="col-lg-6 col-12 caja-central">
           <Participantes eventoId={eventoId} />
+        </div>
+        
+        {/* Tareas */}
+        <div className="col-lg-6 col-12 caja-central">
           <Tareas eventoId={eventoId} />
+        </div>
+
+        {/* Gastos */}
+        <div className="col-lg-6 col-12 caja-central">
           <Gastos eventoId={parseInt(eventoId, 10)} />
         </div>
       </div>
+
+      {/* ExtraBox ocupa todo el ancho */}
+      <div className="col-lg-12 ">
+        <ExtraBox evento={evento} />
+      </div>
     </div>
+
   );
 };
 
