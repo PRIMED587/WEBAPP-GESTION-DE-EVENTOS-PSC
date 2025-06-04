@@ -54,7 +54,7 @@
 		]
 	},
 	"dependencies": {
-		"@mapbox/mapbox-gl-geocoder": "github:mapbox/mapbox-gl-geocoder",
+		"@mapbox/mapbox-gl-geocoder": "^5.0.3",
 		"axios": "^1.9.0",
 		"bootstrap": "^5.3.6",
 		"mapbox-gl": "^3.12.0",
