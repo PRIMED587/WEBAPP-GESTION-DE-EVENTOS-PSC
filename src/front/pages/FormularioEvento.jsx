@@ -371,21 +371,28 @@ const FormularioEvento = () => {
             <label htmlFor="direccion" className="form-label">
               Dirección exacta
             </label>
+            {/* Contenedor del geocoder (input de autocompletado) */}
             <div ref={geocoderContainer} />
-            {/* Campo oculto para registrar dirección en el formulario */}
-            <input type="hidden" id="direccion" {...register("direccion")} />
+            {/* Campo visible para editar la dirección, sincronizado con el geocoder */}
+            <input
+              type="text"
+              id="direccion"
+              className="form-control mt-2"
+              {...register("direccion")}
+            />
           </div>
 
           {/* Descripción - opcional */}
-          <div className="col-md-12">
+          <div className="col-md-12 mb-3">
             <label htmlFor="descripcion" className="form-label">
               Descripción
             </label>
             <textarea
-              className="form-control"
               id="descripcion"
               rows="3"
+              placeholder="Escribí una breve descripción del evento..."
               {...register("descripcion")}
+              className="form-control"
             ></textarea>
           </div>
 
@@ -490,9 +497,8 @@ const FormularioEvento = () => {
           {/* Mensajes */}
           {message && (
             <div
-              className={`alert mt-3 ${
-                message.type === "error" ? "alert-danger" : "alert-success"
-              }`}
+              className={`alert mt-3 ${message.type === "error" ? "alert-danger" : "alert-success"
+                }`}
               role="alert"
             >
               {message.text}
