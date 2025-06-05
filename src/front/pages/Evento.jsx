@@ -14,11 +14,14 @@ const Evento = () => {
   const [evento, setEvento] = useState(null);
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState(null);
+  const [refreshGastos, setRefreshGastos] = useState(0); // <-- nuevo estado
 
-  // Leer token, backendUrl y userId una sola vez aquí
   const token = sessionStorage.getItem("token");
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const userId = sessionStorage.getItem("userId");
+  const userStr = sessionStorage.getItem("user");
+  const user = userStr ? JSON.parse(userStr) : null;
+  const userEmail = user?.email || "";
 
   const fetchEvento = async () => {
     if (!token || !backendUrl || !eventoId) {
@@ -40,7 +43,7 @@ const Evento = () => {
       }
 
       const data = await response.json();
-      data.es_creador = parseInt(userId) === data.creador_id;
+      data.es_creador = parseInt(userId, 10) === data.creador_id;
 
       setEvento(data);
       setErrorMsg(null);
@@ -75,14 +78,11 @@ const Evento = () => {
         )}
       </div>
 
-      {/* InfoEvento ocupa todo el ancho */}
       <div className="col-lg-12">
         <InfoEvento evento={evento} />
       </div>
 
-      {/* Contenedor para las cajas centrales */}
       <div className="row gx-4 gy-4">
-        {/* Invitados */}
         <div className="col-lg-6 col-12 caja-central">
           <Invitados
             eventoId={eventoId}
@@ -92,7 +92,6 @@ const Evento = () => {
           />
         </div>
 
-        {/* Participantes */}
         <div className="col-lg-6 col-12 caja-central">
           <Participantes
             eventoId={eventoId}
@@ -102,32 +101,33 @@ const Evento = () => {
           />
         </div>
 
-        {/* Gastos */}
         <div className="col-lg-6 col-12 caja-central">
           <Gastos
             eventoId={parseInt(eventoId, 10)}
             token={token}
             backendUrl={backendUrl}
             userId={userId}
+            refresh={refreshGastos} // <-- nuevo prop
           />
         </div>
 
-        {/* Tareas */}
         <div className="col-lg-6 col-12 caja-central">
           <Tareas
             eventoId={eventoId}
             token={token}
             backendUrl={backendUrl}
             userId={userId}
+            tareas={evento.tareas_activas}
+            userEmail={userEmail}
+            creadorId={evento.creador_id}
+            onGastoGuardado={() => setRefreshGastos(prev => prev + 1)} // <-- callback
           />
         </div>
 
-        {/* ExtraBox */}
         <div className="col-lg-6 col-12 caja-central">
           <ExtraBox evento={evento} />
         </div>
 
-        {/* Ubicación y Clima */}
         <div className="col-lg-6 col-12 caja-central">
           <ClimaYMapa
             direccion={evento.direccion}

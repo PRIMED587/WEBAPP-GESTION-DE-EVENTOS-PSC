@@ -377,7 +377,7 @@ const FormularioEvento = () => {
             <input
               type="text"
               id="direccion"
-              className="form-control mt-2"
+              className="form-control"
               {...register("direccion")}
             />
           </div>

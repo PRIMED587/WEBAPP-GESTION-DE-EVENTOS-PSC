@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-const Gastos = ({ eventoId, token, backendUrl, userId }) => {
+const Gastos = ({ eventoId, token, backendUrl, refresh }) => {
   const [gastos, setGastos] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -10,7 +10,7 @@ const Gastos = ({ eventoId, token, backendUrl, userId }) => {
       return;
     }
     try {
-      const response = await fetch(`${backendUrl}/api/${eventoId}/gastos`, {
+      const response = await fetch(`${backendUrl}/api/eventos/${eventoId}/gastos`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!response.ok) {
@@ -28,7 +28,9 @@ const Gastos = ({ eventoId, token, backendUrl, userId }) => {
 
   useEffect(() => {
     fetchGastos();
-  }, [eventoId]);
+  }, [eventoId, refresh]); // 🔁 Se vuelve a cargar si refresh cambia
+
+  const totalGastos = gastos.reduce((acc, g) => acc + (g.monto || 0), 0);
 
   return (
     <div className="box-seccion-evento d-flex flex-column" style={{ height: "100%" }}>
@@ -42,13 +44,26 @@ const Gastos = ({ eventoId, token, backendUrl, userId }) => {
         ) : gastos.length === 0 ? (
           <p>No hay gastos registrados.</p>
         ) : (
-          <ul className="list-group mb-0">
-            {gastos.map((g) => (
-              <li key={g.id} className="list-group-item">
-                {g.descripcion} - ${g.monto}
-              </li>
-            ))}
-          </ul>
+          <>
+            <ul className="list-group mb-0">
+              {gastos.map((g) => (
+                <li
+                  key={g.id}
+                  className="list-group-item d-flex justify-content-between align-items-center flex-wrap"
+                >
+                  <div>
+                    <strong>{g.etiqueta || "Sin etiqueta"}</strong>
+                    <br />
+                    <small className="text-muted">Por: {g.usuario_email || "Desconocido"}</small>
+                  </div>
+                  <span>${g.monto.toFixed(2)}</span>
+                </li>
+              ))}
+            </ul>
+            <div className="text-end mt-2 fw-bold" style={{ fontSize: "1.1rem" }}>
+              Total: ${totalGastos.toFixed(2)}
+            </div>
+          </>
         )}
       </div>
     </div>

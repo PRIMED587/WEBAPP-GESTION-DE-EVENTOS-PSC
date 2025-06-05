@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-const Tareas = ({ eventoId, token, backendUrl, userId }) => {
+const Tareas = ({ eventoId, token, backendUrl, userId, userEmail, creadorId, onGastoGuardado }) => {
   const [tareas, setTareas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [nuevaTarea, setNuevaTarea] = useState("");
@@ -43,13 +43,8 @@ const Tareas = ({ eventoId, token, backendUrl, userId }) => {
     if (nuevaTarea.trim() === "") return;
 
     try {
-      // Aquí enviamos el email directamente (asignadoA ya es email)
-      const assignedEmail = asignadoA || null;
-
-      const bodyToSend = {
-        descripcion: nuevaTarea,
-        asignado_a: assignedEmail,
-      };
+      const assignedUserId = asignadoA || null;
+      const bodyToSend = { descripcion: nuevaTarea, asignado_a: assignedUserId };
 
       const response = await fetch(`${backendUrl}/api/eventos/${eventoId}/tareas`, {
         method: "POST",
@@ -60,10 +55,7 @@ const Tareas = ({ eventoId, token, backendUrl, userId }) => {
         body: JSON.stringify(bodyToSend),
       });
 
-      if (!response.ok) {
-        const responseData = await response.json().catch(() => null);
-        throw new Error(responseData?.message || "Error al crear la tarea");
-      }
+      if (!response.ok) throw new Error("Error al crear la tarea");
 
       fetchTareas();
       setNuevaTarea("");
@@ -74,26 +66,47 @@ const Tareas = ({ eventoId, token, backendUrl, userId }) => {
   };
 
   const handleCompletarTarea = async (tareaId) => {
-    const monto = gastosPorTarea[tareaId];
-
     try {
-      const response = await fetch(`${backendUrl}/api/tareas/${tareaId}/realizar`, {
-        method: "PUT",
+      const resTarea = await fetch(`${backendUrl}/api/${userId}/${eventoId}/tareas/${tareaId}/completar`, {
+        method: "PATCH",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          nombre_gasto: monto ? "Gasto de tarea" : null,
-          monto: monto ? parseFloat(monto) : null,
-        }),
       });
 
-      if (!response.ok) throw new Error("Error al completar la tarea");
+      if (!resTarea.ok) throw new Error("Error completando tarea");
 
-      fetchTareas();
+      const gastoMonto = gastosPorTarea[tareaId];
+      if (gastoMonto && gastoMonto > 0) {
+        const resGasto = await fetch(`${backendUrl}/api/eventos/${eventoId}/tareas/${tareaId}/gastos`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            monto: parseFloat(gastoMonto),
+            etiqueta: "Gasto tarea",
+            tarea_id: tareaId,
+          }),
+        });
+
+        if (!resGasto.ok) throw new Error("Error guardando gasto");
+
+        if (onGastoGuardado) onGastoGuardado(); // 🔁 Notificar cambio
+      }
+
+      setTareas((prevTareas) =>
+        prevTareas.map((t) =>
+          t.id === tareaId ? { ...t, completada: true } : t
+        ).sort((a, b) => a.completada - b.completada)
+      );
+
+      setGastosPorTarea((prev) => ({ ...prev, [tareaId]: "" }));
     } catch (error) {
-      console.error("❌ Error al completar tarea:", error);
+      console.error(error);
+      alert(error.message);
     }
   };
 
@@ -101,24 +114,41 @@ const Tareas = ({ eventoId, token, backendUrl, userId }) => {
     try {
       const response = await fetch(`${backendUrl}/api/tareas/${tareaId}`, {
         method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
 
       if (!response.ok) throw new Error("Error al eliminar la tarea");
 
-      setTareas((prev) => prev.filter((tarea) => tarea.id !== tareaId));
+      setTareas((prev) => prev.filter((t) => t.id !== tareaId));
     } catch (error) {
       console.error("Error al eliminar tarea:", error);
     }
   };
 
   const handleGastoChange = (tareaId, value) => {
-    setGastosPorTarea((prev) => ({
-      ...prev,
-      [tareaId]: value,
-    }));
+    setGastosPorTarea((prev) => ({ ...prev, [tareaId]: value }));
+  };
+
+  const puedeModificarTarea = (tarea) => {
+    if (String(userId) === String(creadorId)) return true;
+    if (!tarea.asignado_a) return true;
+    return userEmail === tarea.asignado_a;
+  };
+
+  const handleAsignarmeTarea = async (tareaId) => {
+    try {
+      const res = await fetch(`${backendUrl}/api/eventos/${eventoId}/tareas/${tareaId}/asignar`, {
+        method: "PATCH",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!res.ok) throw new Error("Error asignando tarea");
+
+      fetchTareas();
+    } catch (error) {
+      console.error(error);
+      alert(error.message);
+    }
   };
 
   return (
@@ -141,15 +171,20 @@ const Tareas = ({ eventoId, token, backendUrl, userId }) => {
               >
                 <div className="me-auto">
                   <div className="fw-bold">{tarea.descripcion}</div>
-                  <small>
-                    Asignado a: {tarea.asignado_a || "No asignado"}
-                  </small>
+                  <small>Asignado a: {tarea.asignado_a || "No asignado"}</small>
                 </div>
 
                 <div className="d-flex align-items-center gap-2">
                   {tarea.completada ? (
                     <span className="badge bg-success">Completada</span>
-                  ) : (
+                  ) : !tarea.asignado_a && puedeModificarTarea(tarea) ? (
+                    <button
+                      className="btn btn-sm btn-primary"
+                      onClick={() => handleAsignarmeTarea(tarea.id)}
+                    >
+                      Asignarme tarea
+                    </button>
+                  ) : puedeModificarTarea(tarea) ? (
                     <>
                       <input
                         type="number"
@@ -172,7 +207,7 @@ const Tareas = ({ eventoId, token, backendUrl, userId }) => {
                         🗑
                       </button>
                     </>
-                  )}
+                  ) : null}
                 </div>
               </li>
             ))}
@@ -197,7 +232,7 @@ const Tareas = ({ eventoId, token, backendUrl, userId }) => {
         >
           <option value="">Asignar a...</option>
           {participantes.map((p) => (
-            <option key={p.id} value={p.email}>
+            <option key={p.id} value={p.usuario_id}>
               {p.email}
             </option>
           ))}
