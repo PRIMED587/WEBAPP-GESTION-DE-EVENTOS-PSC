@@ -5,6 +5,7 @@ const Participantes = () => {
   const { eventoId } = useParams();
   const [participantes, setParticipantes] = useState([]);
   const [loading, setLoading] = useState(true);
+  
 
   const fetchParticipantes = async () => {
     const token = sessionStorage.getItem("token");

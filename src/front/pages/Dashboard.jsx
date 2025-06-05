@@ -3,6 +3,7 @@ import { Button } from "react-bootstrap";
 import { useNavigate } from 'react-router-dom';
 import EventoSingle from "../components/EventoSingle";
 
+
 const Dashboard = () => {
   const navigate = useNavigate();
   const [eventos, setEventos] = useState([]);

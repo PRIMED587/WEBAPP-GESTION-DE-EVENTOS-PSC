@@ -48,17 +48,26 @@ function ClimaYMapa({ direccion, fecha, latitud, longitud }) {
   }, [latitud, longitud]);
 
   return (
-    <div className="card caja-central h-100 shadow-sm">
-      <div className="card-header text-white">
-        <h5 className="mb-0">Ubicación y Clima</h5>
+    <div
+      className="box-seccion-evento d-flex flex-column"
+      style={{ height: "100%", overflow: "hidden" }}
+    >
+      <div className="card-header">
+        <h4 className="mb-0 text-white">Ubicación y Clima</h4>
       </div>
 
-      <div className="card-body">
+      <div
+        className="card-body d-flex flex-column flex-grow-1"
+        style={{ padding: "1rem", overflow: "hidden" }}
+      >
         <div
-          className="row gx-4 gy-3 align-items-center flex-column flex-md-row"
-          style={{ minHeight: "300px" }}
+          className="row gx-3 gy-3 flex-grow-1"
+          style={{ height: "100%", overflow: "hidden" }}
         >
-          <div className="col-12 col-md-6" style={{ height: "300px" }}>
+          <div
+            className="col-12 col-md-6"
+            style={{ height: "100%", minHeight: 0 }}
+          >
             <div
               ref={mapContainer}
               style={{
@@ -70,7 +79,10 @@ function ClimaYMapa({ direccion, fecha, latitud, longitud }) {
             />
           </div>
 
-          <div className="col-12 col-md-6 mt-3 mt-md-0">
+          <div
+            className="col-12 col-md-6 d-flex flex-column justify-content-center"
+            style={{ height: "100%", minHeight: 0 }}
+          >
             {error && <p className="text-danger">{error}</p>}
 
             {clima && (
@@ -87,11 +99,6 @@ function ClimaYMapa({ direccion, fecha, latitud, longitud }) {
                 </p>
                 <p>
                   <strong>Descripción:</strong> {clima.weather[0].description}{" "}
-                  <img
-                    src={`https://openweathermap.org/img/wn/${clima.weather[0].icon}@2x.png`}
-                    alt={clima.weather[0].description}
-                    style={{ verticalAlign: "middle" }}
-                  />
                 </p>
               </div>
             )}

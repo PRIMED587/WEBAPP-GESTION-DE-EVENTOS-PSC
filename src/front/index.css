@@ -365,7 +365,6 @@ a {
   }
 }
 /*dashboard*/
-/*evento*/
 
 /* Fondo y contenedor principal */
 .evento-container {
@@ -423,18 +422,6 @@ a {
   background-color: #ff2e63;
   color: #fff;
   cursor: default;
-}
-
-/* Cards para Gastos y ExtraBox */
-.card {
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(255, 46, 99, 0.2);
-  margin-bottom: 1.5rem;
-  color: #ddd;
-  flex: 1 1 48%;
-  min-width: 300px;
-  display: flex;
-  flex-direction: column;
 }
 
 .card-header {
@@ -702,8 +689,6 @@ a {
   text-align: justify;
   line-height: 1.6;
 }
-
-
 
 /**********************************************Formulario Registro (PSC)********************************************/
 

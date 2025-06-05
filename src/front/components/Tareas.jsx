@@ -6,7 +6,11 @@ const Tareas = () => {
   const [tareas, setTareas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [nuevaTarea, setNuevaTarea] = useState("");
+  const [asignadoA, setAsignadoA] = useState("");
+  const [gasto, setGasto] = useState("");
+  const [participantes, setParticipantes] = useState([]);
 
+  // Fetch tareas
   const fetchTareas = async () => {
     try {
       const response = await fetch(`${process.env.BACKEND_URL}/api/eventos/${eventoId}/tareas`);
@@ -19,15 +23,32 @@ const Tareas = () => {
     }
   };
 
+  // Fetch participantes para el select
+  const fetchParticipantes = async () => {
+    const token = sessionStorage.getItem("token");
+    const backendUrl = import.meta.env.VITE_BACKEND_URL;
+    try {
+      const response = await fetch(`${backendUrl}/api/eventos/${eventoId}/participantes`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await response.json();
+      setParticipantes(data);
+    } catch (error) {
+      console.error("Error al obtener participantes:", error);
+    }
+  };
+
   useEffect(() => {
     fetchTareas();
+    fetchParticipantes();
   }, []);
 
-  // Aquí no modifiqué la función de agregar tarea, solo agrego el input y botón en la UI
   const handleAgregarTarea = () => {
     if (nuevaTarea.trim() === "") return;
-    // Por ahora solo limpio el input para no cambiar lógica
+    // Aquí puedes usar nuevaTarea, asignadoA y gasto para enviar al backend
     setNuevaTarea("");
+    setAsignadoA("");
+    setGasto("");
   };
 
   if (loading) return <div>Cargando tareas...</div>;
@@ -38,7 +59,6 @@ const Tareas = () => {
         <h4 className="mb-0 text-white">Tareas</h4>
       </div>
 
-      {/* Lista con scroll */}
       <div style={{ overflowY: "auto", flexGrow: 1 }}>
         {tareas.length === 0 ? (
           <p className="text-white ">Aún no hay tareas registradas.</p>
@@ -61,17 +81,43 @@ const Tareas = () => {
         )}
       </div>
 
-      {/* Input y botón fijos abajo */}
-      <div className="mt-3 d-flex">
+      {/* Inputs abajo */}
+      <div className="mt-3 d-flex gap-2">
         <input
           type="text"
-          className="form-control me-2"
+          className="form-control"
+          style={{ flexBasis: "40%" }}
           placeholder="Agregar nueva tarea"
           value={nuevaTarea}
           onChange={(e) => setNuevaTarea(e.target.value)}
-          
         />
-        <button className="create-event-btn" onClick={handleAgregarTarea}>
+        <select
+          className="form-select"
+          style={{ flexBasis: "20%" }}
+          value={asignadoA}
+          onChange={(e) => setAsignadoA(e.target.value)}
+        >
+          <option value="">Asignar a</option>
+          {participantes.map((p) => (
+            <option key={p.id} value={p.usuario_id}>
+              {p.usuario_id} {/* O cambia por nombre si tienes */}
+            </option>
+          ))}
+        </select>
+        <input
+          type="number"
+          min="0"
+          className="form-control"
+          style={{ flexBasis: "20%" }}
+          placeholder="Gastos"
+          value={gasto}
+          onChange={(e) => setGasto(e.target.value)}
+        />
+        <button
+          className="create-event-btn"
+          style={{ flexBasis: "20%" }}
+          onClick={handleAgregarTarea}
+        >
           Agregar
         </button>
       </div>

@@ -8,6 +8,7 @@ import ExtraBox from "../components/ExtraBox";
 import Invitados from "../components/Invitados";
 import ClimaYMapa from "../components/ClimaYMapa";
 
+
 const Evento = () => {
   const { eventoId } = useParams();
   const navigate = useNavigate();
@@ -90,11 +91,6 @@ const Evento = () => {
         <div className="col-lg-6 col-12 caja-central">
           <Participantes eventoId={eventoId} />
         </div>
-        
-        {/* Tareas */}
-        <div className="col-lg-6 col-12 caja-central">
-          <ExtraBox evento={evento} />
-        </div>
 
         {/* Gastos */}
         <div className="col-lg-6 col-12 caja-central">
@@ -106,6 +102,11 @@ const Evento = () => {
           <Tareas eventoId={eventoId} />
         </div>
 
+        {/* extra */}
+        <div className="col-lg-6 col-12 caja-central">
+          <ExtraBox evento={evento} />
+        </div>
+        
         {/* Ubicación y Clima */}
         <div className="col-lg-6 col-12 caja-central">
           <ClimaYMapa
