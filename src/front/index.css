@@ -473,9 +473,16 @@ a {
   border-radius: 12px;
   padding: 0.5rem;
   color: #fff;
-  overflow-y: auto; /* scroll vertical cuando haga falta */
+  overflow-y: visible !important;
   display: flex;
   flex-direction: column;
+}
+
+.lista-scroll {
+  flex: 1;         
+  overflow-y: auto; 
+  margin-bottom: 1rem;
+  padding: 0.5rem;
 }
 
 

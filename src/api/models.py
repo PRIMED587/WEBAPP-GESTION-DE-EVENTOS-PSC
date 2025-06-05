@@ -179,11 +179,12 @@ class Participante(db.Model):
 
     def serialize(self):
         return {
-            "id": self.id,
-            "evento_id": self.evento_id,
-            "usuario_id": self.usuario_id,
-            "aceptado": self.aceptado,
-        }
+        "id": self.id,
+        "evento_id": self.evento_id,
+        "usuario_id": self.usuario_id,
+        "aceptado": self.aceptado,
+        "email": self.usuario.email if self.usuario else None,
+    }
 
 
 class Tarea(db.Model):

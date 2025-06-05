@@ -478,8 +478,6 @@ def obtener_invitaciones_evento(current_user_id, user_id, evento_id):
     return jsonify([inv.serialize() for inv in invitaciones]), 200
 
 # Ruta para agregar múltiples invitaciones a un evento. Requiere lista de emails y valida permisos.
-
-
 @api.route('/<int:user_id>/eventos/<int:evento_id>/invitaciones', methods=['POST'])
 @token_required
 def agregar_invitaciones(current_user_id, user_id, evento_id):
@@ -541,6 +539,15 @@ def crear_invitacion(current_user_id, user_id):
     db.session.commit()
 
     return jsonify(nueva_invitacion.serialize()), 201
+
+# Ruta para obtener un usuario por su email. Permite buscar usuarios por email.
+@api.route('/usuarios/email/<string:email>', methods=['GET'])
+@token_required
+def buscar_usuario_por_email(current_user_id, email):
+    usuario = User.query.filter_by(email=email).first()
+    if not usuario:
+        return jsonify({"message": "Usuario no encontrado"}), 404
+    return jsonify({"id": usuario.id, "email": usuario.email}), 200
 
 
 # Ruta para eliminar una invitación específica.
