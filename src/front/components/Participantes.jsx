@@ -1,49 +1,28 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
 
-function parseJwt(token) {
-  try {
-    return JSON.parse(atob(token.split(".")[1]));
-  } catch (e) {
-    return null;
-  }
-}
-
-const Participantes = () => {
-  const { eventoId } = useParams();
+const Participantes = ({ eventoId, token, backendUrl, userId }) => {
   const [participantes, setParticipantes] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const fetchParticipantes = async () => {
-    const token = sessionStorage.getItem("token");
-    const backendUrl = import.meta.env.VITE_BACKEND_URL;
-
     if (!token) {
-      console.error("No hay token en sessionStorage");
       setLoading(false);
       return;
     }
-
-    const url = `${backendUrl}/api/${eventoId}/participantes`;
-
     try {
-      const response = await fetch(url, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      const response = await fetch(`${backendUrl}/api/${eventoId}/participantes`, {
+        headers: { Authorization: `Bearer ${token}` },
       });
 
       if (!response.ok) {
-        const text = await response.text();
-        console.error(`Error en respuesta: ${response.status}`, text);
         setLoading(false);
         return;
       }
 
       const data = await response.json();
       setParticipantes(data);
-    } catch (error) {
-      console.error("Error al obtener participantes:", error);
+    } catch {
+      setParticipantes([]);
     } finally {
       setLoading(false);
     }
@@ -61,7 +40,6 @@ const Participantes = () => {
         <h4 className="mb-0 text-white">Participantes</h4>
       </div>
 
-      {/* Contenedor scroll solo para la lista */}
       <div className="lista-scroll flex-grow-1 mt-2">
         {participantes.length === 0 ? (
           <p>No hay participantes confirmados.</p>
