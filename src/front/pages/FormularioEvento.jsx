@@ -4,6 +4,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import mapboxgl from "mapbox-gl";
 import MapboxGeocoder from "@mapbox/mapbox-gl-geocoder";
 import "@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css";
+import Swal from "sweetalert2"; //se agrego nuevo para la alerta
+
 
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN;
 
@@ -228,6 +230,20 @@ const FormularioEvento = () => {
         type: "success",
         text: eventId ? "Evento modificado con éxito!" : "Evento creado con éxito!",
       });
+
+      //Nueva alerta agregada SweetAlert2
+      if (!eventId) {
+        Swal.fire({
+          title: '¡Evento creado!',
+          text: 'Tu evento ha sido creado exitosamente.',
+          icon: 'success',
+          confirmButtonColor: '#FF2E63',
+          background: '#1A1A1D',
+          color: '#FFFFFF',
+          iconColor: '#FF2E63',
+          confirmButtonText: 'Aceptar',
+        });
+      }
 
       if (!eventId) {
         const nuevoEventoId = eventResponse.evento.id;
