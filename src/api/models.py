@@ -204,11 +204,14 @@ class Tarea(db.Model):
                           cascade="all, delete-orphan")
 
     def serialize(self):
+        usuario = None
+        if self.asignado_a:
+            usuario = User.query.get(self.asignado_a)
         return {
-            "id": self.id,
-            "evento_id": self.evento_id,
-            "descripcion": self.descripcion,
-            "asignado_a": self.asignado_a,
-            "completada": self.completada,
-            "gastos": [g.serialize() for g in self.gastos]
-        }
+        "id": self.id,
+        "evento_id": self.evento_id,
+        "descripcion": self.descripcion,
+        "asignado_a": usuario.email if usuario else None,
+        "completada": self.completada,
+        "gastos": [g.serialize() for g in self.gastos] if hasattr(self, 'gastos') else []
+    }

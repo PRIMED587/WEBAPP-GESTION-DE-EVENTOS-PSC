@@ -8,7 +8,6 @@ import ExtraBox from "../components/ExtraBox";
 import Invitados from "../components/Invitados";
 import ClimaYMapa from "../components/ClimaYMapa";
 
-
 const Evento = () => {
   const { eventoId } = useParams();
   const navigate = useNavigate();
@@ -16,11 +15,12 @@ const Evento = () => {
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState(null);
 
-  const fetchEvento = async () => {
-    const token = sessionStorage.getItem("token");
-    const backendUrl = import.meta.env.VITE_BACKEND_URL;
-    const userId = sessionStorage.getItem("userId");
+  // Leer token, backendUrl y userId una sola vez aquí
+  const token = sessionStorage.getItem("token");
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
+  const userId = sessionStorage.getItem("userId");
 
+  const fetchEvento = async () => {
     if (!token || !backendUrl || !eventoId) {
       setErrorMsg("Faltan datos necesarios");
       setLoading(false);
@@ -80,33 +80,53 @@ const Evento = () => {
         <InfoEvento evento={evento} />
       </div>
 
-      {/* Contenedor para las 4 boxes centrales */}
+      {/* Contenedor para las cajas centrales */}
       <div className="row gx-4 gy-4">
         {/* Invitados */}
         <div className="col-lg-6 col-12 caja-central">
-          <Invitados eventoId={eventoId} />
+          <Invitados
+            eventoId={eventoId}
+            token={token}
+            backendUrl={backendUrl}
+            userId={userId}
+          />
         </div>
 
         {/* Participantes */}
         <div className="col-lg-6 col-12 caja-central">
-          <Participantes eventoId={eventoId} />
+          <Participantes
+            eventoId={eventoId}
+            token={token}
+            backendUrl={backendUrl}
+            userId={userId}
+          />
         </div>
 
         {/* Gastos */}
         <div className="col-lg-6 col-12 caja-central">
-          <Gastos eventoId={parseInt(eventoId, 10)} />
+          <Gastos
+            eventoId={parseInt(eventoId, 10)}
+            token={token}
+            backendUrl={backendUrl}
+            userId={userId}
+          />
         </div>
 
         {/* Tareas */}
         <div className="col-lg-6 col-12 caja-central">
-          <Tareas eventoId={eventoId} />
+          <Tareas
+            eventoId={eventoId}
+            token={token}
+            backendUrl={backendUrl}
+            userId={userId}
+          />
         </div>
 
-        {/* extra */}
+        {/* ExtraBox */}
         <div className="col-lg-6 col-12 caja-central">
           <ExtraBox evento={evento} />
         </div>
-        
+
         {/* Ubicación y Clima */}
         <div className="col-lg-6 col-12 caja-central">
           <ClimaYMapa

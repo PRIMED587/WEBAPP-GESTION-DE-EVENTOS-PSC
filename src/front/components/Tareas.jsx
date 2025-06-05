@@ -1,19 +1,18 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
 
-const Tareas = () => {
-  const { eventoId } = useParams();
+const Tareas = ({ eventoId, token, backendUrl, userId }) => {
   const [tareas, setTareas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [nuevaTarea, setNuevaTarea] = useState("");
   const [asignadoA, setAsignadoA] = useState("");
-  const [gasto, setGasto] = useState("");
+  const [gastosPorTarea, setGastosPorTarea] = useState({});
   const [participantes, setParticipantes] = useState([]);
 
-  // Fetch tareas
   const fetchTareas = async () => {
     try {
-      const response = await fetch(`${process.env.BACKEND_URL}/api/eventos/${eventoId}/tareas`);
+      const response = await fetch(`${backendUrl}/api/eventos/${eventoId}/tareas`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       const data = await response.json();
       setTareas(data);
     } catch (error) {
@@ -23,12 +22,9 @@ const Tareas = () => {
     }
   };
 
-  // Fetch participantes para el select
   const fetchParticipantes = async () => {
-    const token = sessionStorage.getItem("token");
-    const backendUrl = import.meta.env.VITE_BACKEND_URL;
     try {
-      const response = await fetch(`${backendUrl}/api/eventos/${eventoId}/participantes`, {
+      const response = await fetch(`${backendUrl}/api/${eventoId}/participantes`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await response.json();
@@ -41,17 +37,89 @@ const Tareas = () => {
   useEffect(() => {
     fetchTareas();
     fetchParticipantes();
-  }, []);
+  }, [eventoId, token, backendUrl]);
 
-  const handleAgregarTarea = () => {
+  const handleAgregarTarea = async () => {
     if (nuevaTarea.trim() === "") return;
-    // Aquí puedes usar nuevaTarea, asignadoA y gasto para enviar al backend
-    setNuevaTarea("");
-    setAsignadoA("");
-    setGasto("");
+
+    try {
+      // Aquí enviamos el email directamente (asignadoA ya es email)
+      const assignedEmail = asignadoA || null;
+
+      const bodyToSend = {
+        descripcion: nuevaTarea,
+        asignado_a: assignedEmail,
+      };
+
+      const response = await fetch(`${backendUrl}/api/eventos/${eventoId}/tareas`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(bodyToSend),
+      });
+
+      if (!response.ok) {
+        const responseData = await response.json().catch(() => null);
+        throw new Error(responseData?.message || "Error al crear la tarea");
+      }
+
+      fetchTareas();
+      setNuevaTarea("");
+      setAsignadoA("");
+    } catch (error) {
+      console.error("❌ Error al agregar tarea:", error);
+    }
   };
 
-  if (loading) return <div>Cargando tareas...</div>;
+  const handleCompletarTarea = async (tareaId) => {
+    const monto = gastosPorTarea[tareaId];
+
+    try {
+      const response = await fetch(`${backendUrl}/api/tareas/${tareaId}/realizar`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          nombre_gasto: monto ? "Gasto de tarea" : null,
+          monto: monto ? parseFloat(monto) : null,
+        }),
+      });
+
+      if (!response.ok) throw new Error("Error al completar la tarea");
+
+      fetchTareas();
+    } catch (error) {
+      console.error("❌ Error al completar tarea:", error);
+    }
+  };
+
+  const handleEliminarTarea = async (tareaId) => {
+    try {
+      const response = await fetch(`${backendUrl}/api/tareas/${tareaId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) throw new Error("Error al eliminar la tarea");
+
+      setTareas((prev) => prev.filter((tarea) => tarea.id !== tareaId));
+    } catch (error) {
+      console.error("Error al eliminar tarea:", error);
+    }
+  };
+
+  const handleGastoChange = (tareaId, value) => {
+    setGastosPorTarea((prev) => ({
+      ...prev,
+      [tareaId]: value,
+    }));
+  };
 
   return (
     <div className="box-seccion-evento d-flex flex-column" style={{ height: "400px" }}>
@@ -60,28 +128,58 @@ const Tareas = () => {
       </div>
 
       <div style={{ overflowY: "auto", flexGrow: 1 }}>
-        {tareas.length === 0 ? (
-          <p className="text-white ">Aún no hay tareas registradas.</p>
+        {loading ? (
+          <p className="text-white">Cargando tareas...</p>
+        ) : tareas.length === 0 ? (
+          <p className="text-white">Aún no hay tareas registradas.</p>
         ) : (
           <ul className="list-group mb-0">
             {tareas.map((tarea) => (
-              <li key={tarea.id} className="list-group-item d-flex justify-content-between align-items-start">
-                <div className="ms-2 me-auto">
+              <li
+                key={tarea.id}
+                className="list-group-item d-flex justify-content-between align-items-center flex-wrap"
+              >
+                <div className="me-auto">
                   <div className="fw-bold">{tarea.descripcion}</div>
-                  <small>Asignado a: {tarea.asignado_a || "No asignado"}</small>
+                  <small>
+                    Asignado a: {tarea.asignado_a || "No asignado"}
+                  </small>
                 </div>
-                {tarea.completada ? (
-                  <span className="badge bg-success">Completada</span>
-                ) : (
-                  <span className="badge bg-warning text-dark">Pendiente</span>
-                )}
+
+                <div className="d-flex align-items-center gap-2">
+                  {tarea.completada ? (
+                    <span className="badge bg-success">Completada</span>
+                  ) : (
+                    <>
+                      <input
+                        type="number"
+                        className="form-control form-control-sm"
+                        style={{ width: "80px" }}
+                        placeholder="Gasto"
+                        value={gastosPorTarea[tarea.id] || ""}
+                        onChange={(e) => handleGastoChange(tarea.id, e.target.value)}
+                      />
+                      <button
+                        className="btn btn-sm btn-success"
+                        onClick={() => handleCompletarTarea(tarea.id)}
+                      >
+                        ✓
+                      </button>
+                      <button
+                        className="btn btn-sm btn-danger"
+                        onClick={() => handleEliminarTarea(tarea.id)}
+                      >
+                        🗑
+                      </button>
+                    </>
+                  )}
+                </div>
               </li>
             ))}
           </ul>
         )}
       </div>
 
-      {/* Inputs abajo */}
       <div className="mt-3 d-flex gap-2">
         <input
           type="text"
@@ -93,31 +191,19 @@ const Tareas = () => {
         />
         <select
           className="form-select"
-          style={{ flexBasis: "20%" }}
+          style={{ flexBasis: "30%", minWidth: "200px" }}
           value={asignadoA}
           onChange={(e) => setAsignadoA(e.target.value)}
         >
-          <option value="">Asignar a</option>
+          <option value="">Asignar a...</option>
           {participantes.map((p) => (
-            <option key={p.id} value={p.usuario_id}>
-              {p.usuario_id} {/* O cambia por nombre si tienes */}
+            <option key={p.id} value={p.email}>
+              {p.email}
             </option>
           ))}
         </select>
-        <input
-          type="number"
-          min="0"
-          className="form-control"
-          style={{ flexBasis: "20%" }}
-          placeholder="Gastos"
-          value={gasto}
-          onChange={(e) => setGasto(e.target.value)}
-        />
-        <button
-          className="create-event-btn"
-          style={{ flexBasis: "20%" }}
-          onClick={handleAgregarTarea}
-        >
+
+        <button className="btn btn-primary" onClick={handleAgregarTarea}>
           Agregar
         </button>
       </div>
