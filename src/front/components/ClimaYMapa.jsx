@@ -50,7 +50,7 @@ function ClimaYMapa({ direccion, fecha, latitud, longitud }) {
   return (
     <div
       className="box-seccion-evento d-flex flex-column"
-      style={{ height: "100%", overflow: "hidden" }}
+      style={{ height: "400px"}}
     >
       <div className="card-header">
         <h4 className="mb-0 text-white">Ubicación y Clima</h4>

@@ -78,65 +78,78 @@ const Evento = () => {
         )}
       </div>
 
-      <div className="col-lg-12">
-        <InfoEvento evento={evento} />
+      <div className="container">
+        <div className="row gx-4 gy-4">
+          {/* Fila 1: InfoEvento + Participantes */}
+          <div className="col-lg-8 col-12">
+            <InfoEvento evento={evento} />
+          </div>
+          <div className="col-lg-4 col-12">
+            <Participantes
+              eventoId={eventoId}
+              token={token}
+              backendUrl={backendUrl}
+              userId={userId}
+            />
+          </div>
+
+          {/* Fila 2: Invitados + Tareas + Gastos */}
+          <div className="col-lg-4 col-12 mb-1 h-100">
+            <Invitados
+              eventoId={eventoId}
+              token={token}
+              backendUrl={backendUrl}
+              userId={userId}
+            />
+          </div>
+
+          <div className="col-lg-4 col-12 mb-1 h-100">
+            <Tareas
+              eventoId={eventoId}
+              token={token}
+              backendUrl={backendUrl}
+              userId={userId}
+              tareas={evento.tareas_activas}
+              userEmail={userEmail}
+              creadorId={evento.creador_id}
+              onGastoGuardado={() => setRefreshGastos(prev => prev + 1)}
+            />
+          </div>
+
+          <div className="col-lg-4 col-12 mb-1 h-100">
+            <Gastos
+              eventoId={parseInt(eventoId, 10)}
+              token={token}
+              backendUrl={backendUrl}
+              userId={userId}
+              refresh={refreshGastos}
+            />
+          </div>
+
+
+          {/* Fila 3: ExtraBox + ClimaYMapa */}
+          <div className="row mt-4 " style={{ flex: "0 0 auto", minHeight: "250px" }}>
+            <div className="col-12 col-md-6 d-flex">
+              <div className="w-100">
+                <ExtraBox evento={evento} />
+              </div>
+            </div>
+
+            <div className="col-12 col-md-6 d-flex">
+              <div className="w-100">
+                <ClimaYMapa
+                  direccion={evento.direccion}
+                  fecha={evento.fecha}
+                  latitud={evento.latitud}
+                  longitud={evento.longitud}
+                />
+              </div>
+            </div>
+          </div>
+
+        </div>
       </div>
 
-      <div className="row gx-4 gy-4">
-        <div className="col-lg-6 col-12 caja-central">
-          <Invitados
-            eventoId={eventoId}
-            token={token}
-            backendUrl={backendUrl}
-            userId={userId}
-          />
-        </div>
-
-        <div className="col-lg-6 col-12 caja-central">
-          <Participantes
-            eventoId={eventoId}
-            token={token}
-            backendUrl={backendUrl}
-            userId={userId}
-          />
-        </div>
-
-        <div className="col-lg-6 col-12 caja-central">
-          <Gastos
-            eventoId={parseInt(eventoId, 10)}
-            token={token}
-            backendUrl={backendUrl}
-            userId={userId}
-            refresh={refreshGastos} // <-- nuevo prop
-          />
-        </div>
-
-        <div className="col-lg-6 col-12 caja-central">
-          <Tareas
-            eventoId={eventoId}
-            token={token}
-            backendUrl={backendUrl}
-            userId={userId}
-            tareas={evento.tareas_activas}
-            userEmail={userEmail}
-            creadorId={evento.creador_id}
-            onGastoGuardado={() => setRefreshGastos(prev => prev + 1)} // <-- callback
-          />
-        </div>
-
-        <div className="col-lg-6 col-12 caja-central">
-          <ExtraBox evento={evento} />
-        </div>
-
-        <div className="col-lg-6 col-12 caja-central">
-          <ClimaYMapa
-            direccion={evento.direccion}
-            fecha={evento.fecha}
-            latitud={evento.latitud}
-            longitud={evento.longitud}
-          />
-        </div>
-      </div>
     </div>
   );
 };

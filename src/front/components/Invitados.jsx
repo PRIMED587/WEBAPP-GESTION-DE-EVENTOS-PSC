@@ -121,15 +121,15 @@ const Invitados = () => {
   if (loading) return <div>Cargando invitados...</div>;
 
   return (
-    <div className="box-seccion-evento" style={{display: "flex", flexDirection: "column", height: "100%"}}>
+    <div className="box-seccion-evento d-flex flex-column" style={{ height: "500px" }}>
       <div className="card-header">
         <h4 className="mb-0 text-white">Invitados pendientes</h4>
       </div>
 
       {/* Lista con scroll independiente */}
-      <div className="lista-scroll">
+      <div className="flex-grow-1 overflow-auto mt-2 mb-2">
         {invitados.length === 0 ? (
-          <p>No hay invitados pendientes.</p>
+          <p className="text-white">No hay invitados pendientes.</p>
         ) : (
           <ul className="list-group mb-0">
             {invitados.map((i) => (
@@ -141,11 +141,8 @@ const Invitados = () => {
         )}
       </div>
 
-      {/* Formulario fuera del scroll */}
-      <form onSubmit={handleSubmit} className="mt-3">
-        <label htmlFor="emailInvitado" className="form-label">
-          Agregar invitado por email:
-        </label>
+      {/* Formulario fijo abajo en una sola línea */}
+      <form onSubmit={handleSubmit} className="d-flex gap-2 mt-auto pt-2 border-top">
         <input
           type="email"
           id="emailInvitado"
@@ -155,14 +152,15 @@ const Invitados = () => {
           placeholder="email@ejemplo.com"
           required
         />
-        <button type="submit" className="btn btn-primary mt-2">
-          Enviar invitación
+        <button type="submit" className="create-event-btn ">
+          Invitar
         </button>
       </form>
 
+      {/* Mensaje de error o éxito */}
       {mensaje && (
         <div
-          className={`mt-3 alert ${
+          className={`mt-2 alert ${
             mensaje.tipo === "error" ? "alert-danger" : "alert-success"
           }`}
           role="alert"

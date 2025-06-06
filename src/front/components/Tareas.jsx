@@ -152,7 +152,10 @@ const Tareas = ({ eventoId, token, backendUrl, userId, userEmail, creadorId, onG
   };
 
   return (
-    <div className="box-seccion-evento d-flex flex-column" style={{ height: "400px" }}>
+    <div
+      className="box-seccion-evento d-flex flex-column"
+      style={{ height: "500px" }}
+    >
       <div className="card-header">
         <h4 className="mb-0 text-white">Tareas</h4>
       </div>
@@ -164,73 +167,76 @@ const Tareas = ({ eventoId, token, backendUrl, userId, userEmail, creadorId, onG
           <p className="text-white">Aún no hay tareas registradas.</p>
         ) : (
           <ul className="list-group mb-0">
-            {tareas.map((tarea) => (
-              <li
-                key={tarea.id}
-                className="list-group-item d-flex justify-content-between align-items-center flex-wrap"
-              >
-                <div className="me-auto">
-                  <div className="fw-bold">{tarea.descripcion}</div>
-                  <small>Asignado a: {tarea.asignado_a || "No asignado"}</small>
-                </div>
+            {tareas
+              .slice()
+              .sort((a, b) => a.completada - b.completada) // completadas al final
+              .map((tarea) => (
+                <li
+                  key={tarea.id}
+                  className="list-group-item d-flex justify-content-between align-items-center flex-wrap"
+                >
+                  <div className="me-auto">
+                    <div className="fw-bold">{tarea.descripcion}</div>
+                    <small>Para: {tarea.asignado_a || "No asignado"}</small>
+                  </div>
 
-                <div className="d-flex align-items-center gap-2">
-                  {tarea.completada ? (
-                    <span className="badge bg-success">Completada</span>
-                  ) : !tarea.asignado_a && puedeModificarTarea(tarea) ? (
-                    <button
-                      className="btn btn-sm btn-primary"
-                      onClick={() => handleAsignarmeTarea(tarea.id)}
-                    >
-                      Asignarme tarea
-                    </button>
-                  ) : puedeModificarTarea(tarea) ? (
-                    <>
-                      <input
-                        type="number"
-                        className="form-control form-control-sm"
-                        style={{ width: "80px" }}
-                        placeholder="Gasto"
-                        value={gastosPorTarea[tarea.id] || ""}
-                        onChange={(e) => handleGastoChange(tarea.id, e.target.value)}
-                      />
+                  <div className="d-flex align-items-center gap-2">
+                    {tarea.completada ? (
+                      <span className="badge bg-success">Completada</span>
+                    ) : !tarea.asignado_a && puedeModificarTarea(tarea) ? (
                       <button
-                        className="btn btn-sm btn-success"
-                        onClick={() => handleCompletarTarea(tarea.id)}
+                        className="btn btn-sm btn-primary"
+                        onClick={() => handleAsignarmeTarea(tarea.id)}
                       >
-                        ✓
+                        Asignarme tarea
                       </button>
-                      <button
-                        className="btn btn-sm btn-danger"
-                        onClick={() => handleEliminarTarea(tarea.id)}
-                      >
-                        🗑
-                      </button>
-                    </>
-                  ) : null}
-                </div>
-              </li>
-            ))}
+                    ) : puedeModificarTarea(tarea) ? (
+                      <>
+                        <input
+                          type="number"
+                          className="form-control form-control-sm"
+                          style={{ width: "80px" }}
+                          placeholder="Gasto"
+                          value={gastosPorTarea[tarea.id] || ""}
+                          onChange={(e) => handleGastoChange(tarea.id, e.target.value)}
+                        />
+                        <button
+                          className="btn btn-sm btn-success"
+                          onClick={() => handleCompletarTarea(tarea.id)}
+                        >
+                          ✓
+                        </button>
+                        <button
+                          className="btn btn-sm btn-danger"
+                          onClick={() => handleEliminarTarea(tarea.id)}
+                        >
+                          🗑
+                        </button>
+                      </>
+                    ) : null}
+                  </div>
+                </li>
+              ))}
           </ul>
         )}
       </div>
 
-      <div className="mt-3 d-flex gap-2">
+      <div className="d-flex gap-2 mt-auto" style={{ paddingTop: "10px" }}>
         <input
           type="text"
           className="form-control"
-          style={{ flexBasis: "40%" }}
+          style={{ flexBasis: "50%" }}
           placeholder="Agregar nueva tarea"
           value={nuevaTarea}
           onChange={(e) => setNuevaTarea(e.target.value)}
         />
         <select
           className="form-select"
-          style={{ flexBasis: "30%", minWidth: "200px" }}
+          style={{ flexBasis: "30%"}}
           value={asignadoA}
           onChange={(e) => setAsignadoA(e.target.value)}
         >
-          <option value="">Asignar a...</option>
+          <option value="">Asignar a...</option>  
           {participantes.map((p) => (
             <option key={p.id} value={p.usuario_id}>
               {p.email}
@@ -238,12 +244,13 @@ const Tareas = ({ eventoId, token, backendUrl, userId, userEmail, creadorId, onG
           ))}
         </select>
 
-        <button className="btn btn-primary" onClick={handleAgregarTarea}>
+        <button className="create-event-btn" onClick={handleAgregarTarea}>
           Agregar
         </button>
       </div>
     </div>
   );
+
 };
 
 export default Tareas;

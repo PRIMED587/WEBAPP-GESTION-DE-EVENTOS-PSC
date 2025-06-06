@@ -22,11 +22,12 @@ const InfoEvento = ({ evento }) => {
   });
 
   return (
-    <section className="box-seccion-evento">
+    <section className="box-seccion-evento "
+    style={{ height: "400px" }}>
       <div className="card-header">
         <h4 className="mb-0 text-white">{nombre}</h4>
       </div>
-      <p><strong>📅 Fecha y hora:</strong> {fechaFormateada}</p>
+      <p className="mt-2"><strong>📅 Fecha y hora:</strong> {fechaFormateada}</p>
       {ubicacion && <p><strong>📍 Ubicación:</strong> {ubicacion}</p>}
       {direccion && <p><strong>📌 Dirección:</strong> {direccion}</p>} {/* <-- nuevo campo */}
       {vestimenta && <p><strong>👗 Vestimenta recomendada:</strong> {vestimenta}</p>}

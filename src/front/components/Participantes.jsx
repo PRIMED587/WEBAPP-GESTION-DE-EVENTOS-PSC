@@ -35,7 +35,7 @@ const Participantes = ({ eventoId, token, backendUrl, userId }) => {
   if (loading) return <div>Cargando participantes...</div>;
 
   return (
-    <div className="box-seccion-evento d-flex flex-column" style={{ height: "100%" }}>
+    <div className="box-seccion-evento d-flex flex-column" style={{ height: "400px" }}>
       <div className="card-header">
         <h4 className="mb-0 text-white">Participantes</h4>
       </div>
