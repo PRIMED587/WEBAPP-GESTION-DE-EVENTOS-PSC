@@ -41,8 +41,8 @@ class Evento(db.Model):
     nombre: Mapped[str] = mapped_column(String(100), nullable=False)
     creador_id: Mapped[int] = mapped_column(ForeignKey("usuarios.id"), nullable=False)
 
-    ubicacion: Mapped[str] = mapped_column(String(120), nullable=False)  # sigue siendo obligatoria (título visible)
-    direccion: Mapped[str] = mapped_column(String(255), nullable=True)    # dirección real para mapas/clima
+    ubicacion: Mapped[str] = mapped_column(String(120), nullable=False)
+    direccion: Mapped[str] = mapped_column(String(255), nullable=True)
     latitud: Mapped[float] = mapped_column(Float, nullable=True)
     longitud: Mapped[float] = mapped_column(Float, nullable=True)
 
@@ -58,10 +58,32 @@ class Evento(db.Model):
     recursos: Mapped[str] = mapped_column(String(255), nullable=True)
 
     creador = relationship("User", back_populates="eventos_creados")
-    participantes = relationship("Participante", back_populates="evento", lazy="joined")
-    tareas = relationship("Tarea", back_populates="evento", lazy="joined")
-    gastos = relationship("Gasto", back_populates="evento", lazy="joined")
-    invitaciones = relationship("Invitacion", back_populates="evento", lazy="joined")
+
+    participantes = relationship(
+        "Participante",
+        back_populates="evento",
+        lazy="joined",
+        cascade="all, delete-orphan"
+    )
+    tareas = relationship(
+        "Tarea",
+        back_populates="evento",
+        lazy="joined",
+        cascade="all, delete-orphan"
+    )
+    gastos = relationship(
+        "Gasto",
+        back_populates="evento",
+        lazy="joined",
+        cascade="all, delete-orphan"
+    )
+    invitaciones = relationship(
+        "Invitacion",
+        back_populates="evento",
+        lazy="joined",
+        cascade="all, delete-orphan"
+    )
+
 
     def serialize(self):
         tareas_activas = [t.serialize() for t in self.tareas if not t.completada]

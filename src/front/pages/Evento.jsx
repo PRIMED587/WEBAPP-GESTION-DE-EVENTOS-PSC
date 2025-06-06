@@ -7,6 +7,7 @@ import Gastos from "../components/Gastos";
 import ExtraBox from "../components/ExtraBox";
 import Invitados from "../components/Invitados";
 import ClimaYMapa from "../components/ClimaYMapa";
+import Swal from "sweetalert2";
 
 const Evento = () => {
   const { eventoId } = useParams();
@@ -64,19 +65,90 @@ const Evento = () => {
   if (errorMsg) return <p className="text-center mt-4 text-danger">{errorMsg}</p>;
   if (!evento) return <p className="text-center mt-4">Evento no encontrado.</p>;
 
+  const handleEliminar = async () => {
+    const result = await Swal.fire({
+      title: "¿Eliminar evento?",
+      text: "¡Esta acción no se puede deshacer!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#FF2E63",
+      cancelButtonColor: "#6c757d",
+      confirmButtonText: "Sí, eliminar",
+      cancelButtonText: "Cancelar",
+      background: "#1A1A1D",
+      color: "#FFFFFF",
+    });
+
+    if (!result.isConfirmed) return;
+
+    try {
+      const response = await fetch(`${backendUrl}/api/${userId}/eventos/${eventoId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        await Swal.fire({
+          title: "Error",
+          text: data.message || "Error desconocido",
+          icon: "error",
+          confirmButtonColor: "#FF2E63",
+          background: "#1A1A1D",
+          color: "#FFFFFF",
+        });
+        return;
+      }
+
+      await Swal.fire({
+        title: "¡Evento eliminado!",
+        text: "El evento ha sido eliminado correctamente.",
+        icon: "success",
+        confirmButtonColor: "#FF2E63",
+        background: "#1A1A1D",
+        color: "#FFFFFF",
+      });
+
+      navigate("/dashboard");
+    } catch (error) {
+      console.error("Error al eliminar evento:", error);
+      await Swal.fire({
+        title: "Error",
+        text: "Error de red o servidor al eliminar el evento.",
+        icon: "error",
+        confirmButtonColor: "#FF2E63",
+        background: "#1A1A1D",
+        color: "#FFFFFF",
+      });
+    }
+  };
+
   return (
     <div className="container evento-container my-4">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2 className="mb-0 text-center flex-grow-1">{evento.nombre}</h2>
         {evento.es_creador && (
-          <button
-            className="btn btn-warning ms-3"
-            onClick={() => navigate(`/eventos/editar/${eventoId}`)}
-          >
-            Editar evento
-          </button>
+          <>
+            <button
+              className="btn btn-warning ms-3"
+              onClick={() => navigate(`/eventos/editar/${eventoId}`)}
+            >
+              Editar evento
+            </button>
+
+            <button
+              className="btn btn-danger ms-3"
+              onClick={handleEliminar}
+            >
+              Eliminar evento
+            </button>
+          </>
         )}
       </div>
+
 
       <div className="container">
         <div className="row gx-4 gy-4">

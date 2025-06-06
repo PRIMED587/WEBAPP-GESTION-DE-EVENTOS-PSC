@@ -389,20 +389,24 @@ def actualizar_evento(current_user_id, user_id, evento_id):
 
     return jsonify(evento.serialize()), 200
 
-
-# Ruta para eliminar un evento existente. Solo el creador puede eliminarlo.
+# Ruta para eliminar un evento específico. Solo el creador del evento puede eliminarlo.
 @api.route('/<int:user_id>/eventos/<int:evento_id>', methods=['DELETE'])
 @token_required
 def eliminar_evento(current_user_id, user_id, evento_id):
     if current_user_id != user_id:
         return jsonify({"message": "No autorizado"}), 403
 
-    evento = Evento.query.filter_by(id=evento_id, creador_id=user_id).first()
-    if not evento:
-        return jsonify({"message": "Evento no encontrado"}), 404
+    evento = Evento.query.get(evento_id)
+    if not evento or evento.creador_id != user_id:
+        return jsonify({"message": "Evento no encontrado o sin permiso"}), 404
 
-    db.session.delete(evento)
-    db.session.commit()
+    try:
+        db.session.delete(evento)
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"message": "Error eliminando evento", "error": str(e)}), 500
+
     return jsonify({"message": "Evento eliminado exitosamente"}), 200
 
 
