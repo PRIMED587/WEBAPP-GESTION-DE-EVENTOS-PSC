@@ -205,7 +205,7 @@ const Evento = () => {
             </button>
 
             <button
-              className="btn btn-danger ms-3"
+              className="btn btn-warning ms-3"
               onClick={handleEliminar}
             >
               Eliminar evento

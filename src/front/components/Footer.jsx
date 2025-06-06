@@ -49,7 +49,7 @@ export const Footer = () => {
 							</h5>
 							<p><i className="fas fa-map-marker-alt me-2"></i> China</p>
 							<p><i className="fas fa-phone me-2"></i> +506 8888 8888</p>
-							<p><i className="fas fa-envelope me-2"></i> info@asadapp.com</p>
+							<p><i className="fas fa-envelope me-2"></i>info.asad.app@gmail.com</p>
 						</div>
 					</div>
 				</div>

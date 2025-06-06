@@ -41,7 +41,7 @@ useEffect(() => {
   }, []);
 
   return (
-  <div className="dashboard-container container-fluid d-flex flex-column align-items-center text-white py-5 px-3 fade-in">
+  <div className="dashboard-container container-fluid d-flex flex-column align-items-center text-white py-5 px-3 fade-in h-100">
 
   <div className="d-flex flex-column flex-md-row justify-content-between align-items-center w-100 mb-5 gap-3">
 
