@@ -126,8 +126,6 @@ const Invitados = () => {
 
   const handleEliminarInvitacion = async (invitacionId) => {
     const token = sessionStorage.getItem("token");
-    const payload = parseJwt(token);
-    const userId = payload?.sub; // lo podés usar si necesitás, pero la ruta no lo usa
     const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
     const result = await Swal.fire({
@@ -192,7 +190,6 @@ const Invitados = () => {
     }
   };
 
-
   // Manejar envío de formulario
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -234,7 +231,7 @@ const Invitados = () => {
             {invitados.map((i) => {
               const token = sessionStorage.getItem("token");
               const userId = token ? parseJwt(token)?.sub : null;
-              const esCreador = i.evento_info?.creador_id === parseInt(userId);
+              const esCreadorInv = i.evento_info?.creador_id === parseInt(userId);
 
               return (
                 <li
@@ -242,7 +239,7 @@ const Invitados = () => {
                   className="list-group-item d-flex justify-content-between align-items-center"
                 >
                   {i.email}
-                  {i.estado === "pendiente" && esCreador && (
+                  {i.estado === "pendiente" && esCreadorInv && (
                     <button
                       className="btn btn-sm btn-danger"
                       onClick={() => handleEliminarInvitacion(i.id)}
@@ -258,25 +255,29 @@ const Invitados = () => {
         )}
       </div>
 
-      <form onSubmit={handleSubmit} className="d-flex gap-2 mt-auto pt-2 border-top">
-        <input
-          type="email"
-          id="emailInvitado"
-          className="form-control"
-          value={emailInvitado}
-          onChange={(e) => setEmailInvitado(e.target.value)}
-          placeholder="email@ejemplo.com"
-          required
-        />
-        <button type="submit" className="create-event-btn ">
-          Invitar
-        </button>
-      </form>
+      {/* Solo el creador puede ver este formulario */}
+      {esCreador && (
+        <form onSubmit={handleSubmit} className="d-flex gap-2 mt-auto pt-2 border-top">
+          <input
+            type="email"
+            id="emailInvitado"
+            className="form-control"
+            value={emailInvitado}
+            onChange={(e) => setEmailInvitado(e.target.value)}
+            placeholder="email@ejemplo.com"
+            required
+          />
+          <button type="submit" className="create-event-btn">
+            Invitar
+          </button>
+        </form>
+      )}
 
       {mensaje && (
         <div
-          className={`mt-2 alert ${mensaje.tipo === "error" ? "alert-danger" : "alert-success"
-            }`}
+          className={`mt-2 alert ${
+            mensaje.tipo === "error" ? "alert-danger" : "alert-success"
+          }`}
           role="alert"
         >
           {mensaje.texto}
