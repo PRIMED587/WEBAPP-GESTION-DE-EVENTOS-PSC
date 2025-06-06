@@ -429,7 +429,7 @@ const FormularioEvento = () => {
           )}
 
           {/* Switch acepta colaboradores - obligatorio */}
-          <div className="col-md-6 d-flex align-items-center">
+          {/* <div className="col-md-6 d-flex align-items-center">
             <label className="form-label me-2" htmlFor="aceptaColaboradores">
               ¿Acepta colaboradores?
             </label>
@@ -439,10 +439,10 @@ const FormularioEvento = () => {
               {...register("aceptaColaboradores")}
               defaultChecked={true}
             />
-          </div>
+          </div> */}
 
           {/* Máximo invitados - opcional */}
-          <div className="col-md-6">
+          {/* <div className="col-md-6">
             <label htmlFor="maxInvitados" className="form-label">
               Cantidad máxima de invitados
             </label>
@@ -454,7 +454,7 @@ const FormularioEvento = () => {
               {...register("maxInvitados")}
               placeholder="Ej: 50"
             />
-          </div>
+          </div> */}
 
           {/* Tipo de actividad - opcional */}
           <div className="col-md-6">

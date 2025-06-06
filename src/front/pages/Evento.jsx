@@ -61,9 +61,10 @@ const Evento = () => {
     fetchEvento();
   }, [eventoId]);
 
-  if (loading) return <p className="text-center mt-4">Cargando evento...</p>;
-  if (errorMsg) return <p className="text-center mt-4 text-danger">{errorMsg}</p>;
-  if (!evento) return <p className="text-center mt-4">Evento no encontrado.</p>;
+  // Saber si el usuario es participante
+  const esParticipante = evento?.participantes?.some(
+    (p) => p.usuario_id === parseInt(userId, 10)
+  );
 
   const handleEliminar = async () => {
     const result = await Swal.fire({
@@ -126,11 +127,75 @@ const Evento = () => {
     }
   };
 
+  const handleSalirEvento = async () => {
+    const result = await Swal.fire({
+      title: "¿Salir de este evento?",
+      text: "Esta acción eliminará tu participación. ¿Estás seguro?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#FF2E63",
+      cancelButtonColor: "#6c757d",
+      confirmButtonText: "Sí, salir",
+      cancelButtonText: "Cancelar",
+      background: "#1A1A1D",
+      color: "#FFFFFF",
+    });
+
+    if (!result.isConfirmed) return;
+
+    try {
+      const response = await fetch(`${backendUrl}/api/eventos/${eventoId}/participantes/salir`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        await Swal.fire({
+          title: "Error",
+          text: data.message || "No se pudo salir del evento.",
+          icon: "error",
+          confirmButtonColor: "#FF2E63",
+          background: "#1A1A1D",
+          color: "#FFFFFF",
+        });
+        return;
+      }
+
+      await Swal.fire({
+        title: "Has salido del evento",
+        icon: "success",
+        confirmButtonColor: "#FF2E63",
+        background: "#1A1A1D",
+        color: "#FFFFFF",
+      });
+
+      navigate("/dashboard");
+    } catch (error) {
+      console.error(error);
+      await Swal.fire({
+        title: "Error",
+        text: "Error de red o servidor al salir del evento.",
+        icon: "error",
+        confirmButtonColor: "#FF2E63",
+        background: "#1A1A1D",
+        color: "#FFFFFF",
+      });
+    }
+  };
+
+  if (loading) return <p className="text-center mt-4">Cargando evento...</p>;
+  if (errorMsg) return <p className="text-center mt-4 text-danger">{errorMsg}</p>;
+  if (!evento) return <p className="text-center mt-4">Evento no encontrado.</p>;
+
   return (
     <div className="container evento-container my-4">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2 className="mb-0 text-center flex-grow-1">{evento.nombre}</h2>
-        {evento.es_creador && (
+
+        {evento.es_creador ? (
           <>
             <button
               className="btn btn-warning ms-3"
@@ -146,9 +211,15 @@ const Evento = () => {
               Eliminar evento
             </button>
           </>
-        )}
+        ) : esParticipante ? (
+          <button
+            className="btn btn-secondary ms-3"
+            onClick={handleSalirEvento}
+          >
+            Salir de este evento
+          </button>
+        ) : null}
       </div>
-
 
       <div className="container">
         <div className="row gx-4 gy-4">
@@ -184,7 +255,7 @@ const Evento = () => {
               tareas={evento.tareas_activas}
               userEmail={userEmail}
               creadorId={evento.creador_id}
-              onGastoGuardado={() => setRefreshGastos(prev => prev + 1)}
+              onGastoGuardado={() => setRefreshGastos((prev) => prev + 1)}
             />
           </div>
 
@@ -198,9 +269,11 @@ const Evento = () => {
             />
           </div>
 
-
           {/* Fila 3: ExtraBox + ClimaYMapa */}
-          <div className="row mt-4 " style={{ flex: "0 0 auto", minHeight: "250px" }}>
+          <div
+            className="row mt-4 "
+            style={{ flex: "0 0 auto", minHeight: "250px" }}
+          >
             <div className="col-12 col-md-6 d-flex">
               <div className="w-100">
                 <ExtraBox evento={evento} />
@@ -218,10 +291,8 @@ const Evento = () => {
               </div>
             </div>
           </div>
-
         </div>
       </div>
-
     </div>
   );
 };

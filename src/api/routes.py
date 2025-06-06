@@ -477,9 +477,7 @@ def obtener_invitaciones_usuario(current_user_id, user_id):
 
     return jsonify(resultado), 200
 
-
-# Ruta para obtener todas las invitaciones de un evento específico. Solo el creador del evento puede acceder.
-
+# Ruta para obtener todas las invitaciones de un evento específico.
 @api.route('/<int:user_id>/eventos/<int:evento_id>/invitaciones', methods=['GET'])
 @token_required
 def obtener_invitaciones_evento(current_user_id, user_id, evento_id):
@@ -490,11 +488,21 @@ def obtener_invitaciones_evento(current_user_id, user_id, evento_id):
     if not evento:
         return jsonify({"message": "Evento no encontrado"}), 404
 
-    if evento.creador_id != user_id:
-        return jsonify({"message": "No autorizado"}), 403
+    # Permitimos acceso si es creador
+    if evento.creador_id == user_id:
+        invitaciones = Invitacion.query.filter_by(evento_id=evento_id).all()
+        return jsonify([inv.serialize() for inv in invitaciones]), 200
 
-    invitaciones = Invitacion.query.filter_by(evento_id=evento_id).all()
-    return jsonify([inv.serialize() for inv in invitaciones]), 200
+    # Si no es creador, verificamos si es participante
+    participante = Participante.query.filter_by(evento_id=evento_id, usuario_id=user_id).first()
+    if participante:
+        invitaciones = Invitacion.query.filter_by(evento_id=evento_id).all()
+        return jsonify([inv.serialize() for inv in invitaciones]), 200
+
+    # Si no es creador ni participante, denegamos acceso
+    return jsonify({"message": "No autorizado"}), 403
+
+
 
 # Ruta para agregar múltiples invitaciones a un evento. Requiere lista de emails y valida permisos.
 @api.route('/<int:user_id>/eventos/<int:evento_id>/invitaciones', methods=['POST'])
@@ -886,8 +894,6 @@ def aceptar_invitacion(evento_id):
     return jsonify({"message": "Invitación aceptada y participante agregado", "participante": participante.serialize()}), 200
 
 # Ruta para rechazar una invitación a un evento
-
-
 @api.route('/eventos/<int:evento_id>/invitacion/rechazar', methods=['POST'])
 def rechazar_invitacion(evento_id):
     data = request.json
@@ -985,6 +991,28 @@ def eliminar_participante(current_user_id, user_id, evento_id, participante_id):
     db.session.delete(participante)
     db.session.commit()
     return jsonify({"message": "Participante eliminado"}), 200
+
+# Ruta para que un participante salga de un evento (se elimine de participantes)
+@api.route('/eventos/<int:evento_id>/participantes/salir', methods=['DELETE'])
+@token_required
+def participante_salir_evento(current_user_id, evento_id):
+    evento = Evento.query.get(evento_id)
+    if not evento:
+        return jsonify({"message": "Evento no encontrado"}), 404
+
+    participante = Participante.query.filter_by(evento_id=evento_id, usuario_id=current_user_id).first()
+    if not participante:
+        return jsonify({"message": "No estás participando en este evento"}), 404
+
+    # No permitimos que el creador se "salga" del evento (opcional)
+    if evento.creador_id == current_user_id:
+        return jsonify({"message": "El creador no puede salir del evento"}), 403
+
+    db.session.delete(participante)
+    db.session.commit()
+
+    return jsonify({"message": "Has salido del evento correctamente"}), 200
+
 
 
 # ------------------ TAREAS ------------------
