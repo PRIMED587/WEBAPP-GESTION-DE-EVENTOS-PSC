@@ -11,6 +11,8 @@ from itsdangerous import URLSafeTimedSerializer
 from flask import current_app
 import requests
 from dotenv import load_dotenv
+from .utils import send_invitation_email
+from flask import url_for
 
 load_dotenv()
 
@@ -491,8 +493,6 @@ def obtener_invitaciones_evento(current_user_id, user_id, evento_id):
     return jsonify([inv.serialize() for inv in invitaciones]), 200
 
 # Ruta para agregar múltiples invitaciones a un evento. Requiere lista de emails y valida permisos.
-
-
 @api.route('/<int:user_id>/eventos/<int:evento_id>/invitaciones', methods=['POST'])
 @token_required
 def agregar_invitaciones(current_user_id, user_id, evento_id):
@@ -516,14 +516,19 @@ def agregar_invitaciones(current_user_id, user_id, evento_id):
         invitacion = Invitacion(
             evento_id=evento_id,
             email=email,
-            estado="pendiente"  # estado inicial
+            estado="pendiente"
         )
         db.session.add(invitacion)
         nuevas_invitaciones.append(invitacion)
 
     db.session.commit()
 
+    # Enviar mails después de commit
+    for invitacion in nuevas_invitaciones:
+        send_invitation_email(invitacion.email, evento.nombre)
+
     return jsonify([inv.serialize() for inv in nuevas_invitaciones]), 201
+
 
 # Ruta para crear una invitación a un usuario a un evento. Valida permisos, existencia de evento e invitado.
 
@@ -1234,3 +1239,36 @@ def request_password_reset():
     # Solo para desarrollo. En producción, enviá el link por email.
     return jsonify({"msg": "Si el email está registrado, se envió un enlace", "reset_link": reset_link}), 200
 
+
+# # Ruta para enviar invitaciones a un evento. Requiere lista de emails y valida permisos.
+# @api.route('/api/<int:user_id>/eventos/<int:event_id>/invitaciones', methods=['POST'])
+# def agregar_invitaciones(user_id, event_id):
+#     data = request.get_json()
+#     emails = data.get('emails', [])
+
+#     # Validar que sean correos válidos (opcional pero recomendable)
+#     valid_emails = [email.strip() for email in emails if '@' in email]
+
+#     # Lógica para crear invitaciones en base de datos aquí
+#     # Por ejemplo:
+#     invitaciones_creadas = []
+#     for email in valid_emails:
+#         invitacion = Invitacion(event_id=event_id, email=email)
+#         db.session.add(invitacion)
+#         invitaciones_creadas.append(email)
+
+#     db.session.commit()
+
+#     # Enviar emails a cada invitado
+#     errores_envio = []
+#     evento = Evento.query.get(event_id)
+#     for email in invitaciones_creadas:
+#         if not enviar_invitacion_email(email, evento):
+#             errores_envio.append(email)
+
+#     if errores_envio:
+#         return jsonify({
+#             "message": f"Invitaciones creadas, pero no se pudieron enviar emails a: {', '.join(errores_envio)}"
+#         }), 207  # 207 Multi-Status
+
+#     return jsonify({"message": "Invitaciones creadas y emails enviados correctamente"}), 201

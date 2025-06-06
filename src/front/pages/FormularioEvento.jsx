@@ -413,18 +413,20 @@ const FormularioEvento = () => {
           </div>
 
           {/* Correos para invitaciones - opcional */}
-          <div className="col-md-12">
-            <label htmlFor="invitados" className="form-label">
-              Correos electrónicos para enviar invitaciones (separados por coma)
-            </label>
-            <input
-              type="text"
-              className="form-control"
-              id="invitados"
-              {...register("invitados")}
-              placeholder="ejemplo1@mail.com, ejemplo2@mail.com"
-            />
-          </div>
+          {!eventId && (
+            <div className="col-md-12">
+              <label htmlFor="invitados" className="form-label">
+                Correos electrónicos para enviar invitaciones (separados por coma)
+              </label>
+              <input
+                type="text"
+                className="form-control"
+                id="invitados"
+                {...register("invitados")}
+                placeholder="ejemplo1@mail.com, ejemplo2@mail.com"
+              />
+            </div>
+          )}
 
           {/* Switch acepta colaboradores - obligatorio */}
           <div className="col-md-6 d-flex align-items-center">
