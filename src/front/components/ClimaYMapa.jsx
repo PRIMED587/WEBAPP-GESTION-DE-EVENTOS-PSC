@@ -2,7 +2,6 @@ import React, { useEffect, useState, useRef } from "react";
 import mapboxgl from "mapbox-gl";
 
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN;
-
 const OPENWEATHER_API_KEY = import.meta.env.VITE_OPENWEATHER_API_KEY;
 
 function ClimaYMapa({ direccion, fecha, latitud, longitud }) {
@@ -13,7 +12,6 @@ function ClimaYMapa({ direccion, fecha, latitud, longitud }) {
 
   useEffect(() => {
     if (!latitud || !longitud) return;
-
     if (map.current) return;
 
     map.current = new mapboxgl.Map({
@@ -28,30 +26,72 @@ function ClimaYMapa({ direccion, fecha, latitud, longitud }) {
   }, [latitud, longitud]);
 
   useEffect(() => {
-    if (!latitud || !longitud) return;
+    if (!latitud || !longitud || !fecha) return;
 
-    const url = `https://api.openweathermap.org/data/2.5/weather?lat=${latitud}&lon=${longitud}&appid=${OPENWEATHER_API_KEY}&units=metric&lang=es`;
+    const ahora = new Date();
+    const fechaEvento = new Date(fecha);
+    const diffMs = fechaEvento - ahora;
+    const cincoDiasMs = 5 * 24 * 60 * 60 * 1000;
 
-    fetch(url)
-      .then((res) => {
-        if (!res.ok) throw new Error("Error al obtener datos del clima");
-        return res.json();
-      })
-      .then((data) => {
-        setClima(data);
-        setError(null);
-      })
-      .catch((err) => {
-        setError(err.message);
-        setClima(null);
-      });
-  }, [latitud, longitud]);
+    if (diffMs > 0 && diffMs <= cincoDiasMs) {
+      // Pronóstico dentro de 5 días
+      const eventoTimestamp = Math.floor(fechaEvento.getTime() / 1000);
+
+      const urlForecast = `https://api.openweathermap.org/data/2.5/forecast?lat=${latitud}&lon=${longitud}&appid=${OPENWEATHER_API_KEY}&units=metric&lang=es`;
+
+      fetch(urlForecast)
+        .then((res) => {
+          if (!res.ok) throw new Error("Error al obtener datos del pronóstico");
+          return res.json();
+        })
+        .then((data) => {
+          const pronosticos = data.list;
+          if (!pronosticos || pronosticos.length === 0) {
+            throw new Error("No hay datos de pronóstico disponibles");
+          }
+
+          let pronosticoCercano = pronosticos.reduce((prev, curr) =>
+            Math.abs(curr.dt - eventoTimestamp) < Math.abs(prev.dt - eventoTimestamp)
+              ? curr
+              : prev
+          );
+
+          setClima({
+            name: data.city.name,
+            main: pronosticoCercano.main,
+            wind: pronosticoCercano.wind,
+            weather: pronosticoCercano.weather,
+            dt_txt: pronosticoCercano.dt_txt,
+            tipo: "pronóstico",
+          });
+          setError(null);
+        })
+        .catch((err) => {
+          setError(err.message);
+          setClima(null);
+        });
+    } else {
+      // Clima actual
+      const urlActual = `https://api.openweathermap.org/data/2.5/weather?lat=${latitud}&lon=${longitud}&appid=${OPENWEATHER_API_KEY}&units=metric&lang=es`;
+
+      fetch(urlActual)
+        .then((res) => {
+          if (!res.ok) throw new Error("Error al obtener datos del clima actual");
+          return res.json();
+        })
+        .then((data) => {
+          setClima({ ...data, tipo: "actual" });
+          setError(null);
+        })
+        .catch((err) => {
+          setError(err.message);
+          setClima(null);
+        });
+    }
+  }, [latitud, longitud, fecha]);
 
   return (
-    <div
-      className="box-seccion-evento d-flex flex-column"
-      style={{ height: "400px"}}
-    >
+    <div className="box-seccion-evento d-flex flex-column" style={{ height: "400px" }}>
       <div className="card-header">
         <h4 className="mb-0 text-white">Ubicación y Clima</h4>
       </div>
@@ -64,10 +104,7 @@ function ClimaYMapa({ direccion, fecha, latitud, longitud }) {
           className="row gx-3 gy-3 flex-grow-1"
           style={{ height: "100%", overflow: "hidden" }}
         >
-          <div
-            className="col-12 col-md-6"
-            style={{ height: "100%", minHeight: 0 }}
-          >
+          <div className="col-12 col-md-6" style={{ height: "100%", minHeight: 0 }}>
             <div
               ref={mapContainer}
               style={{
@@ -87,7 +124,18 @@ function ClimaYMapa({ direccion, fecha, latitud, longitud }) {
 
             {clima && (
               <div>
-                <h6>Clima actual en {clima.name}</h6>
+                <h6>
+                  {clima.tipo === "pronóstico"
+                    ? `Pronóstico del clima para ${clima.name}`
+                    : `Clima actual en ${clima.name}`}
+                </h6>
+
+                {clima.tipo === "pronóstico" && (
+                  <p>
+                    <strong>Fecha y hora:</strong> {clima.dt_txt}
+                  </p>
+                )}
+
                 <p>
                   <strong>Temperatura:</strong> {clima.main.temp}°C
                 </p>
@@ -98,7 +146,7 @@ function ClimaYMapa({ direccion, fecha, latitud, longitud }) {
                   <strong>Viento:</strong> {clima.wind.speed} m/s
                 </p>
                 <p>
-                  <strong>Descripción:</strong> {clima.weather[0].description}{" "}
+                  <strong>Descripción:</strong> {clima.weather[0].description}
                 </p>
               </div>
             )}
