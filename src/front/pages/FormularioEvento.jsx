@@ -314,7 +314,7 @@ const FormularioEvento = () => {
             </button>
             <button
               type="button"
-              className="btn btn-outline-danger btn-sm"
+              className="btn ver-detalles-btn btn-sm"
               onClick={() => navigate("/")}
               style={{ minWidth: "130px" }}
             >
@@ -345,6 +345,7 @@ const FormularioEvento = () => {
                   message: "El nombre no puede superar 100 caracteres",
                 },
               })}
+              placeholder="Nombre Evento"
             />
             {errors.nombre && (
               <div className="invalid-feedback">{errors.nombre.message}</div>
@@ -379,6 +380,7 @@ const FormularioEvento = () => {
               className="form-control"
               id="ubicacion"
               {...register("ubicacion")}
+              placeholder="Ubicacion"
             />
           </div>
 
@@ -393,8 +395,9 @@ const FormularioEvento = () => {
             <input
               type="text"
               id="direccion"
-              className="form-control mt-2"
+              className="form-control mt-1"
               {...register("direccion")}
+              placeholder="Direccion"
             />
           </div>
 
@@ -405,29 +408,32 @@ const FormularioEvento = () => {
             </label>
             <textarea
               id="descripcion"
-              rows="3"
-              placeholder="Escribí una breve descripción del evento..."
-              {...register("descripcion")}
+              rows="2"
               className="form-control"
+              {...register("descripcion")}
+              placeholder="Escribí una breve descripción del evento..."
+              
             ></textarea>
           </div>
 
           {/* Correos para invitaciones - opcional */}
-          <div className="col-md-12">
-            <label htmlFor="invitados" className="form-label">
-              Correos electrónicos para enviar invitaciones (separados por coma)
-            </label>
-            <input
-              type="text"
-              className="form-control"
-              id="invitados"
-              {...register("invitados")}
-              placeholder="ejemplo1@mail.com, ejemplo2@mail.com"
-            />
-          </div>
+          {!eventId && (
+            <div className="col-md-12">
+              <label htmlFor="invitados" className="form-label">
+                Correos electrónicos para enviar invitaciones (separados por coma)
+              </label>
+              <input
+                type="text"
+                className="form-control"
+                id="invitados"
+                {...register("invitados")}
+                placeholder="ejemplo1@mail.com, ejemplo2@mail.com"
+              />
+            </div>
+          )}
 
           {/* Switch acepta colaboradores - obligatorio */}
-          <div className="col-md-6 d-flex align-items-center">
+          {/* <div className="col-md-6 d-flex align-items-center">
             <label className="form-label me-2" htmlFor="aceptaColaboradores">
               ¿Acepta colaboradores?
             </label>
@@ -437,10 +443,10 @@ const FormularioEvento = () => {
               {...register("aceptaColaboradores")}
               defaultChecked={true}
             />
-          </div>
+          </div> */}
 
           {/* Máximo invitados - opcional */}
-          <div className="col-md-6">
+          {/* <div className="col-md-6">
             <label htmlFor="maxInvitados" className="form-label">
               Cantidad máxima de invitados
             </label>
@@ -452,7 +458,7 @@ const FormularioEvento = () => {
               {...register("maxInvitados")}
               placeholder="Ej: 50"
             />
-          </div>
+          </div> */}
 
           {/* Tipo de actividad - opcional */}
           <div className="col-md-6">
@@ -525,7 +531,7 @@ const FormularioEvento = () => {
           <div className="col-12 mt-4 d-flex justify-content-center">
             <button
               type="submit"
-              className="btn btn-outline-primary w-50"
+              className="btn ver-detalles-btn w-50"
               disabled={loading}
             >
               {eventId ? "Modificar evento" : "Crear evento"}

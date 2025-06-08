@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-const Gastos = ({ eventoId, token, backendUrl, userId }) => {
+const Gastos = ({ eventoId, token, backendUrl, refresh }) => {
   const [gastos, setGastos] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -10,7 +10,7 @@ const Gastos = ({ eventoId, token, backendUrl, userId }) => {
       return;
     }
     try {
-      const response = await fetch(`${backendUrl}/api/${eventoId}/gastos`, {
+      const response = await fetch(`${backendUrl}/api/eventos/${eventoId}/gastos`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!response.ok) {
@@ -28,28 +28,45 @@ const Gastos = ({ eventoId, token, backendUrl, userId }) => {
 
   useEffect(() => {
     fetchGastos();
-  }, [eventoId]);
+  }, [eventoId, refresh]);
+
+  const totalGastos = gastos.reduce((acc, g) => acc + (g.monto || 0), 0);
 
   return (
-    <div className="box-seccion-evento d-flex flex-column" style={{ height: "100%" }}>
+    <div className="box-seccion-evento d-flex flex-column" style={{ height: "500px" }}>
+      {/* Título */}
       <div className="card-header">
         <h4 className="mb-0 text-white">Gastos</h4>
       </div>
 
-      <div className="lista-scroll flex-grow-1 mt-2">
+      {/* Contenido scrollable */}
+      <div className="flex-grow-1 overflow-auto mt-2 mb-2">
         {loading ? (
-          <p>Cargando gastos...</p>
+          <p className="text-white">Cargando gastos...</p>
         ) : gastos.length === 0 ? (
-          <p>No hay gastos registrados.</p>
+          <p className="text-white">No hay gastos registrados.</p>
         ) : (
           <ul className="list-group mb-0">
             {gastos.map((g) => (
-              <li key={g.id} className="list-group-item">
-                {g.descripcion} - ${g.monto}
+              <li
+                key={g.id}
+                className="list-group-item d-flex justify-content-between align-items-center flex-wrap"
+              >
+                <div className="d-flex flex-column">
+                  <strong>{g.etiqueta || "Sin etiqueta"}</strong>
+                  <br />
+                  <small className="tarea-asign text-white">Por: {g.usuario_email || "Desconocido"}</small>
+                </div>
+                <span>${g.monto.toFixed(2)}</span>
               </li>
             ))}
           </ul>
         )}
+      </div>
+
+      {/* Total fijo abajo */}
+      <div className="total-abajo mt-auto bg-dark text-white py-2 px-3 text-end">
+        <strong>Total: ${totalGastos.toFixed(2)}</strong>
       </div>
     </div>
   );

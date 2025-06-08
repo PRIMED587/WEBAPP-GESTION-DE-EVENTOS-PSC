@@ -1,5 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import Swal from "sweetalert2";
+
+const token = sessionStorage.getItem("token");
+const userId = token ? parseJwt(token)?.sub : null;
 
 function parseJwt(token) {
   try {
@@ -15,7 +19,31 @@ const Invitados = () => {
   const [loading, setLoading] = useState(true);
   const [emailInvitado, setEmailInvitado] = useState("");
   const [mensaje, setMensaje] = useState(null);
+  const [esCreador, setEsCreador] = useState(false);
 
+  // Obtener datos del evento para saber si el usuario es creador
+  const fetchEvento = async () => {
+    const token = sessionStorage.getItem("token");
+    if (!token) return;
+
+    const payload = parseJwt(token);
+    const userId = payload?.sub;
+    const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
+    try {
+      const res = await fetch(`${backendUrl}/api/${userId}/eventos/${eventoId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error("No se pudo cargar el evento");
+      const eventoData = await res.json();
+
+      setEsCreador(eventoData.creador_id === userId);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  // Obtener invitaciones pendientes
   const fetchInvitados = async () => {
     const token = sessionStorage.getItem("token");
     const backendUrl = import.meta.env.VITE_BACKEND_URL;
@@ -60,6 +88,7 @@ const Invitados = () => {
     }
   };
 
+  // Enviar invitación
   const enviarInvitacion = async (email) => {
     const token = sessionStorage.getItem("token");
     const backendUrl = import.meta.env.VITE_BACKEND_URL;
@@ -95,6 +124,73 @@ const Invitados = () => {
     }
   };
 
+  const handleEliminarInvitacion = async (invitacionId) => {
+    const token = sessionStorage.getItem("token");
+    const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
+    const result = await Swal.fire({
+      title: "¿Eliminar invitación?",
+      text: "Esta acción no se puede deshacer.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#FF2E63",
+      cancelButtonColor: "#6c757d",
+      confirmButtonText: "Sí, eliminar",
+      cancelButtonText: "Cancelar",
+      background: "#1A1A1D",
+      color: "#FFFFFF",
+    });
+
+    if (!result.isConfirmed) return;
+
+    try {
+      const res = await fetch(
+        `${backendUrl}/api/eventos/${eventoId}/invitaciones/${invitacionId}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        Swal.fire({
+          title: "Error",
+          text: errorData.message || "No se pudo eliminar la invitación.",
+          icon: "error",
+          confirmButtonColor: "#FF2E63",
+          background: "#1A1A1D",
+          color: "#FFFFFF",
+        });
+        return;
+      }
+
+      Swal.fire({
+        title: "Invitación eliminada",
+        icon: "success",
+        confirmButtonColor: "#FF2E63",
+        background: "#1A1A1D",
+        color: "#FFFFFF",
+      });
+
+      // Actualizar lista de invitados después de eliminar
+      fetchInvitados();
+    } catch (error) {
+      console.error(error);
+      Swal.fire({
+        title: "Error",
+        text: "Error al eliminar invitación.",
+        icon: "error",
+        confirmButtonColor: "#FF2E63",
+        background: "#1A1A1D",
+        color: "#FFFFFF",
+      });
+    }
+  };
+
+  // Manejar envío de formulario
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMensaje(null);
@@ -115,54 +211,71 @@ const Invitados = () => {
   };
 
   useEffect(() => {
+    fetchEvento();
     fetchInvitados();
   }, [eventoId]);
 
   if (loading) return <div>Cargando invitados...</div>;
 
   return (
-    <div className="box-seccion-evento" style={{display: "flex", flexDirection: "column", height: "100%"}}>
+    <div className="box-seccion-evento d-flex flex-column" style={{ height: "500px" }}>
       <div className="card-header">
         <h4 className="mb-0 text-white">Invitados pendientes</h4>
       </div>
 
-      {/* Lista con scroll independiente */}
-      <div className="lista-scroll">
+      <div className="flex-grow-1 overflow-auto mt-2 mb-2">
         {invitados.length === 0 ? (
-          <p>No hay invitados pendientes.</p>
+          <p className="text-white">No hay invitados pendientes.</p>
         ) : (
           <ul className="list-group mb-0">
-            {invitados.map((i) => (
-              <li key={i.id} className="list-group-item">
-                {i.email}
-              </li>
-            ))}
+            {invitados.map((i) => {
+              const token = sessionStorage.getItem("token");
+              const userId = token ? parseJwt(token)?.sub : null;
+              const esCreadorInv = i.evento_info?.creador_id === parseInt(userId);
+
+              return (
+                <li
+                  key={i.id}
+                  className="list-group-item d-flex justify-content-between align-items-center"
+                >
+                  {i.email}
+                  {i.estado === "pendiente" && esCreadorInv && (
+                    <button
+                      className="btn btn-sm btn-danger"
+                      onClick={() => handleEliminarInvitacion(i.id)}
+                      title="Eliminar invitación"
+                    >
+                      Eliminar
+                    </button>
+                  )}
+                </li>
+              );
+            })}
           </ul>
         )}
       </div>
 
-      {/* Formulario fuera del scroll */}
-      <form onSubmit={handleSubmit} className="mt-3">
-        <label htmlFor="emailInvitado" className="form-label">
-          Agregar invitado por email:
-        </label>
-        <input
-          type="email"
-          id="emailInvitado"
-          className="form-control"
-          value={emailInvitado}
-          onChange={(e) => setEmailInvitado(e.target.value)}
-          placeholder="email@ejemplo.com"
-          required
-        />
-        <button type="submit" className="btn btn-primary mt-2">
-          Enviar invitación
-        </button>
-      </form>
+      {/* Solo el creador puede ver este formulario */}
+      {esCreador && (
+        <form onSubmit={handleSubmit} className="d-flex gap-2 mt-auto pt-2 border-top">
+          <input
+            type="email"
+            id="emailInvitado"
+            className="form-control"
+            value={emailInvitado}
+            onChange={(e) => setEmailInvitado(e.target.value)}
+            placeholder="email@ejemplo.com"
+            required
+          />
+          <button type="submit" className="create-event-btn">
+            Invitar
+          </button>
+        </form>
+      )}
 
       {mensaje && (
         <div
-          className={`mt-3 alert ${
+          className={`mt-2 alert ${
             mensaje.tipo === "error" ? "alert-danger" : "alert-success"
           }`}
           role="alert"

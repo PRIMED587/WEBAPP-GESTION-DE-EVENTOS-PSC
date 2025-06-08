@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-const Tareas = ({ eventoId, token, backendUrl, userId }) => {
+const Tareas = ({ eventoId, token, backendUrl, userId, userEmail, creadorId, onGastoGuardado }) => {
   const [tareas, setTareas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [nuevaTarea, setNuevaTarea] = useState("");
@@ -43,13 +43,8 @@ const Tareas = ({ eventoId, token, backendUrl, userId }) => {
     if (nuevaTarea.trim() === "") return;
 
     try {
-      // Aquí enviamos el email directamente (asignadoA ya es email)
-      const assignedEmail = asignadoA || null;
-
-      const bodyToSend = {
-        descripcion: nuevaTarea,
-        asignado_a: assignedEmail,
-      };
+      const assignedUserId = asignadoA || null;
+      const bodyToSend = { descripcion: nuevaTarea, asignado_a: assignedUserId };
 
       const response = await fetch(`${backendUrl}/api/eventos/${eventoId}/tareas`, {
         method: "POST",
@@ -60,10 +55,7 @@ const Tareas = ({ eventoId, token, backendUrl, userId }) => {
         body: JSON.stringify(bodyToSend),
       });
 
-      if (!response.ok) {
-        const responseData = await response.json().catch(() => null);
-        throw new Error(responseData?.message || "Error al crear la tarea");
-      }
+      if (!response.ok) throw new Error("Error al crear la tarea");
 
       fetchTareas();
       setNuevaTarea("");
@@ -74,26 +66,47 @@ const Tareas = ({ eventoId, token, backendUrl, userId }) => {
   };
 
   const handleCompletarTarea = async (tareaId) => {
-    const monto = gastosPorTarea[tareaId];
-
     try {
-      const response = await fetch(`${backendUrl}/api/tareas/${tareaId}/realizar`, {
-        method: "PUT",
+      const resTarea = await fetch(`${backendUrl}/api/${userId}/${eventoId}/tareas/${tareaId}/completar`, {
+        method: "PATCH",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          nombre_gasto: monto ? "Gasto de tarea" : null,
-          monto: monto ? parseFloat(monto) : null,
-        }),
       });
 
-      if (!response.ok) throw new Error("Error al completar la tarea");
+      if (!resTarea.ok) throw new Error("Error completando tarea");
 
-      fetchTareas();
+      const gastoMonto = gastosPorTarea[tareaId];
+      if (gastoMonto && gastoMonto > 0) {
+        const resGasto = await fetch(`${backendUrl}/api/eventos/${eventoId}/tareas/${tareaId}/gastos`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            monto: parseFloat(gastoMonto),
+            etiqueta: "Gasto tarea",
+            tarea_id: tareaId,
+          }),
+        });
+
+        if (!resGasto.ok) throw new Error("Error guardando gasto");
+
+        if (onGastoGuardado) onGastoGuardado(); // 🔁 Notificar cambio
+      }
+
+      setTareas((prevTareas) =>
+        prevTareas.map((t) =>
+          t.id === tareaId ? { ...t, completada: true } : t
+        ).sort((a, b) => a.completada - b.completada)
+      );
+
+      setGastosPorTarea((prev) => ({ ...prev, [tareaId]: "" }));
     } catch (error) {
-      console.error("❌ Error al completar tarea:", error);
+      console.error(error);
+      alert(error.message);
     }
   };
 
@@ -101,28 +114,48 @@ const Tareas = ({ eventoId, token, backendUrl, userId }) => {
     try {
       const response = await fetch(`${backendUrl}/api/tareas/${tareaId}`, {
         method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
 
       if (!response.ok) throw new Error("Error al eliminar la tarea");
 
-      setTareas((prev) => prev.filter((tarea) => tarea.id !== tareaId));
+      setTareas((prev) => prev.filter((t) => t.id !== tareaId));
     } catch (error) {
       console.error("Error al eliminar tarea:", error);
     }
   };
 
   const handleGastoChange = (tareaId, value) => {
-    setGastosPorTarea((prev) => ({
-      ...prev,
-      [tareaId]: value,
-    }));
+    setGastosPorTarea((prev) => ({ ...prev, [tareaId]: value }));
+  };
+
+  const puedeModificarTarea = (tarea) => {
+    if (String(userId) === String(creadorId)) return true;
+    if (!tarea.asignado_a) return true;
+    return userEmail === tarea.asignado_a;
+  };
+
+  const handleAsignarmeTarea = async (tareaId) => {
+    try {
+      const res = await fetch(`${backendUrl}/api/eventos/${eventoId}/tareas/${tareaId}/asignar`, {
+        method: "PATCH",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!res.ok) throw new Error("Error asignando tarea");
+
+      fetchTareas();
+    } catch (error) {
+      console.error(error);
+      alert(error.message);
+    }
   };
 
   return (
-    <div className="box-seccion-evento d-flex flex-column" style={{ height: "400px" }}>
+    <div
+      className="box-seccion-evento d-flex flex-column"
+      style={{ height: "500px" }}
+    >
       <div className="card-header">
         <h4 className="mb-0 text-white">Tareas</h4>
       </div>
@@ -134,81 +167,90 @@ const Tareas = ({ eventoId, token, backendUrl, userId }) => {
           <p className="text-white">Aún no hay tareas registradas.</p>
         ) : (
           <ul className="list-group mb-0">
-            {tareas.map((tarea) => (
-              <li
-                key={tarea.id}
-                className="list-group-item d-flex justify-content-between align-items-center flex-wrap"
-              >
-                <div className="me-auto">
-                  <div className="fw-bold">{tarea.descripcion}</div>
-                  <small>
-                    Asignado a: {tarea.asignado_a || "No asignado"}
-                  </small>
-                </div>
+            {tareas
+              .slice()
+              .sort((a, b) => a.completada - b.completada) // completadas al final
+              .map((tarea) => (
+                <li
+                  key={tarea.id}
+                  className="list-group-item d-flex justify-content-between align-items-center flex-wrap"
+                >
+                  <div className="me-auto">
+                    <div className="fw-bold">{tarea.descripcion}</div>
+                    <small>Para: {tarea.asignado_a || "No asignado"}</small>
+                  </div>
 
-                <div className="d-flex align-items-center gap-2">
-                  {tarea.completada ? (
-                    <span className="badge bg-success">Completada</span>
-                  ) : (
-                    <>
-                      <input
-                        type="number"
-                        className="form-control form-control-sm"
-                        style={{ width: "80px" }}
-                        placeholder="Gasto"
-                        value={gastosPorTarea[tarea.id] || ""}
-                        onChange={(e) => handleGastoChange(tarea.id, e.target.value)}
-                      />
+                  <div className="d-flex align-items-center gap-2">
+                    {tarea.completada ? (
+                      <span className="badge bg-success">Completada</span>
+                    ) : !tarea.asignado_a && puedeModificarTarea(tarea) ? (
                       <button
-                        className="btn btn-sm btn-success"
-                        onClick={() => handleCompletarTarea(tarea.id)}
+                        className="btn btn-sm btn-primary"
+                        onClick={() => handleAsignarmeTarea(tarea.id)}
                       >
-                        ✓
+                        Asignarme tarea
                       </button>
-                      <button
-                        className="btn btn-sm btn-danger"
-                        onClick={() => handleEliminarTarea(tarea.id)}
-                      >
-                        🗑
-                      </button>
-                    </>
-                  )}
-                </div>
-              </li>
-            ))}
+                    ) : puedeModificarTarea(tarea) ? (
+                      <>
+                        <input
+                          type="number"
+                          className="form-control form-control-sm"
+                          style={{ width: "80px" }}
+                          placeholder="Gasto"
+                          value={gastosPorTarea[tarea.id] || ""}
+                          onChange={(e) => handleGastoChange(tarea.id, e.target.value)}
+                        />
+                        <button
+                          className="btn btn-sm btn-success"
+                          onClick={() => handleCompletarTarea(tarea.id)}
+                        >
+                          ✓
+                        </button>
+                        <button
+                          className="btn btn-sm btn-danger"
+                          onClick={() => handleEliminarTarea(tarea.id)}
+                        >
+                          🗑
+                        </button>
+                      </>
+                    ) : null}
+                  </div>
+                </li>
+              ))}
           </ul>
         )}
       </div>
 
-      <div className="mt-3 d-flex gap-2">
+      <div className="d-flex gap-2 mt-auto" style={{ paddingTop: "10px" }}>
         <input
           type="text"
           className="form-control"
-          style={{ flexBasis: "40%" }}
+          style={{ flexBasis: "50%" }}
           placeholder="Agregar nueva tarea"
           value={nuevaTarea}
           onChange={(e) => setNuevaTarea(e.target.value)}
         />
         <select
-          className="form-select"
-          style={{ flexBasis: "30%", minWidth: "200px" }}
+          className="form-select text-white"
+          style={{ backgroundColor:"#2c2c34", borderColor:"#ff2e63", flexBasis: "30%"}}
           value={asignadoA}
           onChange={(e) => setAsignadoA(e.target.value)}
         >
-          <option value="">Asignar a...</option>
+          <option value="">Asignar a...</option>  
           {participantes.map((p) => (
-            <option key={p.id} value={p.email}>
+            <option key={p.id} value={p.usuario_id}>
               {p.email}
             </option>
           ))}
         </select>
 
-        <button className="btn btn-primary" onClick={handleAgregarTarea}>
+        <button className="create-event-btn" onClick={handleAgregarTarea}>
           Agregar
         </button>
       </div>
     </div>
   );
+
 };
 
 export default Tareas;
