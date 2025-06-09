@@ -101,11 +101,10 @@ const Gastos = ({ eventoId, creadorId, token, backendUrl, refresh }) => {
                 key={g.id}
                 className="list-group-item d-flex justify-content-between align-items-center flex-wrap"
               >
-                {/* Contenido gasto a la izquierda */}
                 <div>
                   <strong>{g.etiqueta || "Sin etiqueta"}</strong>
                   <br />
-                  <small className="text-white">Por: {g.usuario_email || "Desconocido"}</small>
+                  <small className="tarea-asign text-white">Por: {g.usuario_email || "Desconocido"}</small>
                 </div>
 
                 {/* Contenedor monto + botón a la derecha */}
@@ -128,7 +127,7 @@ const Gastos = ({ eventoId, creadorId, token, backendUrl, refresh }) => {
       </div>
 
       {/* Total fijo abajo */}
-      <div className="mt-auto bg-dark text-white py-2 px-3 text-end border-top">
+      <div className="total-abajo mt-auto bg-dark text-white py-2 px-3 text-end">
         <strong>Total: ${totalGastos.toFixed(2)}</strong>
       </div>
     </div>

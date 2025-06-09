@@ -2,6 +2,7 @@ import React from "react";
 import demianImg from "../assets/img/200945771.png";
 import pascualImg from "../assets/img/foto_carnet_720.jpg";
 import jenniferImg from "../assets/img/PHOTO-2025-05-28-16-01-55.jpg";
+import marcoImg from "../assets/img/marcopastene.jpeg"
 
 
 const AboutUs = () => {
@@ -14,17 +15,18 @@ const AboutUs = () => {
         {
             name: "Pascual Rivera",
             image: pascualImg,
-            github: "https://github.com/pascualrivera"
+            github: "https://github.com/PRIMED587"
         },
         {
             name: "Marco Pastene",
-            image: "https://randomuser.me/api/portraits/men/45.jpg", // aún sin foto local
-            github: "https://github.com/marcopastene"
+            image: marcoImg, // aún sin foto local
+            github: "https://github.com/marcopastene13"
         },
         {
             name: "Jennifer Calderon",
             image: jenniferImg,
-            github: "https://github.com/jennifercalderon"
+            github: "https://github.com/Jennmimi"
+
         }
     ];
 
@@ -60,7 +62,7 @@ const AboutUs = () => {
                         padding: "40px 30px",
                         maxWidth: "800px",
                         margin: "0 auto",
-                        backgroundColor: "black",
+                        backgroundColor: "#1a1a1d",
                         boxShadow: "0 0 15px #FF2E63",
                         display: "flex",
                         flexDirection: "column",
@@ -100,9 +102,9 @@ const AboutUs = () => {
                             <div
                                 className="card text-center"
                                 style={{
-                                    backgroundColor: "black",
+                                    backgroundColor: "#1a1a1d",
                                     color: "#FFFFFF",
-                                    border: "2px solid transparent",
+                                    border: "2px solid #FF2E63",
                                     borderRadius: "12px",
                                     transition: "transform 0.3s ease, box-shadow 0.3s ease"
                                 }}

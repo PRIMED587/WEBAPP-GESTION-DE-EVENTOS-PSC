@@ -231,8 +231,8 @@ const Tareas = ({ eventoId, token, backendUrl, userId, userEmail, creadorId, onG
           onChange={(e) => setNuevaTarea(e.target.value)}
         />
         <select
-          className="form-select"
-          style={{ flexBasis: "30%"}}
+          className="form-select text-white"
+          style={{ backgroundColor:"#2c2c34", borderColor:"#ff2e63", flexBasis: "30%"}}
           value={asignadoA}
           onChange={(e) => setAsignadoA(e.target.value)}
         >

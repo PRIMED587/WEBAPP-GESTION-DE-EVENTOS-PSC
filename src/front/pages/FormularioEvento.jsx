@@ -314,7 +314,7 @@ const FormularioEvento = () => {
             </button>
             <button
               type="button"
-              className="btn btn-outline-danger btn-sm"
+              className="btn ver-detalles-btn btn-sm"
               onClick={() => navigate("/")}
               style={{ minWidth: "130px" }}
             >
@@ -345,6 +345,7 @@ const FormularioEvento = () => {
                   message: "El nombre no puede superar 100 caracteres",
                 },
               })}
+              placeholder="Nombre Evento"
             />
             {errors.nombre && (
               <div className="invalid-feedback">{errors.nombre.message}</div>
@@ -379,6 +380,7 @@ const FormularioEvento = () => {
               className="form-control"
               id="ubicacion"
               {...register("ubicacion")}
+              placeholder="Ubicacion"
             />
           </div>
 
@@ -393,8 +395,9 @@ const FormularioEvento = () => {
             <input
               type="text"
               id="direccion"
-              className="form-control"
+              className="form-control mt-1"
               {...register("direccion")}
+              placeholder="Direccion"
             />
           </div>
 
@@ -405,10 +408,11 @@ const FormularioEvento = () => {
             </label>
             <textarea
               id="descripcion"
-              rows="3"
-              placeholder="Escribí una breve descripción del evento..."
-              {...register("descripcion")}
+              rows="2"
               className="form-control"
+              {...register("descripcion")}
+              placeholder="Escribí una breve descripción del evento..."
+              
             ></textarea>
           </div>
 
@@ -527,7 +531,7 @@ const FormularioEvento = () => {
           <div className="col-12 mt-4 d-flex justify-content-center">
             <button
               type="submit"
-              className="btn btn-outline-primary w-50"
+              className="btn ver-detalles-btn w-50"
               disabled={loading}
             >
               {eventId ? "Modificar evento" : "Crear evento"}
