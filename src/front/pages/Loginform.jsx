@@ -143,7 +143,7 @@ const Loginform = () => {
 
                 <div className="d-flex justify-content-center mt-5">
                     <button id="LoginButton" type="submit" className="btn btn-primary mx-1 my-1">
-                        Log In
+                        Iniciar Sesión
                     </button>
                     <button
                         id="ResetButton"

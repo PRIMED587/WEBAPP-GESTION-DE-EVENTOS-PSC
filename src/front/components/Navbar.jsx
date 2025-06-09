@@ -122,7 +122,7 @@ export const Navbar = () => {
 											<i className="fas fa-home"></i>
 										) : (
 											<>
-												<i className="fas fa-info-circle me-1"></i> About Us
+												<i className="fas fa-info-circle me-1"></i> Sobre Nosotros
 											</>
 										)}
 									</button>
@@ -133,7 +133,7 @@ export const Navbar = () => {
 							{!isHomePage && !isLoggedIn && (
 								<Link to="/">
 									<button className="btn btn-outline-black w-100 w-md-auto">
-										<i className="fas fa-home me-1"></i> Home
+										<i className="fas fa-home me-1"></i> Principal
 									</button>
 								</Link>
 							)}
@@ -159,7 +159,7 @@ export const Navbar = () => {
 							{/* Logout (solo si está logueado) */}
 							{isLoggedIn && (
 								<button className="btn btn-outline-black w-100 w-md-auto" onClick={handleLogout}>
-									<i className="fas fa-sign-out-alt me-1"></i> Logout
+									<i className="fas fa-sign-out-alt me-1"></i> Cerrar Sesión
 								</button>
 							)}
 						</div>
