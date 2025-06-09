@@ -99,17 +99,18 @@ const Gastos = ({ eventoId, creadorId, token, backendUrl, refresh }) => {
             {gastos.map((g) => (
               <li
                 key={g.id}
-                className="list-group-item d-flex justify-content-between align-items-center flex-wrap"
+                className="list-group-item d-flex align-items-center flex-wrap"
               >
+                {/* Contenido gasto a la izquierda */}
                 <div>
                   <strong>{g.etiqueta || "Sin etiqueta"}</strong>
                   <br />
-                  <small className="tarea-asign text-white">Por: {g.usuario_email || "Desconocido"}</small>
+                  <small className="text-white">Por: {g.usuario_email || "Desconocido"}</small>
                 </div>
 
-                {/* Contenedor monto + botón a la derecha */}
-                <div className="d-flex align-items-center gap-3">
-                  <span>${g.monto.toFixed(2)}</span>
+                {/* Contenedor monto y botón */}
+                <div className="d-flex align-items-center" style={{ marginLeft: "auto" }}>
+                  <span className="me-3">${g.monto.toFixed(2)}</span>
                   {esCreador && (
                     <button
                       className="btn btn-sm btn-danger"
@@ -127,7 +128,7 @@ const Gastos = ({ eventoId, creadorId, token, backendUrl, refresh }) => {
       </div>
 
       {/* Total fijo abajo */}
-      <div className="total-abajo mt-auto bg-dark text-white py-2 px-3 text-end">
+      <div className="mt-auto bg-dark text-white py-2 px-3 text-end border-top">
         <strong>Total: ${totalGastos.toFixed(2)}</strong>
       </div>
     </div>
