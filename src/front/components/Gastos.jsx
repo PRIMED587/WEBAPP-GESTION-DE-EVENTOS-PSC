@@ -1,8 +1,12 @@
 import React, { useEffect, useState } from "react";
+import Swal from "sweetalert2";
 
-const Gastos = ({ eventoId, token, backendUrl, refresh }) => {
+const Gastos = ({ eventoId, creadorId, token, backendUrl, refresh }) => {
   const [gastos, setGastos] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const usuarioId = JSON.parse(sessionStorage.getItem("user"))?.id;
+  const esCreador = usuarioId === creadorId;
 
   const fetchGastos = async () => {
     if (!token) {
@@ -26,6 +30,51 @@ const Gastos = ({ eventoId, token, backendUrl, refresh }) => {
     }
   };
 
+  const handleEliminarGasto = async (gastoId) => {
+    const confirmacion = await Swal.fire({
+      title: "¿Eliminar gasto?",
+      text: "Esta acción no se puede deshacer.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Sí, eliminar",
+      cancelButtonText: "Cancelar",
+    });
+
+    if (!confirmacion.isConfirmed) return;
+
+    try {
+      const response = await fetch(`${backendUrl}/api/eventos/${eventoId}/gastos/${gastoId}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (response.ok) {
+        fetchGastos(); // Refrescar lista
+        Swal.fire({
+          icon: "success",
+          title: "Gasto eliminado",
+          showConfirmButton: false,
+          timer: 1500,
+        });
+      } else {
+        const data = await response.json();
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: data.message || "No se pudo eliminar el gasto",
+        });
+      }
+    } catch (error) {
+      console.error("Error eliminando gasto:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Ocurrió un error inesperado",
+      });
+    }
+  };
+
   useEffect(() => {
     fetchGastos();
   }, [eventoId, refresh]);
@@ -46,18 +95,32 @@ const Gastos = ({ eventoId, token, backendUrl, refresh }) => {
         ) : gastos.length === 0 ? (
           <p className="text-white">No hay gastos registrados.</p>
         ) : (
-          <ul className="list-group mb-0 ">
+          <ul className="list-group mb-0">
             {gastos.map((g) => (
               <li
                 key={g.id}
                 className="list-group-item d-flex justify-content-between align-items-center flex-wrap"
               >
+                {/* Contenido gasto a la izquierda */}
                 <div>
                   <strong>{g.etiqueta || "Sin etiqueta"}</strong>
                   <br />
                   <small className="text-white">Por: {g.usuario_email || "Desconocido"}</small>
                 </div>
-                <span>${g.monto.toFixed(2)}</span>
+
+                {/* Contenedor monto + botón a la derecha */}
+                <div className="d-flex align-items-center gap-3">
+                  <span>${g.monto.toFixed(2)}</span>
+                  {esCreador && (
+                    <button
+                      className="btn btn-sm btn-danger"
+                      onClick={() => handleEliminarGasto(g.id)}
+                      style={{ minWidth: "75px" }}
+                    >
+                      Eliminar
+                    </button>
+                  )}
+                </div>
               </li>
             ))}
           </ul>

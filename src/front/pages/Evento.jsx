@@ -239,6 +239,7 @@ const Evento = () => {
           {/* Fila 2: Invitados + Tareas + Gastos */}
           <div className="col-lg-4 col-12 mb-1 h-100">
             <Invitados
+              creadorId={evento.creador_id}
               eventoId={eventoId}
               token={token}
               backendUrl={backendUrl}
@@ -261,6 +262,7 @@ const Evento = () => {
 
           <div className="col-lg-4 col-12 mb-1 h-100">
             <Gastos
+              creadorId={evento.creador_id}
               eventoId={parseInt(eventoId, 10)}
               token={token}
               backendUrl={backendUrl}
