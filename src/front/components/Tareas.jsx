@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import Swal from "sweetalert2";
 
 const Tareas = ({ eventoId, token, backendUrl, userId, userEmail, creadorId, onGastoGuardado }) => {
   const [tareas, setTareas] = useState([]);
@@ -106,22 +107,38 @@ const Tareas = ({ eventoId, token, backendUrl, userId, userEmail, creadorId, onG
       setGastosPorTarea((prev) => ({ ...prev, [tareaId]: "" }));
     } catch (error) {
       console.error(error);
-      alert(error.message);
+      Swal.fire("Error", error.message, "error");
     }
   };
 
   const handleEliminarTarea = async (tareaId) => {
-    try {
-      const response = await fetch(`${backendUrl}/api/tareas/${tareaId}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
-      });
+    const result = await Swal.fire({
+      title: "¿Estás seguro?",
+      text: "No podrás revertir esta acción",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Sí, eliminar",
+      cancelButtonText: "Cancelar",
+    });
 
-      if (!response.ok) throw new Error("Error al eliminar la tarea");
+    if (result.isConfirmed) {
+      try {
+        const response = await fetch(`${backendUrl}/api/tareas/${tareaId}`, {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` },
+        });
 
-      setTareas((prev) => prev.filter((t) => t.id !== tareaId));
-    } catch (error) {
-      console.error("Error al eliminar tarea:", error);
+        if (!response.ok) throw new Error("Error al eliminar la tarea");
+
+        setTareas((prev) => prev.filter((t) => t.id !== tareaId));
+
+        Swal.fire("Eliminado", "La tarea fue eliminada.", "success");
+      } catch (error) {
+        console.error("Error al eliminar tarea:", error);
+        Swal.fire("Error", "No se pudo eliminar la tarea.", "error");
+      }
     }
   };
 
@@ -147,7 +164,7 @@ const Tareas = ({ eventoId, token, backendUrl, userId, userEmail, creadorId, onG
       fetchTareas();
     } catch (error) {
       console.error(error);
-      alert(error.message);
+      Swal.fire("Error", error.message, "error");
     }
   };
 
@@ -173,14 +190,14 @@ const Tareas = ({ eventoId, token, backendUrl, userId, userEmail, creadorId, onG
               .map((tarea) => (
                 <li
                   key={tarea.id}
-                  className="list-group-item d-flex justify-content-between align-items-center flex-wrap"
+                  className="list-group-item d-flex flex-column flex-md-row justify-content-between align-items-center flex-wrap"
                 >
-                  <div className="me-auto">
+                  <div className="me-auto mb-2 mb-md-0">
                     <div className="fw-bold">{tarea.descripcion}</div>
                     <small>Para: {tarea.asignado_a || "No asignado"}</small>
                   </div>
 
-                  <div className="d-flex align-items-center gap-2">
+                  <div className="d-flex align-items-center gap-2 flex-wrap justify-content-between" style={{ minWidth: '200px' }}>
                     {tarea.completada ? (
                       <span className="badge bg-success">Completada</span>
                     ) : !tarea.asignado_a && puedeModificarTarea(tarea) ? (
@@ -194,24 +211,26 @@ const Tareas = ({ eventoId, token, backendUrl, userId, userEmail, creadorId, onG
                       <>
                         <input
                           type="number"
-                          className="form-control form-control-sm"
-                          style={{ width: "80px" }}
+                          className="form-control form-control-sm me-auto"
+                          style={{ maxWidth: "80px", minWidth: "60px" }}
                           placeholder="Gasto"
                           value={gastosPorTarea[tarea.id] || ""}
                           onChange={(e) => handleGastoChange(tarea.id, e.target.value)}
                         />
-                        <button
-                          className="btn btn-sm btn-success"
-                          onClick={() => handleCompletarTarea(tarea.id)}
-                        >
-                          ✓
-                        </button>
-                        <button
-                          className="btn btn-sm btn-danger"
-                          onClick={() => handleEliminarTarea(tarea.id)}
-                        >
-                          🗑
-                        </button>
+                        <div className="d-flex gap-2 ms-2">
+                          <button
+                            className="btn btn-sm btn-success"
+                            onClick={() => handleCompletarTarea(tarea.id)}
+                          >
+                            ✓
+                          </button>
+                          <button
+                            className="btn btn-sm btn-danger"
+                            onClick={() => handleEliminarTarea(tarea.id)}
+                          >
+                            🗑
+                          </button>
+                        </div>
                       </>
                     ) : null}
                   </div>
@@ -232,11 +251,11 @@ const Tareas = ({ eventoId, token, backendUrl, userId, userEmail, creadorId, onG
         />
         <select
           className="form-select text-white"
-          style={{ backgroundColor:"#2c2c34", borderColor:"#ff2e63", flexBasis: "30%"}}
+          style={{ backgroundColor: "#2c2c34", borderColor: "#ff2e63", flexBasis: "30%" }}
           value={asignadoA}
           onChange={(e) => setAsignadoA(e.target.value)}
         >
-          <option value="">Asignar a...</option>  
+          <option value="">Asignar a...</option>
           {participantes.map((p) => (
             <option key={p.id} value={p.usuario_id}>
               {p.email}
@@ -250,7 +269,6 @@ const Tareas = ({ eventoId, token, backendUrl, userId, userEmail, creadorId, onG
       </div>
     </div>
   );
-
 };
 
 export default Tareas;

@@ -2,9 +2,6 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import Swal from "sweetalert2";
 
-const token = sessionStorage.getItem("token");
-const userId = token ? parseJwt(token)?.sub : null;
-
 function parseJwt(token) {
   try {
     return JSON.parse(atob(token.split(".")[1]));
@@ -21,65 +18,37 @@ const Invitados = () => {
   const [mensaje, setMensaje] = useState(null);
   const [esCreador, setEsCreador] = useState(false);
 
-  // Obtener datos del evento para saber si el usuario es creador
+  const token = sessionStorage.getItem("token");
+  const payload = parseJwt(token);
+  const userId = payload?.sub;
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
   const fetchEvento = async () => {
-    const token = sessionStorage.getItem("token");
     if (!token) return;
 
-    const payload = parseJwt(token);
-    const userId = payload?.sub;
-    const backendUrl = import.meta.env.VITE_BACKEND_URL;
-
     try {
-      const res = await fetch(`${backendUrl}/api/${userId}/eventos/${eventoId}`, {
+      const res = await fetch(`${backendUrl}/api/eventos/${eventoId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (!res.ok) throw new Error("No se pudo cargar el evento");
-      const eventoData = await res.json();
 
-      setEsCreador(eventoData.creador_id === userId);
+      if (!res.ok) throw new Error("No se pudo cargar el evento");
+
+      const eventoData = await res.json();
+      setEsCreador(parseInt(userId) === eventoData.creador_id);
     } catch (error) {
-      console.error(error);
+      console.error("Error al cargar el evento:", error);
     }
   };
 
-  // Obtener invitaciones pendientes
   const fetchInvitados = async () => {
-    const token = sessionStorage.getItem("token");
-    const backendUrl = import.meta.env.VITE_BACKEND_URL;
-
-    if (!token) {
-      console.error("No hay token en sessionStorage");
-      setLoading(false);
-      return;
-    }
-
-    const payload = parseJwt(token);
-    const userId = payload?.sub;
-
-    if (!userId) {
-      console.error("Usuario no autenticado o token inválido");
-      setLoading(false);
-      return;
-    }
-
-    const url = `${backendUrl}/api/${userId}/eventos/${eventoId}/invitaciones`;
-
     try {
-      const response = await fetch(url, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      const res = await fetch(`${backendUrl}/api/${userId}/eventos/${eventoId}/invitaciones`, {
+        headers: { Authorization: `Bearer ${token}` },
       });
 
-      if (!response.ok) {
-        const text = await response.text();
-        console.error(`Error en respuesta: ${response.status}`, text);
-        setLoading(false);
-        return;
-      }
+      if (!res.ok) throw new Error("Error al obtener invitados");
 
-      const data = await response.json();
+      const data = await res.json();
       setInvitados(data);
     } catch (error) {
       console.error("Error al obtener invitados:", error);
@@ -88,55 +57,36 @@ const Invitados = () => {
     }
   };
 
-  // Enviar invitación
   const enviarInvitacion = async (email) => {
-    const token = sessionStorage.getItem("token");
-    const backendUrl = import.meta.env.VITE_BACKEND_URL;
-
-    const payload = parseJwt(token);
-    const userId = payload?.sub;
-
-    const url = `${backendUrl}/api/${userId}/eventos/${eventoId}/invitaciones`;
-
     try {
-      const response = await fetch(url, {
+      const res = await fetch(`${backendUrl}/api/${userId}/eventos/${eventoId}/invitaciones`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          emails: [email.trim().toLowerCase()],
-        }),
+        body: JSON.stringify({ emails: [email.trim().toLowerCase()] }),
       });
 
-      if (!response.ok) {
-        const text = await response.text();
+      if (!res.ok) {
+        const text = await res.text();
         setMensaje({ tipo: "error", texto: `Error enviando invitación: ${text}` });
         return false;
       }
 
       return true;
     } catch (error) {
-      console.error("Error enviando invitación:", error);
       setMensaje({ tipo: "error", texto: "Error enviando invitación." });
       return false;
     }
   };
 
   const handleEliminarInvitacion = async (invitacionId) => {
-    const token = sessionStorage.getItem("token");
-    const backendUrl = import.meta.env.VITE_BACKEND_URL;
-
     const result = await Swal.fire({
       title: "¿Eliminar invitación?",
-      text: "Esta acción no se puede deshacer.",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#FF2E63",
-      cancelButtonColor: "#6c757d",
       confirmButtonText: "Sí, eliminar",
-      cancelButtonText: "Cancelar",
       background: "#1A1A1D",
       color: "#FFFFFF",
     });
@@ -148,49 +98,24 @@ const Invitados = () => {
         `${backendUrl}/api/eventos/${eventoId}/invitaciones/${invitacionId}`,
         {
           method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
 
-      if (!res.ok) {
-        const errorData = await res.json();
-        Swal.fire({
-          title: "Error",
-          text: errorData.message || "No se pudo eliminar la invitación.",
-          icon: "error",
-          confirmButtonColor: "#FF2E63",
-          background: "#1A1A1D",
-          color: "#FFFFFF",
-        });
-        return;
-      }
+      if (!res.ok) throw new Error("Error al eliminar la invitación");
 
-      Swal.fire({
-        title: "Invitación eliminada",
-        icon: "success",
-        confirmButtonColor: "#FF2E63",
-        background: "#1A1A1D",
-        color: "#FFFFFF",
-      });
-
-      // Actualizar lista de invitados después de eliminar
       fetchInvitados();
     } catch (error) {
-      console.error(error);
       Swal.fire({
         title: "Error",
-        text: "Error al eliminar invitación.",
+        text: "No se pudo eliminar la invitación.",
         icon: "error",
-        confirmButtonColor: "#FF2E63",
         background: "#1A1A1D",
         color: "#FFFFFF",
       });
     }
   };
 
-  // Manejar envío de formulario
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMensaje(null);
@@ -203,7 +128,6 @@ const Invitados = () => {
     setLoading(true);
     const exito = await enviarInvitacion(emailInvitado);
     if (exito) {
-      setMensaje({ tipo: "success", texto: "Invitación enviada correctamente." });
       setEmailInvitado("");
       await fetchInvitados();
     }
@@ -228,43 +152,34 @@ const Invitados = () => {
           <p className="text-white">No hay invitados pendientes.</p>
         ) : (
           <ul className="list-group mb-0">
-            {invitados.map((i) => {
-              const token = sessionStorage.getItem("token");
-              const userId = token ? parseJwt(token)?.sub : null;
-              const esCreadorInv = i.evento_info?.creador_id === parseInt(userId);
-
-              return (
-                <li
-                  key={i.id}
-                  className="list-group-item d-flex justify-content-between align-items-center"
-                >
-                  {i.email}
-                  {i.estado === "pendiente" && esCreadorInv && (
-                    <button
-                      className="btn btn-sm btn-danger"
-                      onClick={() => handleEliminarInvitacion(i.id)}
-                      title="Eliminar invitación"
-                    >
-                      Eliminar
-                    </button>
-                  )}
-                </li>
-              );
-            })}
+            {invitados.map((i) => (
+              <li
+                key={i.id}
+                className="list-group-item d-flex justify-content-between align-items-center"
+              >
+                {i.email}
+                {esCreador && (
+                  <button
+                    className="btn btn-sm btn-danger"
+                    onClick={() => handleEliminarInvitacion(i.id)}
+                  >
+                    Eliminar
+                  </button>
+                )}
+              </li>
+            ))}
           </ul>
         )}
       </div>
 
-      {/* Solo el creador puede ver este formulario */}
       {esCreador && (
         <form onSubmit={handleSubmit} className="d-flex gap-2 mt-auto pt-2 border-top">
           <input
             type="email"
-            id="emailInvitado"
             className="form-control"
+            placeholder="email@ejemplo.com"
             value={emailInvitado}
             onChange={(e) => setEmailInvitado(e.target.value)}
-            placeholder="email@ejemplo.com"
             required
           />
           <button type="submit" className="create-event-btn">
@@ -275,10 +190,7 @@ const Invitados = () => {
 
       {mensaje && (
         <div
-          className={`mt-2 alert ${
-            mensaje.tipo === "error" ? "alert-danger" : "alert-success"
-          }`}
-          role="alert"
+          className={`mt-2 alert ${mensaje.tipo === "error" ? "alert-danger" : "alert-success"}`}
         >
           {mensaje.texto}
         </div>

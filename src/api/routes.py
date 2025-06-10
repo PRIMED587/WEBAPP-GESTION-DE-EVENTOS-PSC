@@ -1088,6 +1088,20 @@ def crear_gasto(evento_id, tarea_id):
 
     return jsonify(gasto.serialize()), 201
 
+# Ruta para eliminar un gasto específico de un evento especifico.
+@api.route('/eventos/<int:evento_id>/gastos/<int:gasto_id>', methods=['DELETE'])
+@jwt_required()
+def eliminar_gasto_evento(evento_id, gasto_id):
+    usuario_id = get_jwt_identity()
+    gasto = Gasto.query.filter_by(id=gasto_id, evento_id=evento_id, usuario_id=usuario_id).first()
+    if not gasto:
+        return jsonify({"message": "Gasto no encontrado"}), 404
+
+    db.session.delete(gasto)
+    db.session.commit()
+
+    return jsonify({"message": "Gasto eliminado exitosamente"}), 200
+
 
 # Ruta para obtener todos los gastos de un evento específico.
 @api.route('/eventos/<int:evento_id>/gastos', methods=['GET'])
