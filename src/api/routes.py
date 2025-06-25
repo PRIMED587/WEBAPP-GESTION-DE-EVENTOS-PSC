@@ -11,9 +11,10 @@ from itsdangerous import URLSafeTimedSerializer
 from flask import current_app
 import requests
 from dotenv import load_dotenv
-from .utils import send_invitation_email
+from .utils import send_invitation_email, mail
 from flask import url_for
 from flask_cors import CORS
+
 
 load_dotenv()
 
@@ -1231,7 +1232,6 @@ def forgot_password():
 
     msg = Message("Recuperar contraseña", recipients=[email])
     msg.body = f"Para restablecer tu contraseña, visita este enlace:\n{reset_url}\n\nEste enlace expirará en 30 minutos."
-    from app import mail
     mail.send(msg)
 
     return jsonify({"msg": "Email enviado si está registrado"}), 200

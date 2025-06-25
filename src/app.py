@@ -31,6 +31,7 @@ app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
 app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_DEFAULT_SENDER')
 mail.init_app(app)  # ✅ inicialización correcta
 
+
 app.url_map.strict_slashes = False
 
 # Configuración de la base de datos
