@@ -18,7 +18,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 ENV = "development" if os.getenv("FLASK_DEBUG") == "1" else "production"
-static_file_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../public/')
+static_file_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../dist/')
 app = Flask(__name__)
 # CORS(app, supports_credentials=True, origins=os.getenv("FRONTEND_URL"))
 
