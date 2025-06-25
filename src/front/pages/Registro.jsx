@@ -89,7 +89,7 @@ const Registro = () => {
                         <div className="custom-modal animate__animated animate__fadeInDown">
                             <div className="custom-modal-content">
                                 <div className="custom-modal-header">
-                                    <h5>✅ ¡Registro Exitoso!</h5>
+                                    <h5>¡Registro Exitoso!</h5>
                                     <button
                                         type="button"
                                         className="btn-close"
