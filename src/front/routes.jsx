@@ -1,30 +1,71 @@
-// Import necessary components and functions from react-router-dom.
-
 import {
-    createBrowserRouter,
-    createRoutesFromElements,
-    Route,
+  createBrowserRouter,
+  createRoutesFromElements,
+  Route,
 } from "react-router-dom";
+
 import { Layout } from "./pages/Layout";
-import { Home } from "./pages/Home";
+import Home from "./pages/Home";
 import { Single } from "./pages/Single";
 import { Demo } from "./pages/Demo";
+import Dashboard from "./pages/Dashboard";
+import Registro from "./pages/Registro";
+import FormularioEvento from "./pages/FormularioEvento";
+import Evento from "./pages/Evento";
+import AboutUs from "./pages/AboutUs";
+import MisInvitaciones from "./pages/MisInvitaciones";
+import Loginform from "./pages/Loginform";
+import ResetPassword from "./components/ResetPassword";
+
+// IMPORTA la ruta protegida
+import RutaProtegida from "./components/RutaProtegida";
 
 export const router = createBrowserRouter(
-    createRoutesFromElements(
-    // CreateRoutesFromElements function allows you to build route elements declaratively.
-    // Create your routes here, if you want to keep the Navbar and Footer in all views, add your new routes inside the containing Route.
-    // Root, on the contrary, create a sister Route, if you have doubts, try it!
-    // Note: keep in mind that errorElement will be the default page when you don't get a route, customize that page to make your project more attractive.
-    // Note: The child paths of the Layout element replace the Outlet component with the elements contained in the "element" attribute of these child paths.
+  createRoutesFromElements(
+    <Route path="/" element={<Layout />} errorElement={<h1>Not found!</h1>}>
+      {/* Página principal */}
+      <Route path="/" element={<Home />} />
 
-      // Root Route: All navigation will start from here.
-      <Route path="/" element={<Layout />} errorElement={<h1>Not found!</h1>} >
+      {/* Otras rutas */}
+      <Route path="/single/:theId" element={<Single />} />
+      <Route path="/demo" element={<Demo />} />
+      <Route path="/registro" element={<Registro />} />
+      <Route path="/formulario-evento" element={<FormularioEvento />} />
+      <Route path="/eventos/crear" element={<FormularioEvento />} />
+      <Route path="/eventos/editar/:id" element={<FormularioEvento />} />
+      <Route path="/loginform" element={<Loginform />} />
+      <Route path="/aboutus" element={<AboutUs />} />
+      <Route path="/evento" element={<Evento />} />
+      <Route path="/evento/:eventoId" element={<Evento />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
 
-        {/* Nested Routes: Defines sub-routes within the BaseHome component. */}
-        <Route path= "/" element={<Home />} />
-        <Route path="/single/:theId" element={ <Single />} />  {/* Dynamic route for single items */}
-        <Route path="/demo" element={<Demo />} />
-      </Route>
-    )
+      {/* Protegido: Solo logueados pueden ver Dashboard */}
+      <Route
+        path="/dashboard"
+        element={
+          <RutaProtegida>
+            <Dashboard />
+          </RutaProtegida>
+        }
+      />
+      <Route
+        path="/dashboard/:id"
+        element={
+          <RutaProtegida>
+            <Dashboard />
+          </RutaProtegida>
+        }
+      />
+
+      {/* Protegido: Solo logueados pueden ver Mis Invitaciones */}
+      <Route
+        path="/mis-invitaciones"
+        element={
+          <RutaProtegida>
+            <MisInvitaciones />
+          </RutaProtegida>
+        }
+      />
+    </Route>
+  )
 );
