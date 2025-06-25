@@ -49,7 +49,6 @@ const Registro = () => {
                     tipo: "success",
                 });
                 reset();
-
                 setTimeout(() => navigate("/loginform"), 5000);
             })
             .catch((error) => {
@@ -71,12 +70,9 @@ const Registro = () => {
 
             <div id="registerForm" className="container mt-5">
 
-                {/* Alertas normales (warning, danger) */}
+                {/* Alertas de error */}
                 {alerta && alerta.tipo !== "success" && (
-                    <div
-                        className={`alertRedirigir alert-${alerta.tipo} alert-dismissible fade show`}
-                        role="alert"
-                    >
+                    <div className={`alert alert-${alerta.tipo} alert-dismissible fade show`} role="alert">
                         {alerta.mensaje}
                         <button
                             type="button"
@@ -86,32 +82,28 @@ const Registro = () => {
                     </div>
                 )}
 
-                {/* Modal para éxito */}
+                {/* Modal personalizado de éxito */}
                 {alerta && alerta.tipo === "success" && (
                     <>
-                        <div className="modal fade show" style={{ display: "block" }} tabIndex="-1">
-                            <div className="modal-dialog modal-dialog-centered animate__animated animate__fadeInDown">
-                                <div className="modal-content border-success shadow">
-                                    <div className="modal-header bg-success text-white">
-                                        <h5 className="modal-title">
-                                            ✅ ¡Registro Exitoso!
-                                        </h5>
-                                        <button
-                                            type="button"
-                                            className="btn-close"
-                                            onClick={() => setAlerta(null)}
-                                        ></button>
-                                    </div>
-                                    <div className="modal-body text-center">
-                                        <p>{alerta.mensaje}</p>
-                                        <div className="spinner-border text-success mt-3" role="status">
-                                            <span className="visually-hidden">Redirigiendo...</span>
-                                        </div>
+                        <div className="custom-modal-backdrop"></div>
+                        <div className="custom-modal animate__animated animate__fadeInDown">
+                            <div className="custom-modal-content">
+                                <div className="custom-modal-header">
+                                    <h5>✅ ¡Registro Exitoso!</h5>
+                                    <button
+                                        type="button"
+                                        className="btn-close"
+                                        onClick={() => setAlerta(null)}
+                                    ></button>
+                                </div>
+                                <div className="custom-modal-body">
+                                    <p>{alerta.mensaje}</p>
+                                    <div className="spinner-border text-light mt-3" role="status">
+                                        <span className="visually-hidden">Redirigiendo...</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div className="modal-backdrop fade show"></div>
                     </>
                 )}
 
@@ -134,9 +126,7 @@ const Registro = () => {
                                         },
                                     })}
                                 />
-                                {errors.nombre && (
-                                    <p className="text-danger">{errors.nombre.message}</p>
-                                )}
+                                {errors.nombre && <p className="text-danger">{errors.nombre.message}</p>}
                             </div>
 
                             {/* Email */}
@@ -154,9 +144,7 @@ const Registro = () => {
                                         },
                                     })}
                                 />
-                                {errors.email && (
-                                    <p className="text-danger">{errors.email.message}</p>
-                                )}
+                                {errors.email && <p className="text-danger">{errors.email.message}</p>}
                             </div>
 
                             {/* Teléfono */}
@@ -175,9 +163,7 @@ const Registro = () => {
                                         },
                                     })}
                                 />
-                                {errors.telefono && (
-                                    <p className="text-danger">{errors.telefono.message}</p>
-                                )}
+                                {errors.telefono && <p className="text-danger">{errors.telefono.message}</p>}
                             </div>
 
                             {/* Contraseña */}
@@ -189,19 +175,11 @@ const Registro = () => {
                                     id="password"
                                     {...register("password", {
                                         required: "La contraseña es obligatoria",
-                                        minLength: {
-                                            value: 6,
-                                            message: "Mínimo 6 caracteres",
-                                        },
-                                        maxLength: {
-                                            value: 8,
-                                            message: "Máximo 8 caracteres",
-                                        },
+                                        minLength: { value: 6, message: "Mínimo 6 caracteres" },
+                                        maxLength: { value: 8, message: "Máximo 8 caracteres" },
                                     })}
                                 />
-                                {errors.password && (
-                                    <p className="text-danger">{errors.password.message}</p>
-                                )}
+                                {errors.password && <p className="text-danger">{errors.password.message}</p>}
                             </div>
 
                             {/* Confirmar contraseña */}
@@ -214,8 +192,7 @@ const Registro = () => {
                                     {...register("confirmPassword", {
                                         required: "Confirma tu contraseña",
                                         validate: (value) =>
-                                            value === watch("password") ||
-                                            "Las contraseñas no coinciden",
+                                            value === watch("password") || "Las contraseñas no coinciden",
                                     })}
                                 />
                                 {errors.confirmPassword && (
@@ -224,7 +201,7 @@ const Registro = () => {
                             </div>
 
                             <div className="text-center mt-4 m-auto">
-                                <button type="submit" className="btn-enviarForm">
+                                <button type="submit" className="btn-enviarForm-evento">
                                     Enviar Formulario
                                 </button>
                             </div>
