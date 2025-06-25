@@ -65,7 +65,7 @@ export const Navbar = () => {
 
 						{/* Logo del sitio - ahora no clickeable */}
 						<div className="navbar-brand text-black h3 mb-0">
-							<h2 className="mb-0">ASAD-APP</h2>
+							<h2 className="mb-0">EVENT-TOO</h2>
 						</div>
 
 						{/* Nombre del usuario con icono (solo si está logueado) - Pantallas grandes */}
