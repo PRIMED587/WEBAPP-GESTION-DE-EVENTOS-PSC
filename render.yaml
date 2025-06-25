@@ -6,6 +6,7 @@ services:
       region: ohio
       name: gestion-eventos-psc
       env: python # valid values: https://render.com/docs/yaml-spec#environment
+      staticPublishPath: dist
       buildCommand: "./render_build.sh"
       startCommand: "gunicorn wsgi --chdir ./src/"
       plan: free # optional; defaults to starter
