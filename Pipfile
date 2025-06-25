@@ -22,6 +22,7 @@ flask-cors = "*"
 flask-mail = "*"
 python-dotenv = "*"
 requests = "*"
+tomli = "*"
 
 [requires]
 python_version = "3.13"
