@@ -13,6 +13,7 @@ import requests
 from dotenv import load_dotenv
 from .utils import send_invitation_email
 from flask import url_for
+from flask_cors import CORS
 
 load_dotenv()
 
@@ -20,6 +21,8 @@ MAPBOX_ACCESS_TOKEN = os.getenv("MAPBOX_ACCESS_TOKEN")
 OPENWEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY")
 
 api = Blueprint('api', __name__)
+# Allow CORS requests to this API
+CORS(api)
 
 
 def geocode_address(address):
