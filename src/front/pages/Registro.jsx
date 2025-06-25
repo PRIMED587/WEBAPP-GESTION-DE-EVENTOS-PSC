@@ -44,14 +44,12 @@ const Registro = () => {
                 return res.json();
             })
             .then(() => {
-                
-                setAlerta( {
-                    mensaje: "Usuario creado exitosamente, redirigiendo hacia inicio de sesion...",
+                setAlerta({
+                    mensaje: "Usuario creado exitosamente, redirigiendo hacia inicio de sesión...",
                     tipo: "success",
                 });
                 reset();
 
-                
                 setTimeout(() => navigate("/loginform"), 5000);
             })
             .catch((error) => {
@@ -72,8 +70,9 @@ const Registro = () => {
             <h1>FORMULARIO DE REGISTRO</h1>
 
             <div id="registerForm" className="container mt-5">
-                {/* Alertas Bootstrap */}
-                {alerta && (
+
+                {/* Alertas normales (warning, danger) */}
+                {alerta && alerta.tipo !== "success" && (
                     <div
                         className={`alertRedirigir alert-${alerta.tipo} alert-dismissible fade show`}
                         role="alert"
@@ -87,17 +86,41 @@ const Registro = () => {
                     </div>
                 )}
 
+                {/* Modal para éxito */}
+                {alerta && alerta.tipo === "success" && (
+                    <>
+                        <div className="modal fade show" style={{ display: "block" }} tabIndex="-1">
+                            <div className="modal-dialog modal-dialog-centered animate__animated animate__fadeInDown">
+                                <div className="modal-content border-success shadow">
+                                    <div className="modal-header bg-success text-white">
+                                        <h5 className="modal-title">
+                                            ✅ ¡Registro Exitoso!
+                                        </h5>
+                                        <button
+                                            type="button"
+                                            className="btn-close"
+                                            onClick={() => setAlerta(null)}
+                                        ></button>
+                                    </div>
+                                    <div className="modal-body text-center">
+                                        <p>{alerta.mensaje}</p>
+                                        <div className="spinner-border text-success mt-3" role="status">
+                                            <span className="visually-hidden">Redirigiendo...</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="modal-backdrop fade show"></div>
+                    </>
+                )}
+
                 <form onSubmit={handleSubmit(onSubmit)}>
-                    <div
-                        id="inputRegisterForm"
-                        className="row p-4 rounded align-items-center"
-                    >
+                    <div id="inputRegisterForm" className="row p-4 rounded align-items-center">
                         <div className="col-lg-12 col-12">
                             {/* Nombre */}
                             <div className="mb-3">
-                                <label htmlFor="nombre" className="form-label">
-                                    Nombre Completo
-                                </label>
+                                <label htmlFor="nombre" className="form-label">Nombre Completo</label>
                                 <input
                                     type="text"
                                     className="form-control"
@@ -112,17 +135,13 @@ const Registro = () => {
                                     })}
                                 />
                                 {errors.nombre && (
-                                    <p className="text-danger">
-                                        {errors.nombre.message}
-                                    </p>
+                                    <p className="text-danger">{errors.nombre.message}</p>
                                 )}
                             </div>
 
                             {/* Email */}
                             <div className="mb-3">
-                                <label htmlFor="email" className="form-label">
-                                    Correo electrónico
-                                </label>
+                                <label htmlFor="email" className="form-label">Correo electrónico</label>
                                 <input
                                     type="email"
                                     className="form-control"
@@ -130,24 +149,19 @@ const Registro = () => {
                                     {...register("email", {
                                         required: "El correo es obligatorio",
                                         pattern: {
-                                            value:
-                                                /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                                            value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
                                             message: "Correo inválido",
                                         },
                                     })}
                                 />
                                 {errors.email && (
-                                    <p className="text-danger">
-                                        {errors.email.message}
-                                    </p>
+                                    <p className="text-danger">{errors.email.message}</p>
                                 )}
                             </div>
 
                             {/* Teléfono */}
                             <div className="mb-3">
-                                <label htmlFor="telefono" className="form-label">
-                                    Teléfono
-                                </label>
+                                <label htmlFor="telefono" className="form-label">Teléfono</label>
                                 <input
                                     type="tel"
                                     className="form-control"
@@ -162,17 +176,13 @@ const Registro = () => {
                                     })}
                                 />
                                 {errors.telefono && (
-                                    <p className="text-danger">
-                                        {errors.telefono.message}
-                                    </p>
+                                    <p className="text-danger">{errors.telefono.message}</p>
                                 )}
                             </div>
 
                             {/* Contraseña */}
                             <div className="mb-3">
-                                <label htmlFor="password" className="form-label">
-                                    Contraseña
-                                </label>
+                                <label htmlFor="password" className="form-label">Contraseña</label>
                                 <input
                                     type="password"
                                     className="form-control"
@@ -190,20 +200,13 @@ const Registro = () => {
                                     })}
                                 />
                                 {errors.password && (
-                                    <p className="text-danger">
-                                        {errors.password.message}
-                                    </p>
+                                    <p className="text-danger">{errors.password.message}</p>
                                 )}
                             </div>
 
                             {/* Confirmar contraseña */}
                             <div className="mb-3">
-                                <label
-                                    htmlFor="confirmPassword"
-                                    className="form-label"
-                                >
-                                    Confirmar Contraseña
-                                </label>
+                                <label htmlFor="confirmPassword" className="form-label">Confirmar Contraseña</label>
                                 <input
                                     type="password"
                                     className="form-control"
@@ -216,17 +219,12 @@ const Registro = () => {
                                     })}
                                 />
                                 {errors.confirmPassword && (
-                                    <p className="text-danger">
-                                        {errors.confirmPassword.message}
-                                    </p>
+                                    <p className="text-danger">{errors.confirmPassword.message}</p>
                                 )}
                             </div>
 
                             <div className="text-center mt-4 m-auto">
-                                <button
-                                    type="submit"
-                                    className="btn-enviarForm"
-                                >
+                                <button type="submit" className="btn-enviarForm">
                                     Enviar Formulario
                                 </button>
                             </div>

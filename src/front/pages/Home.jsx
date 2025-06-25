@@ -10,9 +10,9 @@ const Home = () => {
         <div className="row homepage-content shadow-lg rounded-4 overflow-hidden">
 
           <div className="col-md-6 p-5 d-flex flex-column justify-content-center text-center text-md-start homepage-text">
-            <h1 className="display-4 fw-bold mb-3">Organiza tus eventos como nunca antes</h1>
-            <p className="lead mb-4">Gestiona asados, fiestas y reuniones familiares.</p>
-            <p className="lead mb-4">Invita, asigna tareas y mantén todo bajo control.</p>
+            <h1 className="display-4 fw-bold mb-3">Crea y organiza tus eventos como nunca antes</h1>
+            <p className="lead mb-4">Gestiona desde una simple junta con amigos, hasta la boda que siempre soñaste.</p>
+            <p className="lead mb-4">Crea invitaciones, asigna tareas a invitados colaboradores y mantén todo bajo control.</p>
             <div className="homepage-buttons d-flex flex-column flex-md-row gap-3 justify-content-center justify-content-md-start">
               <button className="btn btn-primary px-4 py-2"
               onClick={() => navigate("/registro")}
